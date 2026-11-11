@@ -16,7 +16,7 @@ La forma más rápida de revisar la fase es abrir:
 
 Incluye portada, arquitectura, navegación, wireframes interactivos, sistema de diseño, modelo de datos y decisiones. Se puede abrir directamente en el navegador; si la fuente local no carga con `file://`, servir la carpeta por HTTP.
 
-El repositorio todavía no está inicializado en Git. El proyecto Vite ya tiene dependencias instaladas y servidor de desarrollo. La presentación es un archivo HTML autónomo que usa las fuentes y logos de `docs/assets/`.
+El repositorio está inicializado en Git (rama `main`) y el proyecto Vite ya tiene las dependencias instaladas. La presentación es un archivo HTML autónomo que usa las fuentes y logos de `docs/assets/`.
 
 ---
 
@@ -31,6 +31,7 @@ El repositorio todavía no está inicializado en Git. El proyecto Vite ya tiene 
 | [`05-sistema-diseno.md`](./05-sistema-diseno.md) | Identidad, tokens, tipografía, componentes, nodos, accesibilidad y movimiento. |
 | [`06-modelo-datos.md`](./06-modelo-datos.md) | Entidades, relaciones, fórmulas de notas, RLS y validación de la migración. |
 | [`07-decisiones-pendientes.md`](./07-decisiones-pendientes.md) | D1–D25, recomendaciones, impacto y checklist de aprobación. |
+| [`08-configuracion-supabase.md`](./08-configuracion-supabase.md) | Pasos para crear el proyecto, aplicar las migraciones y probar la Fase 2 contra Supabase real. |
 | [`../../supabase/migrations/001_schema_inicial.sql`](../../supabase/migrations/001_schema_inicial.sql) | Migración PostgreSQL inicial. |
 | [`../../supabase/migrations/002_ajustes_fase2.sql`](../../supabase/migrations/002_ajustes_fase2.sql) | Ajustes D7/D8, activación de año y eliminación de cuenta. |
 

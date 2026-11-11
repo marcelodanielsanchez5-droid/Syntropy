@@ -52,6 +52,8 @@ El cliente pasa `npm run typecheck`, `npm test` (51 pruebas) y `npm run build`. 
 
 Copiar [`.env.example`](./.env.example) a `.env.local` y completar con credenciales propias. **No commitear `.env.local` ni claves reales.** La `service_role` de Supabase nunca va en el frontend.
 
+Guía paso a paso para crear el proyecto, configurar Auth, aplicar las migraciones y ejecutar el checklist real: [`docs/fase-1/08-configuracion-supabase.md`](./docs/fase-1/08-configuracion-supabase.md).
+
 ---
 
 ## Próximo hito
