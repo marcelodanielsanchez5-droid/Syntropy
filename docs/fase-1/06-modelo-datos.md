@@ -975,7 +975,7 @@ Las pruebas se ejecutaron con scripts de comprobación que crean usuarios, años
 - Lighthouse en `/ingresar` y `/crear-cuenta`: 100 en accesibilidad, buenas prácticas y SEO, con `robots.txt` que bloquea la indexación de la app privada.
 - PWA: el build de producción registra el service worker, expone el manifest con iconos 192/512/maskable y permite recargar la app sin conexión en Edge. No se instaló todavía en un dispositivo real.
 - `npm audit`: 6 avisos (2 low, 4 moderate) en la cadena de desarrollo `vite-plugin-pwa`/`workbox-build`; `workbox-build` 7.4.1 es la última versión disponible. No afecta al bundle que se ejecuta en el navegador.
-- Estas pruebas no sustituyen una prueba E2E ni la ejecución contra Supabase real. La interfaz se revisó visualmente en 1440, 800 y 390 px con datos simulados.
+- Estas pruebas no sustituyen una prueba E2E ni la ejecución contra Supabase real. La interfaz se revisó visualmente en 1440, 800 y 390 px con datos simulados (auth, onboarding, inicio, configuración, perfil y asignaturas), sin errores de consola.
 
 ### 14.4. Pendiente antes de producción
 
