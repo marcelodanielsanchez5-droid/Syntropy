@@ -69,16 +69,40 @@ export async function updateYear(
   return data
 }
 
+export const ACTIVE_YEAR_DELETE_MESSAGE =
+  'No podés eliminar el año activo. Activá otro año primero.'
+
 export async function deleteYear(userId: string, yearId: string): Promise<void> {
   const supabase = requireSupabase()
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from('academic_years')
     .delete()
     .eq('id', yearId)
     .eq('user_id', userId)
+    .eq('is_active', false)
+    .select('id')
 
   if (error) {
     throw error
+  }
+
+  if (!data || data.length === 0) {
+    const { data: year, error: lookupError } = await supabase
+      .from('academic_years')
+      .select('is_active')
+      .eq('id', yearId)
+      .eq('user_id', userId)
+      .maybeSingle()
+
+    if (lookupError) {
+      throw lookupError
+    }
+
+    if (year?.is_active) {
+      throw new Error(ACTIVE_YEAR_DELETE_MESSAGE)
+    }
+
+    throw new Error('No encontramos ese año de curso.')
   }
 }
 

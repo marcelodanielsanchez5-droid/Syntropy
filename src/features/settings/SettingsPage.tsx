@@ -85,6 +85,11 @@ function YearRow({
           <p className="mt-0.5 text-xs text-ink-muted">
             {formatDateRange(year.starts_on, year.ends_on)}
           </p>
+          {year.is_active ? (
+            <p className="mt-1 text-[11px] text-ink-muted">
+              Para eliminarlo, activá otro año primero.
+            </p>
+          ) : null}
         </div>
       </div>
       <div className="flex shrink-0 items-center gap-1">
@@ -105,9 +110,14 @@ function YearRow({
         <button
           type="button"
           onClick={onDelete}
-          className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-ink-muted transition hover:bg-danger/10 hover:text-danger focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-danger/40"
-          aria-label={`Eliminar ${year.name}`}
-          title="Eliminar"
+          disabled={year.is_active}
+          className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-ink-muted transition hover:bg-danger/10 hover:text-danger focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-danger/40 disabled:cursor-not-allowed disabled:text-ink-muted/40 disabled:hover:bg-transparent disabled:hover:text-ink-muted/40"
+          aria-label={
+            year.is_active
+              ? `No se puede eliminar ${year.name} porque es el año activo`
+              : `Eliminar ${year.name}`
+          }
+          title={year.is_active ? 'Activá otro año antes de eliminar este' : 'Eliminar'}
         >
           <Trash2 className="h-4 w-4" />
         </button>

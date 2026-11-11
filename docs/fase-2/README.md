@@ -37,6 +37,7 @@ Las cuentas de prueba se eliminaron desde la app al terminar; no se dejaron cred
 | Perfil | Subida de avatar, URL firmada y visualización | Correcto |
 | Años | Crear un año inactivo, activarlo y volver al año original | Correcto |
 | Años | Borrar un año inactivo | Correcto |
+| Años | Intentar borrar el año activo | Botón deshabilitado y aviso visible (cuenta A) |
 | Asignaturas | Alta con dos docentes, color y criterios | Correcto |
 | Asignaturas | Detalle, edición y tarjeta en el home | Correcto |
 | Asignaturas | Borrado con confirmación | Correcto |
@@ -54,7 +55,7 @@ Las cuentas de prueba se eliminaron desde la app al terminar; no se dejaron cred
 | Cuenta | Login posterior a la eliminación | Falla, como se espera |
 | Cuenta | Borrado del avatar en el origen | `NoSuchKey` |
 | Calidad | `npm run typecheck` | Sin errores |
-| Calidad | `npm test` | 52 pruebas aprobadas |
+| Calidad | `npm test` | 55 pruebas aprobadas en 5 archivos |
 | Calidad | `npm run build` | Correcto; aviso de bundle de ~966 kB |
 
 ### 2.1. Detalle de los flujos
@@ -97,6 +98,7 @@ Una URL firmada del avatar puede seguir respondiendo desde la caché del CDN des
 1. **Mensajes de Auth en español:** `getErrorMessage` ahora revisa el código del error antes de devolver el mensaje crudo. El límite de correo se muestra como “Enviaste demasiados correos seguidos. Esperá unos minutos antes de volver a intentar.” Se agregó una prueba unitaria; el total pasó de 51 a 52.
 2. **Limpieza de Storage al eliminar la cuenta:** `deleteCurrentAccount` recorre `avatars` y `academic-files` del usuario, borra los archivos y recién después ejecuta `delete_current_user`. Se comprobó el borrado del avatar en el origen.
 3. **Correcciones previas de Fase 2:** zonas horarias sin opciones en blanco, encabezado duplicado en tablet, contraste de texto deshabilitado y revisión visual responsive.
+4. **Bloqueo del borrado del año activo (D26):** la fila del año activo deshabilita el botón de eliminar, muestra el aviso “Para eliminarlo, activá otro año primero” y `deleteYear` agrega el filtro `is_active=false`. Si la fila desaparece entre la consulta y el borrado, el servicio vuelve a leer el año para distinguir “año activo” de “año inexistente”. Se agregaron tres pruebas unitarias (total: 55) y se verificó en la interfaz real con la cuenta A: el botón quedó deshabilitado y el aviso visible.
 
 No se modificó el esquema de la base ni las políticas RLS durante esta validación.
 
@@ -117,9 +119,13 @@ No se modificó el esquema de la base ni las políticas RLS durante esta validac
 - [ ] Reducir el bundle principal (~966 kB, ~280 kB gzip) con división de código.
 - [ ] Revisar los 6 avisos de `npm audit` de la cadena de desarrollo de `vite-plugin-pwa`/`workbox-build`.
 - [ ] Probar `academic-files` con archivos reales; en Fase 2 solo se usó `avatars`.
-- [ ] Decidir si el año activo debe poder borrarse. Hoy se puede y la app queda sin año activo hasta crear o activar otro.
+- [x] Bloquear el borrado del año activo (D26): la interfaz deshabilita la acción y el servicio filtra `is_active=false`. Verificado en la interfaz real con la cuenta A.
 - [ ] Medir índices y planes de consulta con un volumen representativo.
 - [ ] Ejecutar las pruebas de notas y plan de estudio cuando existan las fases correspondientes.
+
+### Decisión D26: borrado del año activo
+
+El 11 de noviembre de 2026 se aprobó impedir que el año activo se elimine. La fila activa muestra el botón de borrado deshabilitado y el servicio agrega `is_active=false` al `DELETE`, de modo que la operación no depende solo de la interfaz. Esta regla no requiere cambios de esquema ni de RLS.
 
 ### Estado de empaquetado
 

@@ -149,3 +149,11 @@ La Fase 2 quedó implementada localmente en el cliente:
 6. pruebas unitarias, typecheck y build aprobados.
 
 Falta el paso decisivo: crear el proyecto real de Supabase, aplicar 001 y 002, configurar `.env.local` y probar los flujos completos. Hasta entonces, la Fase 2 no se declara aprobada. El detalle de validación está en [`06-modelo-datos.md`](./06-modelo-datos.md), sección 14.
+
+---
+
+## 7. Decisión posterior a Fase 1
+
+### D26. Borrado del año activo
+
+Aprobada el 11 de noviembre de 2026 durante la validación de Fase 2. El año activo no se puede eliminar: la interfaz deshabilita el botón y el servicio agrega `is_active=false` al borrado. Para borrar un año hay que activar otro primero. La decisión no cambia el esquema ni las políticas RLS.

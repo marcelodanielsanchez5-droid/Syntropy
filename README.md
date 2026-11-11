@@ -42,7 +42,7 @@ Versiones, estructura y justificación: [`docs/fase-1/02-arquitectura-tecnica.md
 
 Las migraciones [`001_schema_inicial.sql`](./supabase/migrations/001_schema_inicial.sql) y [`002_ajustes_fase2.sql`](./supabase/migrations/002_ajustes_fase2.sql) se aplicaron en el proyecto real de Supabase el 11 de noviembre de 2026. Se probaron con datos reales el registro, la confirmación por correo, el onboarding, el perfil, el avatar, los años de curso, las asignaturas, el cambio de contraseña, RLS y la eliminación de cuenta. La eliminación de cuenta ahora limpia el avatar y los archivos de Storage antes de borrar el usuario.
 
-El cliente pasa `npm run typecheck`, `npm test` (52 pruebas) y `npm run build`. Lighthouse dio 100 en accesibilidad, buenas prácticas y SEO en ingreso y registro.
+El cliente pasa `npm run typecheck`, `npm test` (55 pruebas en 5 archivos) y `npm run build`. Lighthouse dio 100 en accesibilidad, buenas prácticas y SEO en ingreso y registro.
 
 **Pendientes para aprobar la Fase 2:** la prueba de aislamiento con dos cuentas reales, el enlace de recuperación de contraseña (el servicio de correo gratuito de Supabase devolvió `over_email_send_rate_limit`) y la instalación de la PWA en un dispositivo. Tauri, Android e iOS no se pudieron compilar en esta máquina. Storage se probó con avatares; `academic-files` se usará en una fase posterior. No se debe considerar el proyecto “listo para producción” (ver [`docs/fase-2/README.md`](./docs/fase-2/README.md) y la sección 14 de [`06-modelo-datos.md`](./docs/fase-1/06-modelo-datos.md)).
 
