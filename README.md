@@ -2,7 +2,7 @@
 
 Aplicación multiplataforma de organización académica: años de curso, asignaturas, tareas, calendario, horario y calificaciones. Una sola base de código para web, Windows, Android e iOS.
 
-**Estado actual:** Fase 1 aprobada el 10 de noviembre de 2026. Fase 2 implementada y probada contra Supabase real en sus flujos principales el 11 de noviembre de 2026; todavía no está aprobada. Quedan pendientes el aislamiento con dos cuentas, el enlace de recuperación por correo y la instalación de la PWA en un dispositivo.
+**Estado actual:** Fase 1 aprobada el 10 de noviembre de 2026. Fase 2 implementada y validada contra Supabase real el 11 de noviembre de 2026; **pendiente de aprobación explícita**. Para producción quedan SMTP propio, instalación de la PWA en un dispositivo, empaquetado Tauri/Android/iOS y mejoras de bundle y auditoría.
 
 ---
 
@@ -12,7 +12,7 @@ Aplicación multiplataforma de organización académica: años de curso, asignat
 2. Leer el índice y el resumen en [`docs/fase-1/README.md`](./docs/fase-1/README.md).
 3. Consultar las decisiones aprobadas en [`docs/fase-1/07-decisiones-pendientes.md`](./docs/fase-1/07-decisiones-pendientes.md).
 
-El usuario aprobó todas las recomendaciones D1–D25. La Fase 2 está implementada en el cliente y se probó contra Supabase real en sus flujos principales; falta completar la validación de dos cuentas y la recuperación por correo.
+El usuario aprobó todas las recomendaciones D1–D25 y la decisión posterior D26 (bloqueo del borrado del año activo). La Fase 2 está implementada y validada contra Supabase real, incluido el aislamiento entre dos cuentas y el enlace de recuperación por correo; falta la aprobación explícita de la fase.
 
 ---
 
@@ -40,11 +40,11 @@ Versiones, estructura y justificación: [`docs/fase-1/02-arquitectura-tecnica.md
 
 ## Estado de validación
 
-Las migraciones [`001_schema_inicial.sql`](./supabase/migrations/001_schema_inicial.sql) y [`002_ajustes_fase2.sql`](./supabase/migrations/002_ajustes_fase2.sql) se aplicaron en el proyecto real de Supabase el 11 de noviembre de 2026. Se probaron con datos reales el registro, la confirmación por correo, el onboarding, el perfil, el avatar, los años de curso, las asignaturas, el cambio de contraseña, RLS y la eliminación de cuenta. La eliminación de cuenta ahora limpia el avatar y los archivos de Storage antes de borrar el usuario.
+Las migraciones [`001_schema_inicial.sql`](./supabase/migrations/001_schema_inicial.sql) y [`002_ajustes_fase2.sql`](./supabase/migrations/002_ajustes_fase2.sql) se aplicaron en el proyecto real de Supabase el 11 de noviembre de 2026. Se probaron con datos reales el registro, la confirmación por correo, el onboarding, el perfil, el avatar, los años de curso, las asignaturas, el cambio de contraseña, la recuperación por correo, RLS con dos cuentas, Storage y la eliminación de cuenta. El aislamiento A/B pasó 19/19 comprobaciones; la recuperación real cambió la contraseña y el login anterior dejó de funcionar. La eliminación de cuenta limpia los archivos de `avatars` y `academic-files` antes de borrar el usuario.
 
-El cliente pasa `npm run typecheck`, `npm test` (55 pruebas en 5 archivos) y `npm run build`. Lighthouse dio 100 en accesibilidad, buenas prácticas y SEO en ingreso y registro.
+El cliente pasa `npm run typecheck`, `npm test` (55 pruebas en 5 archivos) y `npm run build` (966,74 kB, 279,91 kB gzip). Lighthouse dio 100 en accesibilidad, buenas prácticas y SEO en ingreso y registro.
 
-**Pendientes para aprobar la Fase 2:** la prueba de aislamiento con dos cuentas reales, el enlace de recuperación de contraseña (el servicio de correo gratuito de Supabase devolvió `over_email_send_rate_limit`) y la instalación de la PWA en un dispositivo. Tauri, Android e iOS no se pudieron compilar en esta máquina. Storage se probó con avatares; `academic-files` se usará en una fase posterior. No se debe considerar el proyecto “listo para producción” (ver [`docs/fase-2/README.md`](./docs/fase-2/README.md) y la sección 14 de [`06-modelo-datos.md`](./docs/fase-1/06-modelo-datos.md)).
+**Pendientes antes de producción:** configurar SMTP propio, reactivar “Confirm email” si quedó desactivado durante la validación, instalar la PWA en un dispositivo, compilar Tauri/Android/iOS, dividir el bundle, revisar los avisos de desarrollo de `npm audit`, probar `academic-files` con un archivo real y medir índices. No se debe considerar el proyecto “listo para producción” (ver [`docs/fase-2/README.md`](./docs/fase-2/README.md) y la sección 14 de [`06-modelo-datos.md`](./docs/fase-1/06-modelo-datos.md)).
 
 ---
 
@@ -72,10 +72,10 @@ Falta lo indispensable para aprobar la fase:
 1. [x] crear el proyecto de Supabase y completar `.env.local`;
 2. [x] aplicar las migraciones 001 y 002;
 3. [x] probar registro, confirmación, perfil, años, asignaturas, cambio de contraseña, RLS y borrado de cuenta con datos reales;
-4. [ ] repetir el aislamiento con dos cuentas confirmadas;
-5. [ ] probar el enlace real de recuperación de contraseña cuando se libere el límite de correo o se configure SMTP;
+4. [x] repetir el aislamiento con dos cuentas confirmadas (19/19);
+5. [x] probar el enlace real de recuperación de contraseña y el cambio desde la app;
 6. [ ] instalar la PWA en un dispositivo y repetir la revisión visual con datos reales.
 
-El reporte de validación está en [`docs/fase-2/README.md`](./docs/fase-2/README.md).
+La Fase 2 queda a la espera de aprobación explícita. El reporte de validación está en [`docs/fase-2/README.md`](./docs/fase-2/README.md).
 
 El detalle de las decisiones aprobadas está en [`docs/fase-1/07-decisiones-pendientes.md`](./docs/fase-1/07-decisiones-pendientes.md).

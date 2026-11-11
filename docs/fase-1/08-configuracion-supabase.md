@@ -2,7 +2,7 @@
 
 Esta guía deja el proyecto listo para ejecutar las migraciones y probar los flujos reales de la Fase 2. No contiene claves ni credenciales.
 
-> Estado: **migraciones ejecutadas y flujos principales probados** el 11 de noviembre de 2026 contra el proyecto real. Quedan pendientes la recuperación por enlace de correo (bloqueada por el límite de envío de Supabase) y el aislamiento con dos cuentas. El detalle está en [`docs/fase-2/README.md`](../fase-2/README.md).
+> Estado: **migraciones ejecutadas y validación completa** el 11 de noviembre de 2026 contra el proyecto real. Se probaron los flujos principales, el aislamiento entre dos cuentas (19/19) y la recuperación por enlace de correo. La Fase 2 sigue pendiente de aprobación explícita. El detalle está en [`docs/fase-2/README.md`](../fase-2/README.md).
 
 ---
 
@@ -123,7 +123,7 @@ where relnamespace = 'public'::regnamespace
 order by relname;
 ```
 
-Todas las tablas de datos deben mostrar `relrowsecurity = true`. El SQL Editor se ejecuta como administrador y **omite RLS**, así que la prueba real de aislamiento se hace desde la app. En la validación del 11/11/2026 se comprobó desde la API que un usuario anónimo no ve filas, que un usuario autenticado ve las propias, que un insert con otro `user_id` devuelve `403` (`42501`) y que un update/delete sobre una fila ajena afecta `0` filas. La prueba con dos cuentas reales quedó pendiente por el límite de correos de Supabase.
+Todas las tablas de datos deben mostrar `relrowsecurity = true`. El SQL Editor se ejecuta como administrador y **omite RLS**, así que la prueba real de aislamiento se hace desde la app. En la validación del 11/11/2026 se comprobó desde la API que un usuario anónimo no ve filas, que un usuario autenticado ve las propias, que un insert con otro `user_id` devuelve `403` (`42501`), que un update/delete sobre una fila ajena afecta `0` filas y que los buckets `avatars` y `academic-files` rechazan el acceso cruzado con `400`. La prueba con dos cuentas reales se completó con 19/19 comprobaciones.
 
 ---
 
@@ -145,7 +145,7 @@ Marcar cada punto solo después de comprobarlo en el navegador contra Supabase:
 - [x] Registro con correo, nombre, usuario y los tres consentimientos.
 - [x] Llegada del correo de confirmación y retorno a `/auth/callback`.
 - [x] Inicio de sesión con el correo confirmado.
-- [ ] Recuperación de contraseña mediante el enlace del correo y retorno a `/restablecer-contrasena`.
+- [x] Recuperación de contraseña mediante el enlace del correo y retorno a `/restablecer-contrasena`.
 - [x] Formulario de `/restablecer-contrasena` y actualización de contraseña con una sesión válida.
 - [x] Onboarding: nombre y creación del primer año.
 - [x] Perfil: edición de nombre, usuario, zona horaria y avatar.
@@ -154,15 +154,15 @@ Marcar cada punto solo después de comprobarlo en el navegador contra Supabase:
 - [x] Borrado de un año inactivo.
 - [x] Creación, edición, detalle y borrado de una asignatura.
 - [x] Cierre de sesión y nuevo ingreso.
-- [ ] Aislamiento con dos cuentas: la cuenta B no ve años, asignaturas ni archivos de la cuenta A.
+- [x] Aislamiento con dos cuentas: la cuenta B no ve años, asignaturas ni archivos de la cuenta A.
 - [x] Eliminación de cuenta, limpieza del avatar y comprobación de que ya no puede ingresar.
 
-La recuperación por enlace quedó bloqueada por `over_email_send_rate_limit` (429) del servicio de correo integrado de Supabase, después de los correos de confirmación. No es un fallo del cliente: la pantalla muestra el mensaje en español. Para probarla hay que esperar a que se libere el límite o configurar SMTP propio. La prueba de dos cuentas también quedó pendiente por ese límite.
+La recuperación por enlace se completó: el correo llegó, el enlace abrió `/restablecer-contrasena`, la contraseña se actualizó desde la app y el login con la contraseña anterior devolvió `400`. El límite `over_email_send_rate_limit` (429) del servicio integrado sigue siendo una limitación real de frecuencia: para crear la segunda cuenta se desactivó temporalmente “Confirm email” y hay que asegurarse de volver a activarlo. Para producción corresponde configurar SMTP propio.
 
 ### Limitaciones conocidas
 
 - La eliminación de cuenta ahora limpia el avatar y los archivos de `academic-files` antes de ejecutar `delete_current_user`. Se comprobó que el objeto del avatar desaparece del origen (`NoSuchKey`). Una URL firmada que ya estaba en caché del CDN puede seguir respondiendo hasta que expire su TTL; es una limitación del almacenamiento, no de la base.
-- El borrado del año activo no está bloqueado por una restricción: si se elimina, la app queda sin año activo hasta crear o activar otro. Si se quiere impedir, hay que agregar una regla de producto y una migración.
+- El borrado del año activo se bloquea en la interfaz y en el servicio (`is_active=false`), según D26. No hay una restricción de base de datos; una llamada directa a la API con la sesión del dueño todavía podría borrarlo. La app no ofrece ese camino.
 
 ### Si un correo no llega
 
@@ -175,10 +175,13 @@ La recuperación por enlace quedó bloqueada por `over_email_send_rate_limit` (4
 
 ## 7. Qué hacer después
 
-El 11/11/2026 se ejecutaron las migraciones y se completaron los flujos principales. Antes de aprobar la Fase 2 falta:
+El 11/11/2026 se ejecutaron las migraciones y se completó la validación real de la Fase 2, incluidas las dos pruebas que dependían del correo. La fase queda a la espera de aprobación explícita.
 
-1. Esperar a que se libere el límite de correo o configurar SMTP propio y probar el enlace de recuperación.
-2. Crear una segunda cuenta y repetir el aislamiento RLS entre dos usuarios reales, incluido Storage.
-3. Revisar el reporte completo en [`docs/fase-2/README.md`](../fase-2/README.md).
+Antes de producción:
+
+1. Configurar SMTP propio y plantillas de correo.
+2. Verificar que “Confirm email” esté reactivado en Auth.
+3. Instalar la PWA en un dispositivo y compilar Tauri/Android/iOS.
+4. Revisar el reporte completo en [`docs/fase-2/README.md`](../fase-2/README.md).
 
 Si se prefiere probar sin un proyecto en la nube, la alternativa es instalar Docker Desktop y usar Supabase local. En esta máquina Docker no está instalado y el CLI de Supabase no puede levantar el stack sin Docker.

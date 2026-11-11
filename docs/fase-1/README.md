@@ -2,7 +2,7 @@
 
 **Diseño, arquitectura y modelo de datos**  
 **Estado:** aprobada por el usuario el 10 de noviembre de 2026  
-**Siguiente fase:** Fase 2 — implementada y probada contra Supabase real en sus flujos principales; pendiente de completar el aislamiento con dos cuentas y la recuperación por correo.
+**Siguiente fase:** Fase 2 — implementada y validada contra Supabase real, incluido el aislamiento con dos cuentas y la recuperación por correo; pendiente de aprobación explícita.
 
 > Esta fase no contiene código de la aplicación. Su objetivo fue acordar el producto, la técnica y el modelo antes de construir. La aprobación quedó registrada en [`07-decisiones-pendientes.md`](./07-decisiones-pendientes.md).
 
@@ -120,16 +120,16 @@ Las migraciones `001_schema_inicial.sql` y `002_ajustes_fase2.sql` se ejecutaron
 - desvinculación de tareas al borrar un nodo;
 - enlaces entre asignaturas distintas.
 
-En el cliente, `npm run typecheck`, `npm test` (52 pruebas) y `npm run build` pasan. Lighthouse dio 100 en accesibilidad, buenas prácticas y SEO en las pantallas de ingreso y registro.
+En el cliente, `npm run typecheck`, `npm test` (55 pruebas en 5 archivos) y `npm run build` pasan. Lighthouse dio 100 en accesibilidad, buenas prácticas y SEO en las pantallas de ingreso y registro.
 
-### No validado todavía
+### Validación parcial o pendiente
 
-- Las migraciones se aplicaron en Supabase real, pero falta el aislamiento con dos cuentas confirmadas al mismo tiempo.
+- El aislamiento con dos cuentas confirmadas se completó con 19/19 comprobaciones, incluidos años, asignaturas y Storage.
 - `citext` se simuló con un dominio de texto; en Supabase se probaron correos y usuarios en minúsculas, no una prueba específica de mayúsculas/minúsculas.
-- Storage se probó con avatares; `academic-files` y Edge Functions no se probaron.
+- Storage se probó con avatares y con un PDF mínimo en `academic-files`; falta un archivo real de la aplicación. Las Edge Functions todavía no se probaron.
 - El trigger se probó con el flujo real de confirmación de correo.
 - El frontend se ejecutó contra Supabase real para registro, confirmación, onboarding, perfil, avatar, años, asignaturas, contraseña, RLS y eliminación de cuenta.
-- El enlace real de recuperación de contraseña quedó bloqueado por el límite de correo de Supabase.
+- El enlace real de recuperación de contraseña se abrió, cambió la contraseña y el login anterior dejó de funcionar (`400`).
 - La PWA se probó con service worker, manifest y recarga offline en local; no se instaló en un dispositivo real.
 - Los empaquetados de Windows, Android e iOS no se compilaron.
 - iOS requiere macOS o CI; no se puede compilar en Windows.
@@ -182,4 +182,4 @@ Rust, Android Studio y Xcode se instalan cuando corresponda a cada empaquetado, 
 5. [x] Se configura el proyecto de desarrollo de Supabase.
 6. [x] Se implementa la Fase 2 en el cliente: autenticación, perfil, años de curso y asignaturas.
 7. [x] Se prueban los flujos principales de la Fase 2 contra Supabase real.
-8. [ ] Se completa el aislamiento con dos cuentas y el enlace de recuperación por correo.
+8. [x] Se completa el aislamiento con dos cuentas y el enlace de recuperación por correo.
