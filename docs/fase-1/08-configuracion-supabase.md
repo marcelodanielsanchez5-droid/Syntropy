@@ -19,10 +19,10 @@ No hace falta instalar Docker para usar un proyecto en la nube. Docker solo ser�
 
 ## 2. Completar `.env.local`
 
-En **Project Settings → API** copiar:
+En **Project Settings → API** (o **API Keys**) copiar:
 
 - **Project URL**
-- **anon public key**
+- **anon public key** o **publishable key** (la clave pública; nunca la `secret` ni la `service_role`)
 
 Luego, desde la raíz del repositorio:
 
