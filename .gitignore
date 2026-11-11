@@ -1,0 +1,39 @@
+# Dependencias
+node_modules/
+
+# Builds
+dist/
+dist-ssr/
+*.local
+
+# Entorno
+.env
+.env.local
+.env.*.local
+
+# Editor
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+
+# Pruebas
+coverage/
+playwright-report/
+test-results/
+
+# Supabase local
+supabase/.branches
+supabase/.temp/
+
+# Logs
+*.log
+npm-debug.log*

@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none" role="img" aria-labelledby="title desc">
+  <title id="title">Ícono de Syntropy</title>
+  <desc id="desc">Ícono cuadrado de la aplicación con el símbolo del cerebro de circuitos sobre fondo azul noche.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#161E2B"/>
+      <stop offset="1" stop-color="#0C141F"/>
+    </linearGradient>
+    <linearGradient id="ring" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FF478D" stop-opacity="0.85"/>
+      <stop offset="0.5" stop-color="#9A15AF" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="#6F07C8" stop-opacity="0.85"/>
+    </linearGradient>
+    <linearGradient id="left" x1="98" y1="90" x2="256" y2="422" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FF478D"/>
+      <stop offset="1" stop-color="#E01462"/>
+    </linearGradient>
+    <linearGradient id="right" x1="256" y1="90" x2="414" y2="422" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#8B18D9"/>
+      <stop offset="1" stop-color="#6F07C8"/>
+    </linearGradient>
+    <radialGradient id="core" cx="0" cy="0" r="1" gradientTransform="translate(256 256) rotate(90) scale(34)" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#F31EDB"/>
+      <stop offset="1" stop-color="#CA01CC"/>
+    </radialGradient>
+    <pattern id="grid" width="64" height="64" patternUnits="userSpaceOnUse">
+      <path d="M64 0H0V64" stroke="#7D8592" stroke-opacity="0.09"/>
+    </pattern>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+  <rect width="512" height="512" rx="112" fill="url(#grid)"/>
+  <rect x="6" y="6" width="500" height="500" rx="106" stroke="url(#ring)" stroke-width="2" stroke-opacity="0.5"/>
+  <g transform="translate(64 64) scale(1.5)" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M128 50C112 38 88 40 76 54C58 50 44 64 46 82C30 90 24 108 34 122C24 136 28 154 44 160C42 178 58 192 78 186C84 204 104 212 128 198Z" stroke="url(#left)" stroke-width="7.5"/>
+    <path d="M128 50C144 38 168 40 180 54C198 50 212 64 210 82C226 90 232 108 222 122C232 136 228 154 212 160C214 178 198 192 178 186C172 204 152 212 128 198Z" stroke="url(#right)" stroke-width="7.5"/>
+    <g stroke-width="3.6">
+      <g stroke="#FF478D"><path d="M128 128H100V100H86"/><path d="M128 128H112V82H102"/><path d="M128 128H108V150H92"/><path d="M128 128H96V116H80"/><path d="M128 128H118V166H106"/><path d="M128 128H88V142H76"/></g>
+      <g stroke="#8B18D9"><path d="M128 128H156V100H170"/><path d="M128 128H144V82H154"/><path d="M128 128H148V150H164"/><path d="M128 128H160V116H176"/><path d="M128 128H138V166H150"/><path d="M128 128H168V142H180"/></g>
+    </g>
+    <g fill="#FF478D"><circle cx="86" cy="100" r="5.5"/><circle cx="102" cy="82" r="5.5"/><circle cx="92" cy="150" r="5.5"/><circle cx="80" cy="116" r="5.5"/><circle cx="106" cy="166" r="5.5"/><circle cx="76" cy="142" r="5.5"/></g>
+    <g fill="#8B18D9"><circle cx="170" cy="100" r="5.5"/><circle cx="154" cy="82" r="5.5"/><circle cx="164" cy="150" r="5.5"/><circle cx="176" cy="116" r="5.5"/><circle cx="150" cy="166" r="5.5"/><circle cx="180" cy="142" r="5.5"/></g>
+    <circle cx="128" cy="128" r="14" fill="url(#core)"/>
+    <circle cx="128" cy="128" r="5" fill="#FFD9F6" opacity="0.72"/>
+  </g>
+</svg>

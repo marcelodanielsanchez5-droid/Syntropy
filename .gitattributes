@@ -1,0 +1,12 @@
+# Normalizar finales de línea para un proyecto multiplataforma.
+* text=auto eol=lf
+
+# Archivos binarios que Git no debe convertir.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.gif binary
+*.woff2 binary
+*.docx binary
+*.ico binary

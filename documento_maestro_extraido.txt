@@ -1,0 +1,281 @@
+﻿Syntropy: documento maestro del proyecto
+Resumen detallado de todo lo establecido hasta ahora: concepto, funciones, decisiones, reglas visuales, plataforma, alcance, plan por fases e identidad visual. Estado: Fase 0 aprobada; siguiente paso, Fase 1 (diseño de experiencia y datos).
+1. Descripción general
+Syntropy es un aplicativo gamificado de organización académica para estudiantes secundarios y universitarios. Les ofrece un espacio donde registrar tareas, exámenes, proyectos y fechas. La app toma la estructura de un videojuego para que completar proyectos resulte atractivo y, con ello, aumente la productividad del estudiante.
+El usuario se registra con su correo electrónico y puede configurar recordatorios personalizados (fechas de entrega, horarios de estudio, etc.).
+2. Perfil del desarrollo
+El proyecto lo desarrolla una sola persona con poca experiencia en programación (un sistema con Visual Basic y Windows Forms y diagramas de flujo en PSeInt).
+Claude escribe el código y guía paso a paso, explicando qué hace cada parte.
+La app y la documentación están en español.
+Por esta razón se priorizó un stack simple, una sola base de código y servicios con plan gratuito.
+3. Funciones del ADD
+3.1 Interfaz y asignaturas
+Al abrir la app hay un menú de inicio con el botón "Agregar Asignatura".
+El formulario de asignatura incluye: nombre, docentes, horario, color identificativo, breve descripción y anotaciones importantes (criterios de evaluación, metodología de trabajo).
+Cada asignatura aparece en el menú de inicio como una carpeta.
+Al entrar en una asignatura, lo primero que se ve es su calendario, con un menú desplegable a la izquierda con el resto de funciones.
+Desde el menú de inicio también se accede al calendario general y al horario general, que muestran todo sin entrar materia por materia.
+3.2 Calendario interactivo
+El estudiante ingresa tareas, proyectos o exámenes, y aparece en el calendario la fecha límite de entrega o de estudio.
+Los días que quedan hasta la entrega se pintan con un color, para representar el tiempo disponible.
+Para un examen se indican los días de estudio, de forma personalizada: el usuario elige cada cuántos días y cuánto tiempo.
+Hay un calendario individual por materia (con todas las funciones) y uno general que solo muestra fechas límite de entrega y exámenes.
+Ambos calendarios conservan el Panel de Tareas.
+3.3 Panel de Tareas
+Se ubica a la derecha del calendario.
+Muestra todas las tareas pendientes y permite registrar más.
+Estados: Pendiente, En Espera (por falta de algún material o complemento) y Terminada.
+Se puede filtrar por estado, también en el calendario general.
+3.4 Horario
+Ventana aparte donde el estudiante carga su horario y ve las materias del día.
+Permite añadir horarios de descanso o actividades secundarias.
+Es una función general: no requiere crear una asignatura nueva.
+3.5 Nodos de conocimiento (el diferenciador)
+Imita un árbol de habilidades de videojuego de rol.
+Por asignatura, el usuario ingresa temas principales, secundarios y terciarios (puede ir agregándolos a medida que los ve en clase).
+La app genera un nodo principal por asignatura, del que salen los nodos de cada tema.
+Cada nodo tiene una dificultad definida por el estudiante.
+Dentro de cada nodo hay un resumen hecho por el estudiante a modo de mapa conceptual.
+Se pueden relacionar documentos, fotos y audios a cada nodo.
+Beneficios buscados: saber de un vistazo qué temas se dominan y cuáles no, ver el rendimiento real por tema y asignatura, y visualizar la relación entre temas y asignaturas.
+3.6 Controlador de notas
+Tabla general donde ingresar las notas.
+Calcula el promedio e indica qué nota se necesita en la siguiente evaluación para aprobar.
+Las reglas de calificación (escala, nota mínima de aprobación y ponderaciones) deben ser configurables, porque cambian según país e institución.
+3.7 Biblioteca
+Lugar para subir fuentes: libros, sitios web, documentos, videos, imágenes, links, etc.
+Al subir una fuente se indica a qué asignatura pertenece, a qué tema (nodo) y si se usó para una tarea específica.
+Cada fuente se muestra con su miniatura, el nombre de la asignatura con contorno del color identificativo, el tema relacionado y la tarea en que se debe usar.
+Nota de nomenclatura: la maqueta dice "Librería"; se recomienda "Biblioteca", que es más preciso en español.
+4. Decisiones aprobadas (Fase 0)
+Tema
+Decisión
+Correos
+Solo recordatorios por correo. No se lee la bandeja del estudiante (se elimina la integración con Gmail/Outlook, el mayor riesgo del ADD).
+Gamificación
+Solo visual en la versión 1 (nodos). Puntos, niveles y rachas quedan para la versión 2.
+Forma de los nodos
+De círculo (0 lados) a eneágono (9 lados), elegida a mano según la dificultad percibida (escala 1-10).
+Contorno de los nodos
+Línea fina, visible y levemente separada del nodo; el color depende de las notas.
+Color en el calendario
+En el calendario general, la tarea usa el color de su asignatura. En el calendario de la propia asignatura se puede elegir otro color o mantener el de la asignatura, para distinguir tareas simultáneas.
+Nodos entre asignaturas
+Todos los nodos de todas las asignaturas en un mismo plano, con un menú rápido al nodo principal de cada una. Se pueden unir nodos de asignaturas distintas. Habrá un árbol de habilidades completo por cada año de curso.
+Uso sin conexión
+Sin sincronización offline completa en v1. La PWA guarda la interfaz en caché para abrir sin conexión y consultar datos ya cargados. Editar sin internet queda para una versión posterior.
+Plataforma
+App para móviles y web para computadoras, con una sola base de código.
+5. Reglas visuales de los nodos
+5.1 Forma según la dificultad
+Un polígono no puede tener 1 o 2 lados, así que hay 8 formas posibles (círculo y de 3 a 9 lados) para 10 niveles de dificultad.
+Dificultad (1-10)
+Forma
+1-2
+Círculo (0 lados)
+3
+Triángulo
+4
+Cuadrado
+5
+Pentágono
+6
+Hexágono
+7
+Heptágono
+8
+Octógono
+9-10
+Eneágono
+5.2 Intensidad del color según el dominio
+El usuario indica en una escala de 1 a 10 cuánto sabe del tema. A mayor dominio, más intensa es la tonalidad del nodo.
+5.3 Contorno según las notas
+La nota se convierte a porcentaje de la escala de la institución y el color del contorno sale del rango. Así funciona con decimales y con cualquier escala (1-10, 0-20, 0-100).
+Nivel
+Porcentaje
+Equivalencia de referencia
+Blanco
+hasta 29 %
+1-2 (o 10-20 pts)
+Bronce
+30-49 %
+3-4 (o 30-40 pts)
+Plata
+50-69 %
+5-6 (o 50-60 pts)
+Oro
+70-89 %
+7-8 (o 70-80 pts)
+Diamante
+90-99 %
+9 (o 90 pts)
+Multicolor
+100 %
+10 (o 100 pts)
+Si un nodo tiene varias notas, se promedian. Las tareas y exámenes se vinculan con nodos, y de ahí sale el contorno.
+6. Plataforma y stack tecnológico
+Estrategia: una sola base de código, primero como web app instalable (PWA) y luego empaquetada para las tiendas de aplicaciones.
+Componente
+Tecnología
+Interfaz
+React + TypeScript
+Cuentas, base de datos y archivos
+Supabase
+Correos de recordatorio
+Resend
+App para tiendas (Android/iOS)
+Capacitor, reutilizando el mismo código
+Librería de grafos (nodos)
+React Flow
+Librería de calendario
+FullCalendar o similar
+Por qué web y no nativo puro:
+Con un solo desarrollador y poca experiencia, mantener dos aplicaciones sería el mayor riesgo del proyecto.
+Las librerías de grafos para los nodos son mucho más maduras en web.
+Una PWA funciona en PC y celular, y se instala en la pantalla de inicio.
+Todos los servicios tienen plan gratuito suficiente para empezar.
+7. Alcance del MVP
+El MVP son las Fases 2, 3 y 4:
+Cuentas y asignaturas.
+Calendario por asignatura y general, con panel de tareas.
+Horario.
+Controlador de notas.
+Los nodos van en la segunda versión, aunque su modelo de datos se diseña desde el inicio.
+Fuera del MVP: nodos, biblioteca de fuentes, recordatorios por correo, gamificación (puntos, niveles, rachas) y edición sin conexión.
+8. Plan de desarrollo por fases
+El plan sigue este orden de peso: primero el núcleo (asignaturas, calendario, tareas), luego los diferenciadores (nodos, gamificación visual) y al final la integración con servicios externos (correo y notificaciones).
+Fase 0: Definición y decisiones base (completada)
+Alcance del MVP, plataforma, stack y aclaración de las ambigüedades del ADD. Entregable: el documento de decisiones de la Fase 0.
+Fase 1: Diseño de experiencia y datos (siguiente)
+Mapa de navegación: menú de inicio, carpeta de asignatura y calendario con menú lateral.
+Wireframes de las pantallas clave: inicio, formulario de asignatura, calendario con panel de tareas, nodos.
+Identidad visual (paleta, tipografía, estilo "videojuego").
+Modelo de datos: Usuario, Año de curso, Asignatura, Tarea, Examen, Horario, Nodo (con relaciones padre-hijo), Enlace entre nodos, Nota y Fuente.
+Entregable: wireframes aprobados y esquema de base de datos.
+Fase 2: Cimientos (cuentas y asignaturas)
+Registro e inicio de sesión con correo.
+Menú de inicio con el botón "Agregar Asignatura".
+Formulario de asignatura completo; asignaturas como carpetas, con edición y eliminación.
+Requiere: servicio de autenticación y base de datos (Supabase), repositorio de código (GitHub) y entorno de desarrollo.
+Entregable: un usuario puede crear una cuenta y gestionar sus asignaturas.
+Fase 3: Calendario y panel de tareas (el corazón del MVP)
+Calendario por asignatura y general.
+Alta de tareas, proyectos y exámenes con fecha límite.
+Cuenta regresiva visual: días pintados hasta la entrega.
+Plan de estudio para exámenes (frecuencia y duración elegidas por el usuario).
+Panel de tareas con estados y filtros.
+Entregable: el estudiante puede organizar todo su trimestre. Aquí termina un MVP usable.
+Fase 4: Horario y controlador de notas
+Horario general semanal con materias, descansos y actividades secundarias.
+Tabla de notas con promedio automático y cálculo de la nota necesaria para aprobar.
+Requiere las reglas de calificación de la institución del usuario (escala, nota mínima, ponderaciones), que deben ser configurables.
+Entregable: vista de horario diario y proyección de notas.
+Fase 5: Nodos de conocimiento (el diferenciador)
+Ingreso de temas, generación del árbol y visualización interactiva (zoom, arrastre, ramas).
+Reglas visuales: forma, intensidad de color y contorno.
+Resumen tipo mapa conceptual y adjuntos (documentos, fotos, audios).
+Vinculación de tareas y exámenes con nodos.
+Un plano por año de curso, con menú rápido a cada nodo principal y enlaces entre materias.
+Se divide en 5A (árbol y reglas visuales) y 5B (resúmenes y adjuntos).
+Fase 6: Biblioteca de fuentes
+Subida de libros, enlaces, documentos, videos e imágenes.
+Etiquetado obligatorio: asignatura, tema (nodo) y tarea asociada.
+Vista con miniatura y contorno del color de la asignatura; búsqueda y filtros.
+Requiere almacenamiento (se reutiliza el de la fase 5) y límites de tamaño por archivo y por usuario.
+Fase 7: Recordatorios por correo
+Recordatorios programados y personalizables: fechas de entrega, horarios de estudio y avisos.
+Con las decisiones tomadas, esta fase se reduce a envío programado por correo, sin lectura de bandeja.
+Fase 8: Pruebas, pulido y lanzamiento
+Pruebas con 5 a 10 estudiantes reales y ajustes de usabilidad.
+Corrección de errores y optimización.
+Política de privacidad y términos (son datos de estudiantes, posiblemente menores).
+Publicación y plan de mejoras futuras: logros, niveles y puntos de experiencia.
+9. Modelo de datos (borrador)
+Entidades definidas hasta ahora: Usuario, Año de curso, Asignatura, Tarea, Examen, Horario, Nodo, Enlace entre nodos, Nota y Fuente.
+Año de curso: entidad nueva, de la que cuelgan las asignaturas.
+Nodo: tiene relación padre-hijo dentro del árbol de la asignatura.
+Enlace entre nodos: tabla aparte, independiente del árbol, que permite unir nodos de asignaturas distintas.
+10. Identidad visual propuesta
+La identidad visual proviene de un PDF de muestra (Syntropy_Visual.pdf). El usuario aclaró que es una idea de cómo le gustaría que se vea la app, no una versión final, y que hay varios aspectos por mejorar.
+10.1 Concepto
+Marca tecnológica y juvenil con dos contextos: material de presentación con fondo blanco, títulos en azul marino y acentos en morado y rosa; y una interfaz de tema oscuro con rosa y amarillo como acentos, que hace destacar los colores de cada asignatura y refuerza la sensación de videojuego. La idea central es la red de nodos, presente en el logo, los adornos y la pantalla de nodos.
+10.2 Logo y nombre
+Símbolo: cerebro de frente en dos hemisferios, con líneas tipo circuito que terminan en nodos y convergen en un nodo central magenta. Hemisferio izquierdo en rosa (#E01462) y derecho en morado (#6F07C8); nodo central aprox. #CA01CC.
+Versión monocroma (blanco/gris claro, solo línea) para la interfaz oscura.
+Logotipo tipográfico: "Syntropy" en sans-serif geométrica con degradado horizontal de rosa a morado; la S inicial y la y final más gruesas; línea subrayada con el mismo degradado.
+10.3 Paleta
+Color
+Código
+Uso
+Morado Vívido
+#6F07C8
+Hemisferio derecho del logo, panel informativo, adornos
+Rosa Neón
+#9A15AF
+Tono intermedio del degradado
+Rosa Vívido
+#E01462
+Hemisferio izquierdo, íconos, ítem activo del menú, color de asignatura
+Azul marino
+#1C1951
+Títulos sobre fondo blanco
+Rosa claro
+#FF478D
+Nodos secundarios
+Amarillo
+#FFDE00
+Color de la asignatura "Inglés"
+Colores de la interfaz oscura:
+Elemento
+Código
+Fondo del área de contenido
+#0C141F
+Barra superior y menú lateral
+#161E2B
+Panel de filtros (Biblioteca)
+#121A27
+Tarjetas, celdas del calendario y paneles
+#29313C
+Líneas de conexión entre nodos
+#7D8592
+Texto y títulos
+Blanco
+Íconos inactivos
+Gris claro
+10.4 Tipografía y decoración
+Títulos en sans-serif humanista en negrita (parecida a Open Sans Bold); texto corrido en sans-serif ligera. Las fuentes concretas aún no están definidas.
+Decoración: grupos de círculos unidos por líneas, esquinas con doble línea morada, panel diagonal morado e ilustración lineal de un estudiante con birrete.
+10.4 Estructura de la interfaz (según las maquetas)
+Las maquetas son horizontales y comparten este esquema:
+Barra superior: logo, título de sección, íconos de correo y campana, nombre de usuario y avatar.
+Menú lateral izquierdo con 4 íconos de línea (calendario, nodos, libreta con lápiz y libros); el ítem activo lleva una barra vertical rosa.
+Área central con el contenido.
+Panel derecho con tarjetas (en calendario y nodos).
+Pantallas maquetadas:
+Calendario: título del mes, días de lunes a domingo, celdas grises y Panel de Tareas con tarjetas que llevan una barra vertical del color de su asignatura y un botón +.
+Nodos interactivos: árbol con nodo principal hexagonal y secundarios circulares, conexiones grises con ángulos rectos tipo circuito, y panel de asignaturas con profesor, horario y metodología.
+Biblioteca: panel de clasificación con casillas por asignatura y cuadrícula de tarjetas con portada, barra horizontal del color de la asignatura, título, menú de tres puntos y botón +.
+11. Puntos abiertos por resolver
+Surgen de comparar la identidad visual con las decisiones de la Fase 0 y se tratarán en la Fase 1:
+Orientación: las maquetas son horizontales; hay que definir cómo se adaptan el menú lateral y el panel derecho en celular vertical y en computadora.
+Menú lateral: definir qué representa la libreta con lápiz y ubicar el menú de inicio con carpetas, el horario y el controlador de notas.
+Choque de colores: el rosa vívido es acento de la interfaz y posible color de asignatura; el amarillo se parece al nivel Oro del contorno.
+Contorno e intensidad de nodos: las maquetas aún no muestran el contorno por nota ni la intensidad por dominio.
+Estados de tareas: falta mostrar Pendiente, En Espera, Terminada y los filtros; definir la función del botón + de cada tarjeta.
+Nombres de secciones: unificar "Librería" y "Biblioteca", "Nodos Interactivos" y "Nodos de Conocimiento".
+Error en la maqueta: el mes dice "2o26" en lugar de 2026.
+Tema claro: decidir si habrá versión clara además de la oscura.
+Legibilidad: revisar el contraste de íconos grises y texto pequeño sobre #29313C.
+Archivos del logo: se necesitan versiones en SVG o PNG con fondo transparente (color y monocroma) y una versión cuadrada para el ícono de la app.
+Tipografía: elegir fuentes concretas (por ejemplo, de Google Fonts).
+12. Qué se necesita para empezar
+Por parte del usuario
+Crear cuentas en GitHub, Supabase y Resend.
+Probar cada entrega y dar feedback.
+Aportar las reglas de calificación de su institución (escala, nota mínima de aprobación y ponderaciones), que se piden en la Fase 4.
+Por parte de Claude
+Escribir el código y guiar paso a paso, explicando cada parte.
+Preparar wireframes y el esquema de base de datos en la Fase 1.
+13. Siguiente paso
+Iniciar la Fase 1: Diseño de experiencia y datos: mapa de navegación, wireframes de las pantallas clave, identidad visual refinada y modelo de datos completo.
+

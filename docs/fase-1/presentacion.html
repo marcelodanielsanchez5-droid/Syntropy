@@ -1,0 +1,2615 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Syntropy — Presentación de la Fase 1: arquitectura, navegación, wireframes, sistema de diseño, modelo de datos y decisiones pendientes.">
+  <title>Syntropy · Fase 1 — Diseño y arquitectura</title>
+  <link rel="icon" href="../assets/logo-mark.svg" type="image/svg+xml">
+  <style>
+    @font-face {
+      font-family: "Inter";
+      src: url("../assets/Inter-Variable.woff2") format("woff2");
+      font-weight: 100 900;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    :root {
+      --canvas: #0c141f;
+      --shell: #101824;
+      --surface: #29313c;
+      --surface-2: #1a2330;
+      --sunken: #121a27;
+      --border: #2f3947;
+      --border-strong: #465264;
+      --text: #ffffff;
+      --text-2: #c7ced8;
+      --muted: #98a2b3;
+      --faint: #8b95a5;
+      --rose: #e01462;
+      --rose-bright: #ff478d;
+      --rose-soft: #ffb3cd;
+      --purple: #8b18d9;
+      --purple-deep: #6f07c8;
+      --magenta: #ca01cc;
+      --yellow: #ffde00;
+      --success: #5dd6a2;
+      --warning: #ffc857;
+      --danger: #ff6b8a;
+      --info: #8ab4ff;
+      --cyan: #7fe7ff;
+      --gradient: linear-gradient(115deg, #ff478d 0%, #ca01cc 48%, #8b18d9 100%);
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 18px;
+      --radius-xl: 26px;
+      --shadow: 0 30px 80px rgba(0, 0, 0, .45);
+      --font: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+      --nav-w: 248px;
+      --topbar-h: 68px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: calc(var(--topbar-h) + 20px);
+    }
+
+    body {
+      margin: 0;
+      background: var(--canvas);
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 16px;
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -2;
+      pointer-events: none;
+      background:
+        radial-gradient(900px 560px at 88% -8%, rgba(139, 24, 217, .19), transparent 62%),
+        radial-gradient(720px 480px at 8% 12%, rgba(224, 20, 98, .11), transparent 60%),
+        radial-gradient(900px 600px at 55% 115%, rgba(202, 1, 204, .08), transparent 65%);
+    }
+
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      opacity: .38;
+      background-image:
+        linear-gradient(rgba(125, 133, 146, .055) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(125, 133, 146, .055) 1px, transparent 1px);
+      background-size: 56px 56px;
+      mask-image: linear-gradient(to bottom, black, transparent 78%);
+    }
+
+    ::selection { background: rgba(255, 71, 141, .32); color: #fff; }
+
+    a { color: var(--rose-soft); text-underline-offset: 3px; }
+    a:hover { color: #fff; }
+
+    h1, h2, h3, h4, p { margin-top: 0; }
+    h1, h2, h3, h4 { letter-spacing: -.025em; line-height: 1.12; }
+
+    img, svg { display: block; max-width: 100%; }
+
+    button { font: inherit; }
+
+    .skip-link {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      z-index: 100;
+      padding: 10px 16px;
+      border-radius: 10px;
+      background: #fff;
+      color: #111;
+      transform: translateY(-160%);
+      transition: transform .15s ease;
+    }
+    .skip-link:focus { transform: translateY(0); }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      height: var(--topbar-h);
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      padding: 0 26px;
+      border-bottom: 1px solid rgba(47, 57, 71, .85);
+      background: rgba(12, 20, 31, .82);
+      backdrop-filter: blur(18px);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      color: #fff;
+      text-decoration: none;
+      font-weight: 760;
+      letter-spacing: -.02em;
+      font-size: 18px;
+    }
+    .brand img { width: 30px; height: 30px; }
+    .brand span span { color: var(--rose-bright); }
+
+    .topbar-divider { width: 1px; height: 24px; background: var(--border); }
+
+    .topbar-context {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      color: var(--muted);
+      font-size: 13px;
+      min-width: 0;
+    }
+    .topbar-context strong { color: var(--text-2); font-weight: 560; }
+
+    .topbar-actions { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 6px 11px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(41, 49, 60, .55);
+      color: var(--text-2);
+      font-size: 12px;
+      font-weight: 560;
+      white-space: nowrap;
+    }
+    .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--success); box-shadow: 0 0 0 4px rgba(93, 214, 162, .12); flex: none; }
+
+    .layout {
+      display: grid;
+      grid-template-columns: var(--nav-w) minmax(0, 1fr);
+      min-height: calc(100vh - var(--topbar-h));
+    }
+
+    .sidenav {
+      position: sticky;
+      top: var(--topbar-h);
+      height: calc(100vh - var(--topbar-h));
+      overflow-y: auto;
+      padding: 28px 18px 32px 26px;
+      border-right: 1px solid rgba(47, 57, 71, .65);
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
+    }
+
+    .sidenav-label {
+      margin: 0 0 14px 10px;
+      font-size: 10px;
+      font-weight: 680;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      color: var(--faint);
+    }
+
+    .nav-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 3px; }
+
+    .nav-link {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 9px 10px;
+      border-radius: 10px;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 510;
+      transition: background .16s ease, color .16s ease;
+    }
+    .nav-link:hover { background: #1b2431; color: #e8edf5; }
+    .nav-link[aria-current="true"] { background: #1e2735; color: #fff; }
+    .nav-link[aria-current="true"]::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 9px;
+      bottom: 9px;
+      width: 3px;
+      border-radius: 0 3px 3px 0;
+      background: var(--rose-bright);
+    }
+    .nav-num {
+      width: 21px;
+      font-variant-numeric: tabular-nums;
+      font-size: 10px;
+      font-weight: 650;
+      letter-spacing: .06em;
+      color: var(--faint);
+      flex: none;
+    }
+    .nav-link[aria-current="true"] .nav-num { color: var(--rose-bright); }
+
+    .sidenav-foot {
+      margin: 28px 8px 0;
+      padding-top: 20px;
+      border-top: 1px solid rgba(47, 57, 71, .7);
+      color: var(--faint);
+      font-size: 11px;
+      line-height: 1.6;
+    }
+    .sidenav-foot strong { display: block; margin-bottom: 3px; color: var(--text-2); font-weight: 560; }
+
+    main { min-width: 0; }
+
+    .section {
+      position: relative;
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 88px 56px 96px;
+      border-bottom: 1px solid rgba(47, 57, 71, .55);
+    }
+    .section:last-of-type { border-bottom: 0; }
+
+    .section-head {
+      display: grid;
+      grid-template-columns: 136px minmax(0, 1fr);
+      gap: 24px;
+      margin-bottom: 42px;
+    }
+
+    .section-index {
+      padding-top: 7px;
+      font-size: 12px;
+      font-weight: 650;
+      letter-spacing: .14em;
+      color: var(--rose-bright);
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+    .section-index::after {
+      content: "";
+      display: block;
+      width: 36px;
+      height: 1px;
+      margin-top: 10px;
+      background: linear-gradient(90deg, var(--rose-bright), transparent);
+    }
+
+    .section-title { margin: 0 0 10px; font-size: clamp(30px, 3.2vw, 46px); font-weight: 760; }
+    .section-lead { max-width: 760px; margin: 0; color: var(--muted); font-size: 16px; line-height: 1.7; }
+
+    .kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      margin-bottom: 13px;
+      color: var(--rose-soft);
+      font-size: 11px;
+      font-weight: 680;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+    }
+    .kicker::before { content: ""; width: 24px; height: 1px; background: var(--rose-bright); }
+
+    .grad {
+      background: var(--gradient);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .grid-2, .grid-3, .grid-4 { display: grid; gap: 16px; }
+    .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+    .card {
+      position: relative;
+      padding: 24px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      background: linear-gradient(160deg, rgba(41, 49, 60, .72), rgba(26, 35, 48, .74));
+      overflow: hidden;
+    }
+    .card > :last-child { margin-bottom: 0; }
+    .card h3 { margin-bottom: 8px; font-size: 18px; font-weight: 650; }
+    .card p { margin-bottom: 0; color: var(--muted); font-size: 14px; line-height: 1.65; }
+    .card--soft { background: rgba(18, 26, 39, .6); }
+    .card--glow::after {
+      content: "";
+      position: absolute;
+      width: 220px;
+      height: 220px;
+      right: -110px;
+      top: -110px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255, 71, 141, .15), transparent 68%);
+      pointer-events: none;
+    }
+
+    .card-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+    .icon-box {
+      width: 40px;
+      height: 40px;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--border);
+      border-radius: 11px;
+      background: rgba(18, 26, 39, .7);
+      color: var(--rose-bright);
+    }
+    .icon-box svg { width: 20px; height: 20px; }
+
+    .eyebrow { color: var(--faint); font-size: 10px; font-weight: 680; letter-spacing: .13em; text-transform: uppercase; }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(18, 26, 39, .72);
+      color: var(--muted);
+      font-size: 10.5px;
+      font-weight: 620;
+      white-space: nowrap;
+    }
+    .tag--rose { border-color: rgba(255, 71, 141, .35); background: rgba(224, 20, 98, .12); color: var(--rose-soft); }
+    .tag--purple { border-color: rgba(139, 24, 217, .38); background: rgba(139, 24, 217, .14); color: #d8b4f8; }
+    .tag--success { border-color: rgba(93, 214, 162, .3); background: rgba(93, 214, 162, .1); color: var(--success); }
+    .tag--warning { border-color: rgba(255, 200, 87, .3); background: rgba(255, 200, 87, .09); color: var(--warning); }
+    .tag--info { border-color: rgba(138, 180, 255, .28); background: rgba(138, 180, 255, .1); color: var(--info); }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 42px;
+      padding: 0 18px;
+      border: 1px solid transparent;
+      border-radius: var(--radius-md);
+      background: var(--rose);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 650;
+      text-decoration: none;
+      transition: background .16s ease, transform .16s ease;
+    }
+    .btn:hover { background: #b30e4b; color: #fff; }
+    .btn--ghost { background: transparent; border-color: var(--border-strong); color: var(--text-2); }
+    .btn--ghost:hover { background: #1b2431; border-color: var(--muted); color: #fff; }
+    .btn svg { width: 16px; height: 16px; }
+
+    .note {
+      display: flex;
+      gap: 13px;
+      padding: 16px 18px;
+      border: 1px solid rgba(255, 200, 87, .24);
+      border-radius: var(--radius-md);
+      background: rgba(58, 44, 18, .26);
+      color: #e8d6aa;
+      font-size: 13px;
+      line-height: 1.65;
+    }
+    .note svg { width: 18px; height: 18px; flex: none; margin-top: 2px; color: var(--warning); }
+    .note strong { color: #ffe1a0; }
+
+    ul.clean { margin: 0; padding: 0; list-style: none; }
+    ul.clean li { position: relative; padding-left: 20px; margin: 8px 0; color: var(--text-2); font-size: 14px; }
+    ul.clean li::before {
+      content: "";
+      position: absolute;
+      left: 1px;
+      top: .62em;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--rose-bright);
+    }
+    ul.clean li strong { color: #fff; }
+
+    .divider { height: 1px; margin: 28px 0; background: rgba(47, 57, 71, .75); }
+
+    .small { color: var(--muted); font-size: 12.5px; line-height: 1.6; }
+    .tiny { color: var(--faint); font-size: 11px; line-height: 1.55; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+
+    /* Portada */
+    .cover {
+      max-width: 1280px;
+      min-height: calc(100vh - var(--topbar-h));
+      margin: 0 auto;
+      padding: 64px 56px 56px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      border-bottom: 1px solid rgba(47, 57, 71, .55);
+      overflow: hidden;
+    }
+
+    .cover-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(320px, .85fr);
+      gap: 54px;
+      align-items: center;
+    }
+
+    .cover-brand { display: flex; align-items: center; gap: 14px; margin-bottom: 30px; }
+    .cover-brand img { width: 46px; height: 46px; filter: drop-shadow(0 8px 26px rgba(224, 20, 98, .25)); }
+    .cover-brand .name { font-size: 18px; font-weight: 720; letter-spacing: -.02em; }
+    .cover-brand .phase { color: var(--faint); font-size: 11px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; }
+
+    .cover h1 {
+      margin-bottom: 22px;
+      font-size: clamp(42px, 6vw, 78px);
+      font-weight: 800;
+      line-height: 1.02;
+      letter-spacing: -.045em;
+      max-width: 720px;
+    }
+
+    .cover-lead {
+      max-width: 610px;
+      margin-bottom: 30px;
+      color: var(--text-2);
+      font-size: clamp(15px, 1.5vw, 18px);
+      line-height: 1.7;
+    }
+
+    .cover-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 34px; }
+
+    .cover-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+    .cover-hint { color: var(--faint); font-size: 11px; }
+
+    .orbit {
+      position: relative;
+      width: min(100%, 410px);
+      aspect-ratio: 1;
+      margin: 0 auto;
+    }
+    .orbit-ring {
+      position: absolute;
+      inset: 8%;
+      border: 1px solid rgba(125, 133, 146, .22);
+      border-radius: 50%;
+    }
+    .orbit-ring:nth-child(2) { inset: 21%; border-color: rgba(255, 71, 141, .18); }
+    .orbit-ring:nth-child(3) { inset: 34%; border-style: dashed; border-color: rgba(139, 24, 217, .4); }
+    .orbit::before {
+      content: "";
+      position: absolute;
+      inset: 15%;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(202, 1, 204, .13), transparent 68%);
+      filter: blur(8px);
+    }
+    .orbit-mark {
+      position: absolute;
+      inset: 50% auto auto 50%;
+      width: 38%;
+      transform: translate(-50%, -50%);
+      filter: drop-shadow(0 18px 42px rgba(224, 20, 98, .24));
+    }
+    .orbit-node {
+      position: absolute;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 7px 10px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: rgba(16, 24, 36, .9);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, .3);
+      color: var(--text-2);
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: .02em;
+      white-space: nowrap;
+      backdrop-filter: blur(8px);
+    }
+    .orbit-node i { width: 6px; height: 6px; border-radius: 50%; background: var(--rose-bright); }
+
+    .on-1 { top: 7%; left: 50%; transform: translateX(-50%); }
+    .on-2 { top: 25%; right: -2%; }
+    .on-3 { bottom: 23%; right: 1%; }
+    .on-4 { bottom: 4%; left: 50%; transform: translateX(-50%); }
+    .on-5 { bottom: 29%; left: -4%; }
+    .on-6 { top: 22%; left: -1%; }
+
+    .cover-foot {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 18px;
+      margin-top: 52px;
+      padding-top: 20px;
+      border-top: 1px solid rgba(47, 57, 71, .55);
+      color: var(--faint);
+      font-size: 11px;
+    }
+    .cover-foot strong { color: var(--text-2); font-weight: 560; }
+
+    .status-dot { display: inline-flex; align-items: center; gap: 7px; }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+    }
+
+    @media (max-width: 1120px) {
+      :root { --nav-w: 216px; }
+      .section { padding: 72px 36px 80px; }
+      .cover { padding-left: 36px; padding-right: 36px; }
+      .cover-grid { gap: 34px; }
+      .grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 880px) {
+      :root { --topbar-h: 60px; }
+      .topbar { padding: 0 16px; }
+      .topbar-context, .topbar-divider { display: none; }
+      .layout { display: block; }
+      .sidenav { display: none; }
+      .section { padding: 56px 20px 64px; }
+      .section-head { grid-template-columns: 1fr; gap: 10px; }
+      .section-index { padding-top: 0; }
+      .section-index::after { display: none; }
+      .cover { padding: 44px 20px; min-height: auto; }
+      .cover-grid { grid-template-columns: 1fr; }
+      .orbit { width: min(100%, 300px); margin: 8px auto 0; }
+      .cover-foot { margin-top: 36px; }
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+      .topbar-actions .pill span.label { display: none; }
+    }
+
+    /* Mockups de interfaz */
+    .app-frame {
+      border: 1px solid var(--border-strong);
+      border-radius: 16px;
+      background: var(--canvas);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      font-size: 10px;
+      line-height: 1.45;
+    }
+    .app-top {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      height: 40px;
+      padding: 0 14px;
+      border-bottom: 1px solid var(--border);
+      background: var(--shell);
+    }
+    .shot-brand { display: flex; align-items: center; gap: 6px; color: #fff; font-weight: 700; font-size: 10px; }
+    .shot-brand img { width: 17px; height: 17px; }
+    .shot-page { color: var(--muted); font-size: 9px; }
+    .shot-page::before { content: "/"; margin-right: 8px; color: var(--border-strong); }
+    .shot-top-actions { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+    .shot-bell { position: relative; width: 15px; height: 15px; border: 1.4px solid var(--muted); border-radius: 7px 7px 4px 4px; }
+    .shot-bell::after { content: ""; position: absolute; left: 50%; bottom: -4px; width: 5px; height: 2px; border-radius: 2px; background: var(--muted); transform: translateX(-50%); }
+    .shot-avatar { width: 18px; height: 18px; border-radius: 50%; background: linear-gradient(135deg, var(--rose-bright), var(--purple)); border: 1px solid rgba(255,255,255,.25); }
+
+    .app-body { display: grid; grid-template-columns: 118px minmax(0, 1fr) 134px; min-height: 320px; }
+    .shot-side { padding: 10px 8px; border-right: 1px solid var(--border); background: var(--shell); }
+    .shot-year {
+      display: flex; align-items: center; justify-content: space-between; gap: 4px;
+      margin-bottom: 10px; padding: 6px 7px; border: 1px solid var(--border); border-radius: 6px;
+      background: var(--sunken); color: var(--text-2); font-size: 7.5px; font-weight: 600;
+    }
+    .shot-year span:last-child { color: var(--faint); }
+    .shot-nav { list-style: none; margin: 0; padding: 0; display: grid; gap: 1px; }
+    .shot-nav li { display: flex; align-items: center; gap: 6px; padding: 5px 7px; border-radius: 5px; color: var(--muted); font-size: 8px; }
+    .shot-nav li.active { background: #1e2735; color: #fff; box-shadow: inset 2px 0 0 var(--rose-bright); }
+    .shot-nav svg { width: 10px; height: 10px; flex: none; }
+    .shot-nav .later { color: var(--faint); }
+    .shot-nav .soon { margin-left: auto; font-size: 5.5px; letter-spacing: .02em; border: 1px solid var(--border); border-radius: 999px; padding: 1px 4px; }
+
+    .shot-main { padding: 12px 14px; background: radial-gradient(300px 150px at 80% 0%, rgba(139,24,217,.09), transparent 70%), var(--canvas); min-width: 0; }
+    .shot-hello { margin: 0 0 2px; color: var(--muted); font-size: 7.5px; }
+    .shot-h { margin: 0 0 10px; font-size: 13px; font-weight: 720; letter-spacing: -.02em; }
+    .shot-funcs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin-bottom: 10px; }
+    .shot-func { display: grid; gap: 4px; place-items: center; padding: 9px 4px 7px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface-2); color: var(--text-2); font-size: 6px; text-align: center; }
+    .shot-func svg { width: 13px; height: 13px; color: var(--rose-soft); }
+    .shot-label { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
+    .shot-label b { font-size: 9px; }
+    .shot-label span { color: var(--faint); font-size: 6.5px; }
+    .shot-folders { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 10px; }
+    .shot-folder { min-height: 54px; padding: 6px; border-radius: 7px; background: rgba(41,49,60,.6); border: 1px solid var(--border); }
+    .shot-folder::before { content: ""; display: block; height: 30px; border-radius: 3px 5px 5px 5px; background: var(--folder, var(--rose)); opacity: .9; }
+    .shot-folder span { display: block; margin-top: 4px; color: var(--text-2); font-size: 6.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .shot-task { display: flex; align-items: center; gap: 7px; padding: 7px 8px; border: 1px solid var(--border); border-left: 3px solid var(--yellow); border-radius: 6px; background: var(--surface-2); }
+    .shot-task .dot2 { width: 5px; height: 5px; border-radius: 50%; background: var(--yellow); flex: none; }
+    .shot-task p { flex: 1; margin: 0; font-size: 7px; color: var(--text-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .shot-task span { color: var(--warning); font-size: 6px; }
+
+    .shot-panel { padding: 12px 10px; border-left: 1px solid var(--border); background: var(--shell); }
+    .shot-panel h5 { margin: 0 0 8px; font-size: 8.5px; }
+    .shot-panel .today { display: block; margin-bottom: 7px; color: var(--faint); font-size: 6.5px; }
+    .shot-pitem { padding: 6px; margin-bottom: 5px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface-2); }
+    .shot-pitem p { margin: 0 0 2px; font-size: 6.7px; color: var(--text-2); line-height: 1.35; }
+    .shot-pitem span { font-size: 5.8px; color: var(--faint); }
+    .shot-pitem .bar { height: 2px; margin-top: 5px; border-radius: 2px; background: var(--border); overflow: hidden; }
+    .shot-pitem .bar i { display: block; height: 100%; width: 65%; background: var(--rose-bright); }
+
+    .phone {
+      width: 216px;
+      margin: 0 auto;
+      padding: 7px;
+      border: 1px solid var(--border-strong);
+      border-radius: 30px;
+      background: #070d15;
+      box-shadow: 0 28px 60px rgba(0,0,0,.5);
+    }
+    .phone-inner { position: relative; min-height: 390px; border-radius: 24px; overflow: hidden; background: var(--canvas); }
+    .phone-inner::before { content: ""; position: absolute; top: 6px; left: 50%; width: 52px; height: 4px; border-radius: 999px; background: #1d2735; transform: translateX(-50%); }
+    .phone-top { display: flex; align-items: center; gap: 7px; padding: 17px 12px 8px; border-bottom: 1px solid rgba(47,57,71,.65); }
+    .phone-top img { width: 18px; height: 18px; }
+    .phone-top b { font-size: 11px; }
+    .phone-top .shot-avatar { margin-left: auto; width: 17px; height: 17px; }
+    .phone-main { padding: 11px 11px 58px; }
+    .phone-greet { margin: 0; color: var(--muted); font-size: 7px; }
+    .phone-main h5 { margin: 1px 0 9px; font-size: 12px; }
+    .phone-folders { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 10px; }
+    .phone-folder { padding: 5px; border: 1px solid var(--border); border-radius: 7px; background: var(--surface-2); }
+    .phone-folder::before { content: ""; display: block; height: 35px; border-radius: 3px 5px 5px 5px; background: var(--folder, var(--rose)); opacity: .9; }
+    .phone-folder span { display: block; margin-top: 4px; color: var(--text-2); font-size: 6px; }
+    .phone-sec { display: flex; justify-content: space-between; margin: 9px 0 5px; font-size: 7px; color: var(--text-2); font-weight: 600; }
+    .phone-sec span { color: var(--faint); font-weight: 400; font-size: 6px; }
+    .phone-task { display: flex; align-items: center; gap: 6px; padding: 6px 7px; margin-bottom: 4px; border: 1px solid var(--border); border-left: 2px solid var(--rose-bright); border-radius: 5px; background: var(--surface-2); }
+    .phone-task p { flex: 1; margin: 0; font-size: 6.3px; color: var(--text-2); }
+    .phone-task span { color: var(--faint); font-size: 5.5px; }
+    .phone-fab { position: absolute; right: 12px; bottom: 58px; display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: var(--rose); color: #fff; font-size: 17px; box-shadow: 0 8px 18px rgba(224,20,98,.35); }
+    .phone-tabs { position: absolute; inset: auto 0 0; display: grid; grid-template-columns: repeat(5, 1fr); height: 48px; border-top: 1px solid var(--border); background: rgba(16,24,36,.96); backdrop-filter: blur(8px); }
+    .phone-tab { display: grid; place-items: center; align-content: center; gap: 2px; color: var(--faint); font-size: 5.5px; }
+    .phone-tab svg { width: 11px; height: 11px; }
+    .phone-tab.active { color: var(--rose-bright); }
+
+    .route-list { display: grid; gap: 7px; }
+    .route {
+      display: grid;
+      grid-template-columns: 100px minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: center;
+      padding: 11px 13px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: rgba(18, 26, 39, .55);
+    }
+    .route code { color: var(--rose-soft); font-size: 10.5px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    .route p { margin: 0; color: var(--muted); font-size: 11px; }
+    .route .tag { font-size: 9px; }
+
+    .flow-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 22px; }
+    .flow { padding: 17px; border: 1px solid var(--border); border-radius: var(--radius-md); background: rgba(18,26,39,.5); }
+    .flow h4 { margin: 0 0 9px; font-size: 12.5px; }
+    .flow ol { margin: 0; padding-left: 15px; color: var(--muted); font-size: 10.5px; line-height: 1.7; }
+    .flow li::marker { color: var(--rose-bright); font-size: 9px; }
+
+    @media (max-width: 1120px) {
+      .app-body { grid-template-columns: 110px minmax(0, 1fr); }
+      .shot-panel { display: none; }
+      .nav-spread { grid-template-columns: minmax(0, 1fr) !important; }
+      .phone { margin-top: 8px; }
+      .flow-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 560px) {
+      .app-body { grid-template-columns: 90px minmax(0, 1fr); min-height: 300px; }
+      .shot-side { padding: 8px 5px; }
+      .shot-nav li { font-size: 6.5px; padding: 4px 5px; gap: 4px; }
+      .shot-funcs { grid-template-columns: repeat(2, 1fr); }
+      .shot-folders { grid-template-columns: repeat(2, 1fr); }
+      .shot-main { padding: 10px; }
+      .shot-h { font-size: 11px; }
+      .route { grid-template-columns: 1fr auto; }
+      .route p { grid-column: 1 / -1; }
+      .route code { font-size: 9.5px; }
+    }
+
+    /* Wireframes */
+    .wf-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-bottom: 16px;
+      padding: 5px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: rgba(18, 26, 39, .6);
+      width: fit-content;
+      max-width: 100%;
+    }
+    .wf-tab {
+      padding: 8px 12px;
+      border: 0;
+      border-radius: 8px;
+      background: transparent;
+      color: var(--muted);
+      font-size: 11.5px;
+      font-weight: 580;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .wf-tab:hover { background: #1b2431; color: #fff; }
+    .wf-tab[aria-selected="true"] { background: var(--surface); color: #fff; box-shadow: 0 1px 0 rgba(255,255,255,.06) inset; }
+    .wf-tab:focus-visible { outline: 2px solid var(--rose-bright); outline-offset: 2px; }
+
+    .wf-panel[hidden] { display: none; }
+    .wf-stage {
+      padding: 26px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      background:
+        radial-gradient(600px 280px at 75% 0%, rgba(139, 24, 217, .09), transparent 65%),
+        repeating-linear-gradient(0deg, transparent, transparent 27px, rgba(125,133,146,.04) 28px),
+        repeating-linear-gradient(90deg, transparent, transparent 27px, rgba(125,133,146,.04) 28px),
+        #0a111b;
+    }
+    .wf-layout { display: grid; grid-template-columns: minmax(0, 1fr) 238px; gap: 22px; align-items: start; }
+    .wf-screen {
+      border: 1px solid var(--border-strong);
+      border-radius: 14px;
+      overflow: hidden;
+      background: var(--canvas);
+      box-shadow: 0 24px 60px rgba(0,0,0,.38);
+    }
+    .wf-chrome {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      height: 26px;
+      padding: 0 10px;
+      border-bottom: 1px solid var(--border);
+      background: #111a27;
+    }
+    .wf-chrome i { width: 6px; height: 6px; border-radius: 50%; background: var(--border-strong); }
+    .wf-chrome i:first-child { background: var(--rose); }
+    .wf-chrome span { margin-left: 6px; color: var(--faint); font-size: 7px; letter-spacing: .02em; }
+
+    .anno { display: grid; gap: 9px; }
+    .anno-item { display: grid; grid-template-columns: 20px minmax(0, 1fr); gap: 9px; padding-bottom: 9px; border-bottom: 1px solid rgba(47,57,71,.55); }
+    .anno-item:last-child { border-bottom: 0; padding-bottom: 0; }
+    .anno-num { display: grid; place-items: center; width: 20px; height: 20px; border-radius: 6px; border: 1px solid rgba(255,71,141,.3); background: rgba(224,20,98,.1); color: var(--rose-soft); font-size: 9px; font-weight: 700; }
+    .anno-item h5 { margin: 1px 0 2px; font-size: 12px; font-weight: 620; }
+    .anno-item p { margin: 0; color: var(--muted); font-size: 11px; line-height: 1.55; }
+
+    /* Acceso */
+    .wf-auth { display: grid; grid-template-columns: 1fr 1fr; min-height: 430px; }
+    .wf-auth-brand { position: relative; display: flex; flex-direction: column; justify-content: space-between; padding: 28px; background: radial-gradient(340px 240px at 20% 15%, rgba(255,71,141,.2), transparent 70%), radial-gradient(300px 250px at 85% 90%, rgba(139,24,217,.27), transparent 70%), #121a27; overflow: hidden; }
+    .wf-auth-brand::after { content: ""; position: absolute; inset: 20% -30% auto auto; width: 220px; height: 220px; border: 1px solid rgba(255,71,141,.16); border-radius: 50%; box-shadow: 0 0 0 38px rgba(255,71,141,.035), 0 0 0 76px rgba(139,24,217,.03); }
+    .wf-auth-brand img { width: 54px; height: 54px; margin-bottom: 18px; }
+    .wf-auth-brand h4 { margin: 0 0 9px; font-size: 23px; font-weight: 780; letter-spacing: -.035em; line-height: 1.12; max-width: 240px; }
+    .wf-auth-brand p { margin: 0; max-width: 230px; color: var(--muted); font-size: 9.5px; line-height: 1.65; }
+    .wf-auth-brand .tiny { position: relative; z-index: 1; }
+    .wf-auth-form { padding: 34px 30px; background: var(--canvas); }
+    .wf-auth-form h5 { margin: 0 0 4px; font-size: 19px; font-weight: 720; }
+    .wf-auth-form .sub { margin: 0 0 20px; color: var(--muted); font-size: 9px; }
+    .wf-field { margin-bottom: 12px; }
+    .wf-field label { display: block; margin-bottom: 4px; color: var(--text-2); font-size: 8px; font-weight: 600; }
+    .wf-input { display: flex; align-items: center; gap: 6px; height: 30px; padding: 0 9px; border: 1px solid var(--border); border-radius: 7px; background: var(--sunken); color: var(--faint); font-size: 8px; }
+    .wf-input.focus { border-color: var(--rose-bright); box-shadow: 0 0 0 2px rgba(255,71,141,.12); color: var(--text-2); }
+    .wf-input.err { border-color: var(--danger); }
+    .wf-error { margin-top: 3px; color: var(--danger); font-size: 7px; }
+    .wf-btn { display: flex; align-items: center; justify-content: center; height: 32px; border: 0; border-radius: 7px; background: var(--rose); color: #fff; font-size: 8.5px; font-weight: 680; }
+    .wf-btn--ghost { border: 1px solid var(--border); background: transparent; color: var(--text-2); }
+    .wf-auth-links { display: flex; justify-content: space-between; margin-top: 10px; color: var(--faint); font-size: 7.5px; }
+    .wf-auth-links span { color: var(--rose-soft); }
+
+    /* App genérica wireframe */
+    .wf-app-top { display: flex; align-items: center; gap: 10px; height: 35px; padding: 0 13px; border-bottom: 1px solid var(--border); background: var(--shell); }
+    .wf-app-top img { width: 16px; height: 16px; }
+    .wf-app-top b { font-size: 10px; }
+    .wf-app-top .wf-crumb { color: var(--faint); font-size: 7.5px; }
+    .wf-app-top .wf-avatar { margin-left: auto; width: 17px; height: 17px; border-radius: 50%; background: linear-gradient(135deg,var(--rose-bright),var(--purple)); }
+    .wf-app-body { display: grid; grid-template-columns: 92px minmax(0,1fr); min-height: 330px; }
+    .wf-side { padding: 9px 6px; border-right: 1px solid var(--border); background: var(--shell); }
+    .wf-year { margin-bottom: 8px; padding: 5px 6px; border: 1px solid var(--border); border-radius: 5px; background: var(--sunken); color: var(--text-2); font-size: 6px; }
+    .wf-nav { list-style: none; margin: 0; padding: 0; display: grid; gap: 1px; }
+    .wf-nav li { padding: 5px 6px; border-radius: 4px; color: var(--muted); font-size: 7px; }
+    .wf-nav li.active { background: #1e2735; color: #fff; box-shadow: inset 2px 0 0 var(--rose-bright); }
+    .wf-content { padding: 15px; background: var(--canvas); }
+    .wf-h { margin: 0 0 2px; font-size: 17px; font-weight: 750; letter-spacing: -.03em; }
+    .wf-sub { margin: 0 0 13px; color: var(--muted); font-size: 8px; }
+    .wf-shortcuts { display: grid; grid-template-columns: repeat(4,1fr); gap: 6px; margin-bottom: 14px; }
+    .wf-shortcut { display: grid; place-items: center; gap: 5px; padding: 10px 4px; border: 1px solid var(--border); border-radius: 7px; background: var(--surface-2); color: var(--text-2); font-size: 6px; }
+    .wf-shortcut svg { width: 14px; height: 14px; color: var(--rose-soft); }
+    .wf-folders2 { display: grid; grid-template-columns: repeat(3,1fr); gap: 7px; }
+    .wf-folder2 { padding: 6px; border: 1px solid var(--border); border-radius: 7px; background: var(--surface-2); }
+    .wf-folder2::before { content: ""; display: block; height: 42px; border-radius: 4px 6px 6px 6px; background: var(--folder, var(--rose)); opacity: .92; }
+    .wf-folder2 span { display: block; margin-top: 5px; color: var(--text-2); font-size: 7px; }
+    .wf-empty { display: grid; place-items: center; min-height: 120px; padding: 16px; border: 1px dashed var(--border-strong); border-radius: 8px; color: var(--muted); text-align: center; font-size: 8px; }
+    .wf-empty b { display: block; margin-bottom: 4px; color: #fff; font-size: 10px; }
+    .wf-empty .plus { display: grid; place-items: center; width: 30px; height: 30px; margin: 0 auto 7px; border: 1px dashed var(--rose-bright); border-radius: 50%; color: var(--rose-bright); font-size: 18px; }
+
+    /* Formulario de asignatura */
+    .wf-form-bg { position: relative; min-height: 430px; padding: 24px; background: rgba(7, 13, 21, .72); }
+    .wf-form-bg::before { content: ""; position: absolute; inset: 0; background: linear-gradient(160deg, rgba(224,20,98,.05), transparent 55%); pointer-events: none; }
+    .wf-modal { position: relative; z-index: 1; width: min(100%, 440px); margin: 0 auto; padding: 22px; border: 1px solid var(--border-strong); border-radius: 15px; background: var(--shell); box-shadow: var(--shadow); }
+    .wf-modal-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 16px; }
+    .wf-modal-top h5 { margin: 0 0 3px; font-size: 16px; font-weight: 720; }
+    .wf-modal-top p { margin: 0; color: var(--muted); font-size: 7.5px; }
+    .wf-close { display: grid; place-items: center; width: 22px; height: 22px; border: 1px solid var(--border); border-radius: 6px; color: var(--muted); font-size: 11px; }
+    .wf-row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .wf-color-grid { display: grid; grid-template-columns: repeat(6,1fr); gap: 5px; padding: 8px; border: 1px solid var(--border); border-radius: 8px; background: var(--sunken); }
+    .wf-color { width: 100%; aspect-ratio: 1; border-radius: 50%; border: 2px solid transparent; }
+    .wf-color.sel { border-color: #fff; box-shadow: 0 0 0 2px var(--canvas), 0 0 0 3px rgba(255,71,141,.6); }
+    .wf-advanced { display: flex; align-items: center; justify-content: space-between; margin: 12px 0; padding: 8px 9px; border: 1px solid var(--border); border-radius: 7px; color: var(--muted); font-size: 7.5px; }
+    .wf-modal-actions { display: flex; justify-content: flex-end; gap: 7px; margin-top: 14px; }
+    .wf-modal-actions .wf-btn { width: auto; padding: 0 14px; }
+    .wf-check { display: flex; align-items: center; gap: 6px; color: var(--muted); font-size: 7px; }
+
+    /* Calendario */
+    .wf-cal-top { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+    .wf-cal-top h5 { margin: 0; font-size: 14px; }
+    .wf-cal-top span { color: var(--faint); font-size: 7px; }
+    .wf-cal-top .wf-btn { margin-left: auto; width: auto; height: 24px; padding: 0 9px; font-size: 7px; }
+    .wf-cal { display: grid; grid-template-columns: repeat(7,1fr); gap: 3px; }
+    .wf-dow { padding: 5px 2px; border: 1px solid var(--border); border-radius: 4px; background: var(--surface-2); color: var(--text-2); font-size: 6px; font-weight: 650; text-align: center; }
+    .wf-day { position: relative; min-height: 38px; padding: 4px; border: 1px solid var(--border); border-radius: 4px; background: rgba(26,35,48,.65); color: var(--text-2); font-size: 6.5px; }
+    .wf-day.dim { color: var(--faint); opacity: .5; }
+    .wf-day.today { border-color: var(--rose-bright); background: rgba(224,20,98,.09); }
+    .wf-day.sel { box-shadow: inset 0 0 0 1px var(--rose-bright); }
+    .wf-ev { margin-top: 3px; padding: 2px 3px; border-left: 2px solid var(--ev, var(--rose-bright)); border-radius: 2px; background: rgba(255,255,255,.04); color: var(--text-2); font-size: 5.3px; line-height: 1.35; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+    .wf-ev.more { border-left-color: transparent; color: var(--faint); background: transparent; }
+    .wf-cal-side { margin-top: 12px; padding: 9px; border: 1px solid var(--border); border-radius: 7px; background: var(--surface-2); }
+    .wf-cal-side h6 { margin: 0 0 6px; font-size: 8px; }
+    .wf-cal-side .item { display: flex; gap: 6px; padding: 5px 0; border-top: 1px solid var(--border); }
+    .wf-cal-side .item i { width: 2px; border-radius: 2px; background: var(--rose-bright); flex: none; }
+    .wf-cal-side .item p { margin: 0; font-size: 6.5px; color: var(--text-2); }
+    .wf-cal-side .item span { color: var(--faint); font-size: 5.5px; }
+
+    /* Detalle de tarea */
+    .wf-task-bg { padding: 22px; background: rgba(7,13,21,.5); min-height: 430px; }
+    .wf-task { display: grid; grid-template-columns: minmax(0,1fr) 150px; gap: 10px; }
+    .wf-task-main { padding: 20px; border: 1px solid var(--border); border-left: 4px solid var(--yellow); border-radius: 10px; background: var(--surface); }
+    .wf-task-kicker { display: flex; align-items: center; gap: 6px; margin-bottom: 7px; color: var(--warning); font-size: 7px; font-weight: 650; }
+    .wf-task-kicker i { width: 5px; height: 5px; border-radius: 50%; background: var(--yellow); }
+    .wf-task-main h5 { margin: 0 0 4px; font-size: 17px; font-weight: 720; }
+    .wf-task-main .subject { margin: 0 0 15px; color: var(--faint); font-size: 7.5px; }
+    .wf-task-main h6 { margin: 12px 0 3px; color: var(--text-2); font-size: 8px; }
+    .wf-task-main p { margin: 0; color: var(--muted); font-size: 7.3px; line-height: 1.7; }
+    .wf-task-main ul { margin: 0; padding-left: 12px; color: var(--muted); font-size: 7.3px; line-height: 1.7; }
+    .wf-task-actions { display: flex; gap: 6px; margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--border); }
+    .wf-iconbtn { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: var(--rose); color: #fff; font-size: 10px; }
+    .wf-iconbtn svg { width: 11px; height: 11px; }
+    .wf-task-side { display: grid; align-content: start; gap: 7px; }
+    .wf-meta { padding: 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface-2); }
+    .wf-meta .lbl { display: block; margin-bottom: 3px; color: var(--faint); font-size: 5.8px; letter-spacing: .08em; text-transform: uppercase; }
+    .wf-meta strong { font-size: 8px; font-weight: 600; }
+    .wf-progress { height: 3px; margin-top: 6px; border-radius: 3px; background: var(--border); overflow: hidden; }
+    .wf-progress i { display: block; width: 65%; height: 100%; background: var(--rose-bright); }
+    .wf-annot { margin-top: 12px; color: var(--faint); font-size: 6.5px; line-height: 1.55; }
+
+    @media (max-width: 1120px) {
+      .wf-layout { grid-template-columns: 1fr; }
+      .anno { grid-template-columns: 1fr 1fr; }
+      .anno-item:nth-last-child(1), .anno-item:nth-last-child(2) { border-bottom: 0; }
+      .wf-stage { padding: 18px; }
+      .wf-task { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 700px) {
+      .wf-auth { grid-template-columns: 1fr; }
+      .wf-auth-brand { min-height: 150px; padding: 20px; }
+      .wf-auth-brand h4 { font-size: 18px; }
+      .wf-auth-form { padding: 22px; }
+      .wf-app-body { grid-template-columns: 72px minmax(0,1fr); }
+      .wf-shortcuts { grid-template-columns: 1fr 1fr; }
+      .wf-folders2 { grid-template-columns: 1fr 1fr; }
+      .anno { grid-template-columns: 1fr; }
+      .anno-item { border-bottom: 1px solid rgba(47,57,71,.55) !important; }
+      .wf-stage { padding: 12px; }
+      .wf-task-bg { padding: 12px; }
+    }
+
+    /* Sistema de diseño */
+    .brand-card {
+      display: grid;
+      grid-template-columns: 148px minmax(0,1fr);
+      gap: 20px;
+      align-items: center;
+      padding: 20px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      background: radial-gradient(240px 180px at 12% 50%, rgba(224,20,98,.12), transparent 70%), rgba(18,26,39,.55);
+    }
+    .brand-card-preview { display: grid; place-items: center; min-height: 132px; border: 1px solid var(--border); border-radius: 12px; background: #0a111b; }
+    .brand-card-preview img { width: 86px; height: 86px; }
+    .brand-card h3 { margin: 0 0 6px; font-size: 18px; }
+    .brand-card p { margin: 0 0 10px; color: var(--muted); font-size: 12px; line-height: 1.65; }
+
+    .swatches { display: grid; grid-template-columns: repeat(6, minmax(0,1fr)); gap: 7px; }
+    .swatch { min-width: 0; padding: 5px; border: 1px solid var(--border); border-radius: 9px; background: rgba(18,26,39,.55); }
+    .swatch-color { height: 48px; border-radius: 5px; border: 1px solid rgba(255,255,255,.07); margin-bottom: 6px; }
+    .swatch b { display: block; color: var(--text-2); font-size: 8.5px; font-weight: 620; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .swatch span { display: block; color: var(--faint); font-size: 7px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    .swatch--wide { grid-column: span 2; }
+    .swatch--wide .swatch-color { height: 32px; }
+
+    .type-row { display: grid; grid-template-columns: 210px minmax(0,1fr); gap: 24px; align-items: end; padding: 20px; border: 1px solid var(--border); border-radius: var(--radius-lg); background: rgba(18,26,39,.45); }
+    .type-big { font-size: clamp(76px, 11vw, 132px); font-weight: 800; line-height: .78; letter-spacing: -.065em; }
+    .type-meta { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 16px; }
+    .type-scale { display: grid; gap: 7px; }
+    .type-line { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; padding-bottom: 6px; border-bottom: 1px solid rgba(47,57,71,.55); }
+    .type-line:last-child { border-bottom: 0; }
+    .type-line p { margin: 0; }
+    .type-line .tl-name { color: var(--faint); font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 8px; white-space: nowrap; }
+    .t-display { font-size: 30px; font-weight: 800; letter-spacing: -.04em; line-height: 1.1; }
+    .t-h1 { font-size: 23px; font-weight: 720; letter-spacing: -.03em; }
+    .t-h2 { font-size: 17px; font-weight: 650; }
+    .t-body { font-size: 12px; color: var(--text-2); }
+    .t-small { font-size: 10px; color: var(--muted); }
+
+    .component-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px; }
+    .component-card { padding: 18px; border: 1px solid var(--border); border-radius: var(--radius-md); background: rgba(18,26,39,.48); }
+    .component-card h4 { margin: 0 0 12px; font-size: 11px; font-weight: 620; color: var(--text-2); }
+    .btn-row { display: flex; flex-wrap: wrap; gap: 7px; }
+    .demo-btn { display: inline-flex; align-items: center; justify-content: center; min-height: 31px; padding: 0 12px; border-radius: 8px; border: 1px solid transparent; font-size: 9.5px; font-weight: 650; }
+    .demo-btn--primary { background: var(--rose); color: #fff; }
+    .demo-btn--secondary { background: var(--surface); border-color: var(--border); color: #fff; }
+    .demo-btn--ghost { border-color: var(--border-strong); color: var(--text-2); }
+    .demo-btn--danger { background: rgba(255,107,138,.14); border-color: rgba(255,107,138,.35); color: var(--danger); }
+    .demo-btn--focus { outline: 2px solid var(--rose-bright); outline-offset: 2px; }
+
+    .demo-field label { display: block; margin-bottom: 4px; color: var(--text-2); font-size: 9px; font-weight: 600; }
+    .demo-field .input { height: 32px; padding: 0 10px; display: flex; align-items: center; justify-content: space-between; border: 1px solid var(--border); border-radius: 8px; background: var(--sunken); color: var(--faint); font-size: 9px; }
+    .demo-field .input.focus { border-color: var(--rose-bright); box-shadow: 0 0 0 3px rgba(255,71,141,.12); color: var(--text-2); }
+    .demo-field .input.error { border-color: var(--danger); }
+    .demo-field .help { margin-top: 4px; color: var(--faint); font-size: 7.5px; }
+    .demo-field .err { margin-top: 4px; color: var(--danger); font-size: 7.5px; }
+    .chip-row { display: flex; flex-wrap: wrap; gap: 6px; }
+    .chip-demo { display: inline-flex; align-items: center; gap: 5px; padding: 4px 8px; border-radius: 999px; border: 1px solid var(--border); background: var(--sunken); color: var(--muted); font-size: 8px; font-weight: 580; }
+    .chip-demo i { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+    .chip-demo--pending { color: var(--info); border-color: rgba(138,180,255,.25); background: rgba(138,180,255,.09); }
+    .chip-demo--waiting { color: var(--warning); border-color: rgba(255,200,87,.25); background: rgba(255,200,87,.08); }
+    .chip-demo--done { color: var(--success); border-color: rgba(93,214,162,.25); background: rgba(93,214,162,.09); }
+    .chip-demo--late { color: var(--danger); border-color: rgba(255,107,138,.25); background: rgba(255,107,138,.08); }
+
+    .mini-folder { width: 140px; padding: 6px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface-2); }
+    .mini-folder::before { content: ""; display: block; height: 72px; border-radius: 5px 9px 9px 9px; background: linear-gradient(145deg,#e01462,#ff478d); }
+    .mini-folder b { display: block; margin-top: 6px; font-size: 10px; font-weight: 600; }
+    .mini-folder span { color: var(--faint); font-size: 8px; }
+    .mini-folder-row { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+    .mini-task { flex: 1; min-width: 160px; padding: 10px 11px; border: 1px solid var(--border); border-left: 3px solid var(--yellow); border-radius: 8px; background: var(--surface-2); }
+    .mini-task .mt-top { display: flex; justify-content: space-between; gap: 8px; }
+    .mini-task b { font-size: 10px; font-weight: 600; }
+    .mini-task p { margin: 3px 0 0; color: var(--faint); font-size: 8px; }
+
+    .node-grid { display: grid; grid-template-columns: repeat(5, minmax(0,1fr)); gap: 9px; }
+    .node-card { display: grid; place-items: center; gap: 8px; padding: 17px 8px 12px; border: 1px solid var(--border); border-radius: 12px; background: rgba(18,26,39,.48); text-align: center; }
+    .node-outer { position: relative; width: 64px; height: 64px; display: grid; place-items: center; background: var(--ring, #c0c7d1); filter: drop-shadow(0 0 10px var(--glow, transparent)); }
+    .node-inner { position: absolute; inset: 3px; display: grid; place-items: center; background: linear-gradient(145deg, rgba(224,20,98,.65), rgba(139,24,217,.5)), #1a2330; color: #fff; font-size: 8px; font-weight: 650; }
+    .node-card b { color: var(--text-2); font-size: 8.5px; font-weight: 600; }
+    .node-card span { color: var(--faint); font-size: 7px; line-height: 1.4; }
+    .node-card:nth-child(5) .node-outer { background: conic-gradient(#ff478d, #8b18d9, #7fe7ff, #ffde00, #ff478d); }
+
+    .radius-demo { display: flex; gap: 10px; flex-wrap: wrap; align-items: end; }
+    .radius-box { display: grid; place-items: center; width: 68px; height: 52px; border: 1px solid var(--border-strong); background: var(--surface-2); color: var(--faint); font-size: 7px; }
+
+    @media (max-width: 1120px) {
+      .swatches { grid-template-columns: repeat(4, minmax(0,1fr)); }
+      .node-grid { grid-template-columns: repeat(3, minmax(0,1fr)); }
+      .type-row { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 700px) {
+      .brand-card { grid-template-columns: 1fr; }
+      .brand-card-preview { min-height: 110px; }
+      .swatches { grid-template-columns: repeat(3, minmax(0,1fr)); }
+      .component-grid { grid-template-columns: 1fr; }
+      .type-row { padding: 15px; }
+      .node-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
+      .swatch--wide { grid-column: span 1; }
+    }
+
+    /* Modelo de datos */
+    .data-layout { display: grid; grid-template-columns: minmax(0,1.2fr) minmax(300px,.8fr); gap: 22px; align-items: start; }
+    .data-groups { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px; }
+    .data-group { padding: 15px; border: 1px solid var(--border); border-radius: 12px; background: rgba(18,26,39,.5); }
+    .data-group h4 { display: flex; align-items: center; gap: 7px; margin: 0 0 10px; font-size: 11px; font-weight: 620; color: var(--text-2); }
+    .data-group h4 span { display: grid; place-items: center; width: 18px; height: 18px; border-radius: 5px; background: rgba(224,20,98,.12); color: var(--rose-soft); font-size: 8px; font-weight: 700; }
+    .table-chip-list { display: flex; flex-wrap: wrap; gap: 5px; }
+    .table-chip { padding: 4px 7px; border: 1px solid var(--border); border-radius: 5px; background: var(--sunken); color: var(--muted); font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 8px; }
+    .table-chip--key { border-color: rgba(255,71,141,.25); color: var(--rose-soft); background: rgba(224,20,98,.07); }
+    .data-stat { display: flex; align-items: baseline; gap: 8px; margin-bottom: 4px; }
+    .data-stat strong { font-size: 30px; font-weight: 760; letter-spacing: -.04em; }
+    .data-stat span { color: var(--muted); font-size: 10px; }
+
+    .formula-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; margin-top: 18px; }
+    .formula { padding: 16px; border: 1px solid var(--border); border-radius: 12px; background: rgba(18,26,39,.5); }
+    .formula .eyebrow { margin-bottom: 7px; }
+    .formula code { display: block; margin-bottom: 6px; color: #f3d6e5; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 10px; line-height: 1.6; white-space: pre-wrap; }
+    .formula p { margin: 0; color: var(--muted); font-size: 9px; line-height: 1.55; }
+    .formula b { color: var(--text-2); font-weight: 600; }
+
+    .rule-list { display: grid; gap: 8px; }
+    .rule { display: flex; gap: 9px; padding: 10px 11px; border: 1px solid var(--border); border-radius: 9px; background: rgba(18,26,39,.45); }
+    .rule > span { color: var(--success); font-size: 11px; line-height: 1.35; flex: none; }
+    .rule p { margin: 0; color: var(--muted); font-size: 9.5px; line-height: 1.55; }
+    .rule b { color: var(--text-2); font-weight: 600; }
+
+    .validation { margin-top: 22px; padding: 18px; border: 1px solid rgba(93,214,162,.2); border-radius: var(--radius-lg); background: linear-gradient(160deg, rgba(18,53,43,.3), rgba(18,26,39,.6)); }
+    .validation-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
+    .validation-head h4 { margin: 0; font-size: 13px; }
+    .validation-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 8px 16px; }
+    .validation-item { display: flex; gap: 7px; color: var(--text-2); font-size: 10.5px; line-height: 1.5; }
+    .validation-item i { color: var(--success); font-style: normal; flex: none; }
+    .validation-foot { margin: 13px 0 0; padding-top: 11px; border-top: 1px solid rgba(93,214,162,.15); color: var(--muted); font-size: 9.5px; line-height: 1.6; }
+    .validation-foot b { color: #ffe1a0; font-weight: 600; }
+
+    @media (max-width: 1120px) {
+      .data-layout { grid-template-columns: 1fr; }
+      .formula-grid { grid-template-columns: 1fr 1fr; }
+      .validation-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 700px) {
+      .data-groups { grid-template-columns: 1fr; }
+      .formula-grid { grid-template-columns: 1fr; }
+      .validation-grid { grid-template-columns: 1fr; }
+    }
+
+    /* Decisiones y cierre */
+    .decision-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 11px; }
+    .decision { padding: 17px; border: 1px solid var(--border); border-radius: var(--radius-md); background: linear-gradient(160deg, rgba(41,49,60,.55), rgba(18,26,39,.65)); }
+    .decision-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+    .decision-id { display: inline-flex; align-items: center; justify-content: center; min-width: 29px; height: 23px; padding: 0 6px; border-radius: 6px; background: rgba(224,20,98,.13); border: 1px solid rgba(255,71,141,.25); color: var(--rose-soft); font-size: 9px; font-weight: 720; letter-spacing: .04em; }
+    .decision h4 { margin: 0 0 4px; font-size: 14.5px; font-weight: 650; }
+    .decision .context { margin: 0 0 9px; color: var(--muted); font-size: 11.5px; line-height: 1.55; }
+    .decision .rec { display: flex; gap: 7px; padding: 8px 9px; border: 1px solid rgba(93,214,162,.18); border-radius: 7px; background: rgba(18,53,43,.23); }
+    .decision .rec > span { color: var(--success); font-size: 10px; line-height: 1.5; flex: none; }
+    .decision .rec p { margin: 0; color: #b9e8d6; font-size: 10.5px; line-height: 1.55; }
+    .decision .rec b { color: #e1fff4; font-weight: 620; }
+    .decision .impact { margin: 7px 0 0; color: var(--faint); font-size: 9.5px; }
+    .decision .impact b { color: var(--muted); font-weight: 550; }
+
+    .decision-summary { display: flex; flex-wrap: wrap; align-items: center; gap: 9px; margin-bottom: 16px; padding: 12px 15px; border: 1px solid rgba(255,71,141,.22); border-radius: var(--radius-md); background: rgba(224,20,98,.06); }
+    .decision-summary p { margin: 0; color: var(--text-2); font-size: 11.5px; }
+    .decision-summary b { color: #fff; }
+
+    .defaults { margin-top: 16px; border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden; }
+    .defaults-row { display: grid; grid-template-columns: 44px 190px minmax(0,1fr); gap: 10px; padding: 9px 13px; border-bottom: 1px solid rgba(47,57,71,.65); background: rgba(18,26,39,.45); align-items: center; }
+    .defaults-row:last-child { border-bottom: 0; }
+    .defaults-row code { color: var(--rose-soft); font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 9px; }
+    .defaults-row b { color: var(--text-2); font-size: 9.5px; font-weight: 580; }
+    .defaults-row p { margin: 0; color: var(--faint); font-size: 9px; }
+
+    .approval-layout { display: grid; grid-template-columns: minmax(0,1.15fr) minmax(260px,.85fr); gap: 20px; align-items: start; margin-top: 24px; }
+    .checklist { padding: 19px; border: 1px solid var(--border); border-radius: var(--radius-lg); background: rgba(18,26,39,.5); }
+    .checklist h4 { margin: 0 0 12px; font-size: 13px; }
+    .check-list { display: grid; grid-template-columns: 1fr 1fr; gap: 7px 16px; }
+    .check-item { display: flex; align-items: flex-start; gap: 7px; color: var(--text-2); font-size: 11px; line-height: 1.45; }
+    .check-item i { width: 12px; height: 12px; flex: none; margin-top: 1px; border: 1px solid var(--border-strong); border-radius: 3px; background: var(--sunken); }
+    .response { padding: 19px; border: 1px solid rgba(255,71,141,.22); border-radius: var(--radius-lg); background: radial-gradient(300px 180px at 80% 0%, rgba(224,20,98,.1), transparent 70%), rgba(18,26,39,.55); }
+    .response h4 { margin: 0 0 6px; font-size: 13px; }
+    .response p { margin: 0 0 10px; color: var(--muted); font-size: 9.5px; line-height: 1.6; }
+    .response code { display: block; padding: 9px; border: 1px solid var(--border); border-radius: 6px; background: var(--sunken); color: var(--rose-soft); font-size: 8.5px; line-height: 1.55; }
+
+    .closing {
+      position: relative;
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 80px 56px 70px;
+      overflow: hidden;
+    }
+    .closing-card {
+      position: relative;
+      padding: 38px;
+      border: 1px solid rgba(255,71,141,.24);
+      border-radius: 28px;
+      background:
+        radial-gradient(500px 300px at 90% 0%, rgba(202,1,204,.13), transparent 65%),
+        radial-gradient(450px 300px at 0% 100%, rgba(224,20,98,.12), transparent 65%),
+        rgba(18,26,39,.55);
+      overflow: hidden;
+    }
+    .closing-card h2 { max-width: 700px; margin: 10px 0 12px; font-size: clamp(30px, 4vw, 50px); font-weight: 800; letter-spacing: -.04em; }
+    .closing-card > p { max-width: 640px; color: var(--muted); font-size: 14px; line-height: 1.7; }
+    .closing-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 10px; margin: 26px 0 0; }
+    .next-step { padding: 15px; border: 1px solid var(--border); border-radius: 11px; background: rgba(12,20,31,.48); }
+    .next-step span { display: inline-grid; place-items: center; width: 21px; height: 21px; margin-bottom: 8px; border-radius: 6px; border: 1px solid rgba(255,71,141,.25); background: rgba(224,20,98,.1); color: var(--rose-soft); font-size: 9px; font-weight: 700; }
+    .next-step h4 { margin: 0 0 3px; font-size: 11px; }
+    .next-step p { margin: 0; color: var(--faint); font-size: 9px; line-height: 1.55; }
+    .closing-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 26px; }
+    .closing-foot { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; margin-top: 32px; padding-top: 16px; border-top: 1px solid rgba(47,57,71,.6); color: var(--faint); font-size: 9px; }
+
+    @media (max-width: 1120px) {
+      .decision-grid { grid-template-columns: 1fr 1fr; }
+      .approval-layout { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 800px) {
+      .decision-grid { grid-template-columns: 1fr; }
+      .defaults-row { grid-template-columns: 38px minmax(0,1fr); }
+      .defaults-row p { grid-column: 2; }
+      .check-list { grid-template-columns: 1fr; }
+      .closing { padding: 56px 20px 50px; }
+      .closing-card { padding: 24px; }
+      .closing-grid { grid-template-columns: 1fr; }
+    }
+
+    /* Timeline de fases */
+    .phase-track {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 0;
+      margin-top: 26px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      background: rgba(18, 26, 39, .52);
+    }
+    .phase {
+      position: relative;
+      padding: 20px 18px;
+      border-right: 1px solid var(--border);
+    }
+    .phase:last-child { border-right: 0; }
+    .phase--mvp { background: linear-gradient(160deg, rgba(224, 20, 98, .11), rgba(139, 24, 217, .07)); }
+    .phase--mvp::before {
+      content: "";
+      position: absolute;
+      inset: 0 0 auto;
+      height: 2px;
+      background: var(--gradient);
+    }
+    .phase-num { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 10px; }
+    .phase-num span:first-child { color: var(--rose-bright); font-size: 10px; font-weight: 700; letter-spacing: .12em; }
+    .phase h4 { margin-bottom: 6px; font-size: 14px; font-weight: 640; }
+    .phase p { margin: 0; color: var(--muted); font-size: 11.5px; line-height: 1.55; }
+    .phase-now { background: rgba(255, 255, 255, .04); }
+
+    /* Diagrama de arquitectura */
+    .arch {
+      padding: 20px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      background:
+        radial-gradient(600px 260px at 80% 0%, rgba(139, 24, 217, .1), transparent 60%),
+        rgba(16, 24, 36, .72);
+    }
+    .arch-layer {
+      position: relative;
+      padding: 18px;
+      border: 1px solid rgba(47, 57, 71, .9);
+      border-radius: var(--radius-lg);
+      background: rgba(26, 35, 48, .8);
+    }
+    .arch-layer + .arch-layer { margin-top: 10px; }
+    .arch-layer::before {
+      content: attr(data-label);
+      position: absolute;
+      top: -8px;
+      left: 16px;
+      padding: 0 7px;
+      background: #111a27;
+      color: var(--faint);
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+    }
+    .arch-row { display: flex; flex-wrap: wrap; gap: 7px; }
+    .arch-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 9px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: rgba(12, 20, 31, .66);
+      color: var(--text-2);
+      font-size: 11px;
+      font-weight: 550;
+      white-space: nowrap;
+    }
+    .arch-chip b { color: #fff; font-weight: 620; }
+    .arch-chip i { width: 6px; height: 6px; border-radius: 50%; background: var(--rose-bright); flex: none; }
+    .arch-chip--core { border-color: rgba(255, 71, 141, .3); background: rgba(224, 20, 98, .09); }
+    .arch-chip--svc { border-color: rgba(139, 24, 217, .35); background: rgba(139, 24, 217, .1); }
+    .arch-arrow { display: grid; place-items: center; height: 22px; color: var(--faint); font-size: 13px; }
+    .arch-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; margin-top: 14px; }
+    .arch-legend { display: flex; flex-wrap: wrap; gap: 14px; color: var(--faint); font-size: 10.5px; }
+    .arch-legend span { display: inline-flex; align-items: center; gap: 6px; }
+    .arch-legend i { width: 7px; height: 7px; border-radius: 2px; }
+    .legend-pink { background: var(--rose-bright); }
+    .legend-purple { background: var(--purple); }
+    .legend-gray { background: var(--faint); }
+
+    .principles { display: grid; gap: 12px; }
+    .principle {
+      display: grid;
+      grid-template-columns: 36px minmax(0, 1fr);
+      gap: 12px;
+      padding: 15px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      background: rgba(18, 26, 39, .55);
+    }
+    .principle-num {
+      display: grid;
+      place-items: center;
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: rgba(224, 20, 98, .1);
+      border: 1px solid rgba(255, 71, 141, .2);
+      color: var(--rose-soft);
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .principle h4 { margin: 1px 0 3px; font-size: 13px; font-weight: 640; }
+    .principle p { margin: 0; color: var(--muted); font-size: 11.5px; line-height: 1.55; }
+
+    .platform-row { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+    .platform {
+      padding: 13px 11px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: rgba(12, 20, 31, .55);
+    }
+    .platform .os { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-bottom: 5px; color: #fff; font-size: 12px; font-weight: 620; }
+    .platform .tech { color: var(--faint); font-size: 10px; line-height: 1.4; }
+    .platform .status { width: 6px; height: 6px; border-radius: 50%; background: var(--warning); flex: none; }
+    .platform .status--planned { background: var(--info); }
+
+    @media (max-width: 1120px) {
+      .phase-track { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .phase:nth-child(2) { border-right: 0; }
+      .phase:nth-child(-n+2) { border-bottom: 1px solid var(--border); }
+      .platform-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 880px) {
+      .phase-track { grid-template-columns: 1fr; }
+      .phase { border-right: 0; border-bottom: 1px solid var(--border); }
+      .phase:last-child { border-bottom: 0; }
+    }
+
+    @media (max-width: 560px) {
+      .grid-4 { grid-template-columns: 1fr; }
+      .cover h1 { font-size: 40px; }
+      .cover-actions .btn { width: 100%; }
+      .card { padding: 19px; }
+      .platform-row { grid-template-columns: 1fr; }
+      .arch { padding: 12px; }
+      .arch-layer { padding: 15px 12px; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#contenido">Saltar al contenido</a>
+
+  <header class="topbar">
+    <a class="brand" href="#portada" aria-label="Syntropy, inicio de la presentación">
+      <img src="../assets/logo-mark.svg" alt="">
+      <span>Syntropy</span>
+    </a>
+    <span class="topbar-divider" aria-hidden="true"></span>
+    <div class="topbar-context">
+      <strong>Fase 1</strong>
+      <span>·</span>
+      <span>Diseño y arquitectura</span>
+    </div>
+    <div class="topbar-actions">
+      <span class="pill"><span class="dot"></span><span class="label">Propuesta para revisión</span></span>
+      <a class="btn btn--ghost" href="#decisiones">Ver decisiones</a>
+    </div>
+  </header>
+
+  <div class="layout">
+    <nav class="sidenav" aria-label="Secciones de la presentación">
+      <p class="sidenav-label">Contenido</p>
+      <ol class="nav-list">
+        <li><a class="nav-link" href="#portada"><span class="nav-num">00</span>Portada</a></li>
+        <li><a class="nav-link" href="#resumen"><span class="nav-num">01</span>Resumen y alcance</a></li>
+        <li><a class="nav-link" href="#arquitectura"><span class="nav-num">02</span>Arquitectura</a></li>
+        <li><a class="nav-link" href="#navegacion"><span class="nav-num">03</span>Navegación</a></li>
+        <li><a class="nav-link" href="#wireframes"><span class="nav-num">04</span>Wireframes</a></li>
+        <li><a class="nav-link" href="#sistema"><span class="nav-num">05</span>Sistema de diseño</a></li>
+        <li><a class="nav-link" href="#datos"><span class="nav-num">06</span>Modelo de datos</a></li>
+        <li><a class="nav-link" href="#decisiones"><span class="nav-num">07</span>Decisiones</a></li>
+        <li><a class="nav-link" href="#siguiente"><span class="nav-num">08</span>Próximo paso</a></li>
+      </ol>
+      <div class="sidenav-foot">
+        <strong>Documento de trabajo</strong>
+        Fase 1 de 8 · Noviembre 2026<br>
+        No se avanza a Fase 2 sin aprobación.
+      </div>
+    </nav>
+
+    <main id="contenido">
+      <section id="portada" class="cover" aria-labelledby="titulo-portada">
+        <div class="cover-grid">
+          <div>
+            <div class="cover-brand">
+              <img src="../assets/logo-mark.svg" alt="Símbolo de Syntropy">
+              <div>
+                <div class="name">Syntropy</div>
+                <div class="phase">Fase 1 · Diseño</div>
+              </div>
+            </div>
+
+            <h1 id="titulo-portada">Estudiar con <span class="grad">estructura</span>, no con caos.</h1>
+            <p class="cover-lead">
+              Una aplicación multiplataforma para organizar años, materias, tareas, horarios y notas.
+              Esta presentación resume la interpretación del proyecto y las decisiones que necesitan tu revisión
+              antes de escribir la primera línea de código.
+            </p>
+
+            <div class="cover-meta" aria-label="Contenido de la fase">
+              <span class="tag tag--rose">Arquitectura</span>
+              <span class="tag">Navegación</span>
+              <span class="tag">Wireframes</span>
+              <span class="tag">Sistema de diseño</span>
+              <span class="tag">Modelo de datos</span>
+            </div>
+
+            <div class="cover-actions">
+              <a class="btn" href="#resumen">
+                Explorar la propuesta
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+              </a>
+              <a class="btn btn--ghost" href="#decisiones">Ir a las decisiones</a>
+            </div>
+          </div>
+
+          <div class="orbit" aria-hidden="true">
+            <div class="orbit-ring"></div>
+            <div class="orbit-ring"></div>
+            <div class="orbit-ring"></div>
+            <img class="orbit-mark" src="../assets/logo-mark.svg" alt="">
+            <span class="orbit-node on-1"><i></i>Calendario</span>
+            <span class="orbit-node on-2"><i style="background:var(--purple)"></i>Nodos</span>
+            <span class="orbit-node on-3"><i style="background:var(--yellow)"></i>Calificaciones</span>
+            <span class="orbit-node on-4"><i style="background:var(--success)"></i>Enfoque</span>
+            <span class="orbit-node on-5"><i style="background:var(--info)"></i>Biblioteca</span>
+            <span class="orbit-node on-6"><i style="background:var(--magenta)"></i>Progreso</span>
+          </div>
+        </div>
+
+        <div class="cover-foot">
+          <span>Documento de trabajo · <strong>Versión 0.1</strong> · 10 de noviembre de 2026</span>
+          <span class="status-dot"><span class="dot" style="background:var(--warning);box-shadow:0 0 0 4px rgba(255,200,87,.1)"></span> Esperando aprobación para la Fase 2</span>
+        </div>
+      </section>
+
+      <section id="resumen" class="section" aria-labelledby="titulo-resumen">
+        <div class="section-head">
+          <div class="section-index">01 / Resumen</div>
+          <div>
+            <span class="kicker">El proyecto en una página</span>
+            <h2 id="titulo-resumen" class="section-title">Una herramienta, cuatro plataformas, un MVP concreto.</h2>
+            <p class="section-lead">
+              Syntropy no es un gestor genérico: el árbol de conocimiento y el progreso académico son parte de su identidad.
+              Para que el MVP sea viable, esa capa se prepara en el modelo pero se activa después.
+            </p>
+          </div>
+        </div>
+
+        <div class="grid-3">
+          <article class="card card--glow">
+            <div class="card-top">
+              <div class="icon-box" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3a4 4 0 0 0-4 4v1a4 4 0 0 0-2 7.3V17a3 3 0 0 0 3 3h1a3 3 0 0 0 2-1 3 3 0 0 0 2 1h1a3 3 0 0 0 3-3v-1.7A4 4 0 0 0 16 8V7a4 4 0 0 0-4-4Z"/><path d="M12 7v13M9 10h1M14 14h1"/></svg>
+              </div>
+              <span class="tag">Producto</span>
+            </div>
+            <h3>Qué es Syntropy</h3>
+            <p>
+              Un espacio académico personal: años de curso, asignaturas en forma de carpetas, tareas, exámenes,
+              horario semanal, calendario y calificaciones. Con una estética oscura propia y navegación clara en escritorio y móvil.
+            </p>
+          </article>
+
+          <article class="card">
+            <div class="card-top">
+              <div class="icon-box" aria-hidden="true" style="color:var(--success)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m5 12 4 4L19 6"/><circle cx="12" cy="12" r="9"/></svg>
+              </div>
+              <span class="tag tag--success">MVP · Fases 2–4</span>
+            </div>
+            <h3>Qué entra ahora</h3>
+            <p>
+              Autenticación y perfil; años y asignaturas; tareas, exámenes y calendario; horario; notas, ponderaciones,
+              promedio y proyección. Web instalable más los empaquetados de Windows, Android e iOS.
+            </p>
+          </article>
+
+          <article class="card">
+            <div class="card-top">
+              <div class="icon-box" aria-hidden="true" style="color:var(--info)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="6" cy="6" r="2.5"/><circle cx="18" cy="7" r="2.5"/><circle cx="12" cy="18" r="2.5"/><path d="m8.2 7.8 6.2 7.7M8 6h7.5"/></svg>
+              </div>
+              <span class="tag tag--info">Preparado, no activo</span>
+            </div>
+            <h3>Qué espera su turno</h3>
+            <p>
+              Nodos de conocimiento, conexiones entre materias, biblioteca de fuentes, recordatorios por correo,
+              gamificación y edición sin conexión. El esquema y la navegación ya contemplan su llegada.
+            </p>
+          </article>
+        </div>
+
+        <div class="divider"></div>
+
+        <div style="display:flex;flex-wrap:wrap;align-items:end;justify-content:space-between;gap:16px">
+          <div>
+            <span class="eyebrow">Hoja de ruta</span>
+            <h3 style="margin:6px 0 0;font-size:21px">El MVP son tres fases de construcción.</h3>
+          </div>
+          <span class="small">La Fase 1 es esta entrega: decisiones antes de código.</span>
+        </div>
+
+        <div class="phase-track" aria-label="Fases del proyecto">
+          <article class="phase phase-now">
+            <div class="phase-num"><span>FASE 01</span><span class="tag tag--rose">Actual</span></div>
+            <h4>Diseño y arquitectura</h4>
+            <p>Alcance, navegación, wireframes, identidad, modelo de datos y decisiones.</p>
+          </article>
+          <article class="phase phase--mvp">
+            <div class="phase-num"><span>FASE 02</span><span class="tag">MVP</span></div>
+            <h4>Base académica</h4>
+            <p>Registro, sesión, perfil, años de curso, asignaturas y carpetas.</p>
+          </article>
+          <article class="phase phase--mvp">
+            <div class="phase-num"><span>FASE 03</span><span class="tag">MVP</span></div>
+            <h4>Tiempo y tareas</h4>
+            <p>Tareas, exámenes, panel de estados, calendario y horario semanal.</p>
+          </article>
+          <article class="phase phase--mvp">
+            <div class="phase-num"><span>FASE 04</span><span class="tag">MVP</span></div>
+            <h4>Calificaciones</h4>
+            <p>Evaluaciones, pesos, promedios, proyección y cierre del MVP.</p>
+          </article>
+        </div>
+        <p class="tiny" style="margin:10px 2px 0">Después del MVP: nodos y conexiones (F5), biblioteca (F6), correo (F7) y publicación/legal (F8).</p>
+
+        <div class="note" style="margin-top:28px">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 2.6 17a2 2 0 0 0 1.7 3h15.4a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg>
+          <div><strong>No hay código todavía, y es intencional.</strong> Primero se valida el rumbo para no reconstruir la base de datos ni la navegación a mitad de camino. La migración SQL ya fue probada localmente; falta ejecutarla en un proyecto real de Supabase.</div>
+        </div>
+      </section>
+
+      <section id="arquitectura" class="section" aria-labelledby="titulo-arquitectura">
+        <div class="section-head">
+          <div class="section-index">02 / Arquitectura</div>
+          <div>
+            <span class="kicker">Cómo se construye</span>
+            <h2 id="titulo-arquitectura" class="section-title">Una sola base de código, límites claros.</h2>
+            <p class="section-lead">
+              React y TypeScript comparten toda la interfaz. Cada plataforma aporta solo lo que necesita:
+              un contenedor para Windows, otro para Android e iOS, y la web como PWA. La lógica académica vive en el cliente
+              de datos y en PostgreSQL, nunca duplicada en cada pantalla.
+            </p>
+          </div>
+        </div>
+
+        <div class="grid-2" style="gap:24px;align-items:start">
+          <div class="arch" aria-label="Diagrama de capas de la arquitectura">
+            <div class="arch-layer" data-label="Experiencia">
+              <div class="arch-row">
+                <span class="arch-chip arch-chip--core"><b>React 19</b></span>
+                <span class="arch-chip">TypeScript 5.9</span>
+                <span class="arch-chip">Vite 8</span>
+                <span class="arch-chip">React Router 7</span>
+                <span class="arch-chip">Tailwind 4</span>
+                <span class="arch-chip">TanStack Query</span>
+                <span class="arch-chip">React Hook Form + Zod</span>
+                <span class="arch-chip">FullCalendar 6</span>
+              </div>
+            </div>
+            <div class="arch-arrow" aria-hidden="true">↓</div>
+            <div class="arch-layer" data-label="Distribución">
+              <div class="platform-row">
+                <div class="platform"><div class="os">Web <span class="status"></span></div><div class="tech">PWA · instalable</div></div>
+                <div class="platform"><div class="os">Windows <span class="status"></span></div><div class="tech">Tauri 2 · MSVC</div></div>
+                <div class="platform"><div class="os">Android <span class="status--planned status"></span></div><div class="tech">Capacitor 8</div></div>
+                <div class="platform"><div class="os">iOS <span class="status--planned status"></span></div><div class="tech">Capacitor 8 · CI</div></div>
+              </div>
+            </div>
+            <div class="arch-arrow" aria-hidden="true">↓</div>
+            <div class="arch-layer" data-label="Datos y servicios">
+              <div class="arch-row">
+                <span class="arch-chip arch-chip--svc"><b>Supabase</b></span>
+                <span class="arch-chip">Auth</span>
+                <span class="arch-chip">PostgreSQL 15+</span>
+                <span class="arch-chip">Storage</span>
+                <span class="arch-chip">RLS</span>
+                <span class="arch-chip">Edge Functions</span>
+                <span class="arch-chip">Resend <span style="color:var(--faint)">· F7</span></span>
+                <span class="arch-chip">Vercel</span>
+              </div>
+            </div>
+            <div class="arch-foot">
+              <div class="arch-legend">
+                <span><i class="legend-pink"></i>Núcleo compartido</span>
+                <span><i class="legend-purple"></i>Servicio externo</span>
+                <span><i class="legend-gray"></i>Fase posterior</span>
+              </div>
+              <span class="tiny">Versiones estables verificadas en npm · nov. 2026</span>
+            </div>
+          </div>
+
+          <div class="principles" aria-label="Principios de arquitectura">
+            <div class="principle">
+              <div class="principle-num">01</div>
+              <div><h4>Una UI, adaptadores por plataforma</h4><p>La app no se bifurca. Solo el acceso a archivos, notificaciones y ciclo de vida cambia según Tauri, Capacitor o navegador.</p></div>
+            </div>
+            <div class="principle">
+              <div class="principle-num">02</div>
+              <div><h4>El cliente no es la autoridad</h4><p>Row Level Security en cada tabla, validación con Zod en formularios y restricciones reales en PostgreSQL. La seguridad no depende del frontend.</p></div>
+            </div>
+            <div class="principle">
+              <div class="principle-num">03</div>
+              <div><h4>Capas explícitas, sin atajos</h4><p>Pantallas → funcionalidades → servicios → cliente de Supabase. Las fórmulas de notas se prueban como funciones puras.</p></div>
+            </div>
+            <div class="principle">
+              <div class="principle-num">04</div>
+              <div><h4>Contratos primero</h4><p>Migraciones versionadas, tipos generados desde la base y un único esquema de validación compartido entre formularios y servicios.</p></div>
+            </div>
+            <div class="note" style="margin-top:4px">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 2.6 17a2 2 0 0 0 1.7 3h15.4a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg>
+              <div><strong>Windows todavía no está cerrado (D1).</strong> La recomendación es PWA + Tauri 2, pero contradice parcialmente el documento maestro. Hasta tu aprobación, Tauri aparece como propuesta, no como decisión final.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="navegacion" class="section" aria-labelledby="titulo-navegacion">
+        <div class="section-head">
+          <div class="section-index">03 / Navegación</div>
+          <div>
+            <span class="kicker">Dónde está cada cosa</span>
+            <h2 id="titulo-navegacion" class="section-title">La misma lógica, dos formas de recorrerla.</h2>
+            <p class="section-lead">
+              En escritorio, una barra lateral estable y un panel contextual. En móvil, una barra inferior de cinco destinos
+              y hojas desplegables. No se comprime el menú de escritorio hasta volverlo inusable.
+            </p>
+          </div>
+        </div>
+
+        <div class="nav-spread" style="display:grid;grid-template-columns:minmax(0,1fr) 246px;gap:24px;align-items:center">
+          <div class="app-frame" aria-label="Representación de la pantalla de inicio en escritorio">
+            <div class="app-top">
+              <div class="shot-brand"><img src="../assets/logo-mark.svg" alt="">Syntropy</div>
+              <span class="shot-page">Inicio</span>
+              <div class="shot-top-actions">
+                <span class="shot-bell" aria-hidden="true"></span>
+                <span class="shot-avatar" aria-hidden="true"></span>
+              </div>
+            </div>
+            <div class="app-body">
+              <aside class="shot-side">
+                <div class="shot-year"><span>5.º año · 2026</span><span>▾</span></div>
+                <ul class="shot-nav">
+                  <li class="active">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 11 9-8 9 8"/><path d="M5 10v10h14V10"/></svg>
+                    Inicio
+                  </li>
+                  <li>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg>
+                    Calendario
+                  </li>
+                  <li>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+                    Horario
+                  </li>
+                  <li>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 3h11l3 3v15H5z"/><path d="M8 10h8M8 14h8M8 18h4"/></svg>
+                    Calificaciones
+                  </li>
+                  <li class="later">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="6" r="2.5"/><circle cx="18" cy="7" r="2.5"/><circle cx="12" cy="18" r="2.5"/><path d="m8 7 8 8M8.5 6.5H15"/></svg>
+                    Nodos <span class="soon">F5</span>
+                  </li>
+                  <li class="later">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h5v16H4zM10 4h5v16h-5zM16 6l4 1-3 13-4-1z"/></svg>
+                    Biblioteca <span class="soon">F6</span>
+                  </li>
+                  <li>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-.1-1l2-1.5-2-3.4-2.3 1A7 7 0 0 0 15 6l-.4-2.5h-4L10 6a7 7 0 0 0-1.7 1l-2.3-1-2 3.4 2 1.5a7 7 0 0 0 0 2l-2 1.5 2 3.4 2.3-1A7 7 0 0 0 10 18l.5 2.5h4L14 18a7 7 0 0 0 1.7-1l2.3 1 2-3.4-2-1.5a7 7 0 0 0 .1-1Z"/></svg>
+                    Configuración
+                  </li>
+                </ul>
+              </aside>
+
+              <div class="shot-main">
+                <p class="shot-hello">Hola, Marce</p>
+                <h3 class="shot-h">Tu espacio académico</h3>
+                <div class="shot-funcs">
+                  <div class="shot-func">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg>
+                    Calendario
+                  </div>
+                  <div class="shot-func">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 3h11l3 3v15H5z"/><path d="M8 10h8M8 14h8M8 18h4"/></svg>
+                    Calificaciones
+                  </div>
+                  <div class="shot-func">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4h5v16H4zM10 4h5v16h-5zM16 6l4 1-3 13-4-1z"/></svg>
+                    Biblioteca
+                  </div>
+                  <div class="shot-func">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="6" cy="6" r="2.5"/><circle cx="18" cy="7" r="2.5"/><circle cx="12" cy="18" r="2.5"/><path d="m8 7 8 8M8.5 6.5H15"/></svg>
+                    Nodos
+                  </div>
+                </div>
+                <div class="shot-label"><b>Asignaturas</b><span>Ver todas</span></div>
+                <div class="shot-folders">
+                  <div class="shot-folder" style="--folder:linear-gradient(145deg,#e01462,#ff478d)"><span>Matemáticas</span></div>
+                  <div class="shot-folder" style="--folder:linear-gradient(145deg,#e3c500,#ffde00)"><span>Inglés</span></div>
+                  <div class="shot-folder" style="--folder:linear-gradient(145deg,#6f07c8,#9a15af)"><span>Lengua</span></div>
+                </div>
+                <div class="shot-label"><b>Próxima entrega</b><span>Hoy</span></div>
+                <div class="shot-task"><span class="dot2"></span><p>Preparar exposición de Inglés</p><span>Mañana</span></div>
+              </div>
+
+              <aside class="shot-panel">
+                <h5>Hoy · 10 nov</h5>
+                <span class="today">3 pendientes</span>
+                <div class="shot-pitem"><p>Práctica de ecuaciones</p><span>Matemáticas · 18:00</span><div class="bar"><i></i></div></div>
+                <div class="shot-pitem"><p>Leer capítulo 4</p><span>Lengua · sin hora</span><div class="bar"><i style="width:30%;background:var(--info)"></i></div></div>
+                <div class="shot-pitem"><p>Vocabulario unit 3</p><span>Inglés · mañana</span><div class="bar"><i style="width:10%;background:var(--warning)"></i></div></div>
+                <div style="margin-top:12px;padding-top:9px;border-top:1px solid var(--border)">
+                  <div class="shot-label"><b style="font-size:7.5px">Promedio</b><span>1.º trim.</span></div>
+                  <div style="font-size:18px;font-weight:750;letter-spacing:-.03em">8,4<span style="font-size:7px;color:var(--success);margin-left:4px">+0,3</span></div>
+                </div>
+              </aside>
+            </div>
+          </div>
+
+          <div>
+            <div class="phone" aria-label="Representación de la pantalla de inicio en móvil">
+              <div class="phone-inner">
+                <div class="phone-top">
+                  <img src="../assets/logo-mark.svg" alt="">
+                  <b>Inicio</b>
+                  <span class="shot-avatar" aria-hidden="true"></span>
+                </div>
+                <div class="phone-main">
+                  <p class="phone-greet">Hola, Marce</p>
+                  <h5>Tu espacio</h5>
+                  <div class="phone-folders">
+                    <div class="phone-folder" style="--folder:linear-gradient(145deg,#e01462,#ff478d)"><span>Matemáticas</span></div>
+                    <div class="phone-folder" style="--folder:linear-gradient(145deg,#e3c500,#ffde00)"><span>Inglés</span></div>
+                  </div>
+                  <div class="phone-sec"><b>Hoy</b><span>3 tareas</span></div>
+                  <div class="phone-task"><p>Práctica de ecuaciones</p><span>18:00</span></div>
+                  <div class="phone-task" style="border-left-color:var(--info)"><p>Leer capítulo 4</p><span>—</span></div>
+                  <div class="phone-task" style="border-left-color:var(--yellow)"><p>Vocabulario unit 3</p><span>Mañana</span></div>
+                  <div class="phone-sec"><b>Semana</b><span>Ver calendario</span></div>
+                  <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px">
+                    <div style="text-align:center;font-size:5px;color:var(--faint)">L<br><span style="display:inline-block;margin-top:2px;width:12px;height:12px;border-radius:4px;background:var(--surface-2)"></span></div>
+                    <div style="text-align:center;font-size:5px;color:var(--faint)">M<br><span style="display:inline-block;margin-top:2px;width:12px;height:12px;border-radius:4px;background:var(--surface-2)"></span></div>
+                    <div style="text-align:center;font-size:5px;color:var(--rose-soft)">M<br><span style="display:inline-block;margin-top:2px;width:12px;height:12px;border-radius:4px;background:rgba(224,20,98,.28);border:1px solid var(--rose-bright)"></span></div>
+                    <div style="text-align:center;font-size:5px;color:var(--faint)">J<br><span style="display:inline-block;margin-top:2px;width:12px;height:12px;border-radius:4px;background:var(--surface-2)"></span></div>
+                    <div style="text-align:center;font-size:5px;color:var(--faint)">V<br><span style="display:inline-block;margin-top:2px;width:12px;height:12px;border-radius:4px;background:var(--surface-2)"></span></div>
+                    <div style="text-align:center;font-size:5px;color:var(--faint)">S<br><span style="display:inline-block;margin-top:2px;width:12px;height:12px;border-radius:4px;background:var(--surface-2)"></span></div>
+                    <div style="text-align:center;font-size:5px;color:var(--faint)">D<br><span style="display:inline-block;margin-top:2px;width:12px;height:12px;border-radius:4px;background:var(--surface-2)"></span></div>
+                  </div>
+                </div>
+                <span class="phone-fab" aria-hidden="true">+</span>
+                <div class="phone-tabs" aria-hidden="true">
+                  <div class="phone-tab active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 11 9-8 9 8"/><path d="M5 10v10h14V10"/></svg>Inicio</div>
+                  <div class="phone-tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg>Calend.</div>
+                  <div class="phone-tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Horario</div>
+                  <div class="phone-tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 3h11l3 3v15H5z"/><path d="M8 10h8M8 14h8"/></svg>Notas</div>
+                  <div class="phone-tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h16"/></svg>Más</div>
+                </div>
+              </div>
+            </div>
+            <p class="tiny" style="text-align:center;margin:12px 0 0">Barra inferior · 64 px<br>sin comprimir la barra lateral</p>
+          </div>
+        </div>
+
+        <div class="grid-2" style="margin-top:26px;gap:20px;align-items:start">
+          <div>
+            <div class="shot-label" style="margin-bottom:10px"><b style="font-size:13px">Rutas principales</b><span style="font-size:11px">Privadas dentro de AppLayout</span></div>
+            <div class="route-list">
+              <div class="route"><code>/inicio</code><p>Resumen, accesos generales y carpetas de asignaturas.</p><span class="tag tag--rose">F2</span></div>
+              <div class="route"><code>/asignaturas/:id</code><p>Espacio de la materia; abre directamente en su calendario.</p><span class="tag tag--rose">F2</span></div>
+              <div class="route"><code>/calendario</code><p>Vista general de tareas y exámenes de todas las materias.</p><span class="tag tag--rose">F3</span></div>
+              <div class="route"><code>/calificaciones</code><p>Tabla de notas, pesos, promedio y proyección.</p><span class="tag tag--rose">F4</span></div>
+              <div class="route"><code>/nodos</code><p>Plano del año; se muestra como “Próximamente” hasta la F5.</p><span class="tag tag--info">F5</span></div>
+            </div>
+          </div>
+
+          <div>
+            <div class="shot-label" style="margin-bottom:10px"><b style="font-size:13px">Flujos que definen el producto</b><span style="font-size:11px">Camino mínimo</span></div>
+            <div class="flow-grid" style="grid-template-columns:1fr;margin-top:0;gap:9px">
+              <div class="flow" style="padding:14px">
+                <h4>Crear una asignatura</h4>
+                <ol><li>Inicio → “Nueva asignatura”.</li><li>Nombre, año activo y color identificativo.</li><li>La carpeta aparece en Inicio y en el selector de materias.</li></ol>
+              </div>
+              <div class="flow" style="padding:14px">
+                <h4>Registrar una tarea</h4>
+                <ol><li>Calendario o asignatura → “+”.</li><li>Materia, fecha, tipo y estado.</li><li>Se refleja en calendario, panel e inicio.</li></ol>
+              </div>
+              <div class="flow" style="padding:14px">
+                <h4>Entender una nota</h4>
+                <ol><li>Calificaciones → materia.</li><li>Pesos y escala visibles por evaluación.</li><li>Promedio actual y proyección con lo que falta.</li></ol>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="note" style="margin-top:24px">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 2.6 17a2 2 0 0 0 1.7 3h15.4a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg>
+          <div><strong>Las rutas de nodos y biblioteca no se muestran como funcionales antes de tiempo.</strong> Existirán en el router con estado “Próximamente”, sin botones que prometan algo que todavía no ocurre.</div>
+        </div>
+      </section>
+
+      <section id="wireframes" class="section" aria-labelledby="titulo-wireframes">
+        <div class="section-head">
+          <div class="section-index">04 / Wireframes</div>
+          <div>
+            <span class="kicker">De la referencia a una app usable</span>
+            <h2 id="titulo-wireframes" class="section-title">Pantallas clave, con sus reglas a la vista.</h2>
+            <p class="section-lead">
+              Las maquetas originales se interpretan: se conserva su intención, se corrigen los problemas de usabilidad
+              y se agregan los estados que una app real necesita (vacío, error, carga, confirmación). Estas piezas son
+              wireframes de alta fidelidad, no capturas de una app terminada.
+            </p>
+          </div>
+        </div>
+
+        <div class="wf-toolbar" role="tablist" aria-label="Pantallas de los wireframes">
+          <button class="wf-tab" id="tab-acceso" role="tab" aria-selected="true" aria-controls="panel-acceso" tabindex="0">Acceso</button>
+          <button class="wf-tab" id="tab-inicio" role="tab" aria-selected="false" aria-controls="panel-inicio" tabindex="-1">Inicio</button>
+          <button class="wf-tab" id="tab-asignatura" role="tab" aria-selected="false" aria-controls="panel-asignatura" tabindex="-1">Nueva asignatura</button>
+          <button class="wf-tab" id="tab-calendario" role="tab" aria-selected="false" aria-controls="panel-calendario" tabindex="-1">Calendario</button>
+          <button class="wf-tab" id="tab-tarea" role="tab" aria-selected="false" aria-controls="panel-tarea" tabindex="-1">Detalle de tarea</button>
+        </div>
+
+        <div id="panel-acceso" class="wf-panel" role="tabpanel" aria-labelledby="tab-acceso" tabindex="0">
+          <div class="wf-stage">
+            <div class="wf-layout">
+              <div class="wf-screen">
+                <div class="wf-chrome" aria-hidden="true"><i></i><i></i><i></i><span>syntropy.app/ingresar</span></div>
+                <div class="wf-auth">
+                  <div class="wf-auth-brand">
+                    <div>
+                      <img src="../assets/logo-mark.svg" alt="">
+                      <h4>Tu semestre, con forma.</h4>
+                      <p>Organiza materias, tareas y notas en un solo lugar. Sin ruido. Sin perder de vista lo importante.</p>
+                    </div>
+                    <p class="tiny">Fase 2 · Autenticación<br>Interfaz oscura · Inter Variable</p>
+                  </div>
+                  <div class="wf-auth-form">
+                    <h5>Iniciar sesión</h5>
+                    <p class="sub">Qué bueno verte de nuevo.</p>
+                    <div class="wf-field">
+                      <label for="wf-email">Correo electrónico</label>
+                      <div class="wf-input focus" id="wf-email">marce@ejemplo.com</div>
+                    </div>
+                    <div class="wf-field">
+                      <label for="wf-pass">Contraseña</label>
+                      <div class="wf-input err" id="wf-pass">••••••••••</div>
+                      <div class="wf-error">La contraseña no es correcta. Intenta de nuevo.</div>
+                    </div>
+                    <div style="display:flex;justify-content:flex-end;margin:-4px 0 10px">
+                      <span style="color:var(--rose-soft);font-size:7.5px">¿Olvidaste tu contraseña?</span>
+                    </div>
+                    <div class="wf-btn">Entrar</div>
+                    <div class="wf-auth-links"><span>Crear cuenta</span><span style="color:var(--faint)">Privacidad</span></div>
+                  </div>
+                </div>
+              </div>
+
+              <aside class="anno" aria-label="Decisiones de la pantalla de acceso">
+                <div class="anno-item"><div class="anno-num">1</div><div><h5>Etiquetas siempre visibles</h5><p>Nada de placeholders como única etiqueta. El correo se mantiene al corregir un error.</p></div></div>
+                <div class="anno-item"><div class="anno-num">2</div><div><h5>Error junto al campo</h5><p>El mensaje explica qué pasó y qué hacer; nunca culpa al usuario ni revela si un correo existe.</p></div></div>
+                <div class="anno-item"><div class="anno-num">3</div><div><h5>Un camino principal</h5><p>Entrar, crear cuenta y recuperar contraseña. Sin inicio de sesión social en el MVP.</p></div></div>
+                <div class="anno-item"><div class="anno-num">4</div><div><h5>Móvil: una columna</h5><p>El panel de marca se reduce a una cabecera compacta; el formulario ocupa el ancho y mantiene 48 px de alto por campo.</p></div></div>
+              </aside>
+            </div>
+          </div>
+        </div>
+
+        <div id="panel-inicio" class="wf-panel" role="tabpanel" aria-labelledby="tab-inicio" tabindex="0" hidden>
+          <div class="wf-stage">
+            <div class="wf-layout">
+              <div class="wf-screen">
+                <div class="wf-chrome" aria-hidden="true"><i></i><i></i><i></i><span>syntropy.app/inicio</span></div>
+                <div class="wf-app-top">
+                  <img src="../assets/logo-mark.svg" alt="">
+                  <b>Syntropy</b>
+                  <span class="wf-crumb">/ Inicio</span>
+                  <span class="wf-avatar" aria-hidden="true"></span>
+                </div>
+                <div class="wf-app-body">
+                  <aside class="wf-side">
+                    <div class="wf-year">5.º año · 2026 ▾</div>
+                    <ul class="wf-nav">
+                      <li class="active">Inicio</li><li>Calendario</li><li>Horario</li><li>Calificaciones</li><li>Nodos · F5</li><li>Biblioteca · F6</li><li>Configuración</li>
+                    </ul>
+                  </aside>
+                  <div class="wf-content">
+                    <h5 class="wf-h">Tu espacio académico</h5>
+                    <p class="wf-sub">Hola, Marce. Tienes 3 tareas para hoy.</p>
+                    <div class="wf-shortcuts">
+                      <div class="wf-shortcut"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg>Calendario</div>
+                      <div class="wf-shortcut"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 3h11l3 3v15H5z"/><path d="M8 10h8M8 14h8"/></svg>Calificaciones</div>
+                      <div class="wf-shortcut"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4h5v16H4zM10 4h5v16h-5zM16 6l4 1-3 13-4-1z"/></svg>Biblioteca</div>
+                      <div class="wf-shortcut"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="6" cy="6" r="2.5"/><circle cx="18" cy="7" r="2.5"/><circle cx="12" cy="18" r="2.5"/><path d="m8 7 8 8"/></svg>Nodos</div>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+                      <span style="font-size:9px;font-weight:650">Asignaturas</span>
+                      <span style="font-size:7px;color:var(--faint)">Ver todas</span>
+                    </div>
+                    <div class="wf-folders2">
+                      <div class="wf-folder2" style="--folder:linear-gradient(145deg,#e01462,#ff478d)"><span>Matemáticas</span></div>
+                      <div class="wf-folder2" style="--folder:linear-gradient(145deg,#e3c500,#ffde00)"><span>Inglés</span></div>
+                      <div class="wf-folder2" style="--folder:linear-gradient(145deg,#6f07c8,#9a15af)"><span>Lengua</span></div>
+                    </div>
+                    <div style="margin-top:12px;padding:9px;border:1px solid var(--border);border-radius:7px;background:var(--surface-2);display:flex;align-items:center;gap:7px">
+                      <span style="width:3px;height:26px;border-radius:2px;background:var(--yellow)"></span>
+                      <div style="flex:1"><div style="font-size:7.5px;color:var(--text-2)">Preparar exposición de Inglés</div><div style="font-size:6px;color:var(--faint)">Inglés · vence mañana</div></div>
+                      <span class="tag tag--warning" style="font-size:5.5px;padding:2px 5px">Pendiente</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <aside class="anno" aria-label="Decisiones de la pantalla de inicio">
+                <div class="anno-item"><div class="anno-num">1</div><div><h5>El año siempre visible</h5><p>El selector de año vive en la parte superior de la barra lateral. Cambiar de año cambia todo el contexto.</p></div></div>
+                <div class="anno-item"><div class="anno-num">2</div><div><h5>Accesos antes que carpetas</h5><p>Las funciones generales no obligan a entrar materia por materia. La referencia original ya lo proponía.</p></div></div>
+                <div class="anno-item"><div class="anno-num">3</div><div><h5>La carpeta es la asignatura</h5><p>Color identificativo, nombre y próximo vencimiento. Un clic abre el calendario de la materia.</p></div></div>
+                <div class="anno-item"><div class="anno-num">4</div><div><h5>Estado vacío con salida</h5><p>Si no hay asignaturas, se muestra una tarjeta “Crear mi primera asignatura”, nunca una pantalla en blanco.</p></div></div>
+              </aside>
+            </div>
+          </div>
+        </div>
+
+        <div id="panel-asignatura" class="wf-panel" role="tabpanel" aria-labelledby="tab-asignatura" tabindex="0" hidden>
+          <div class="wf-stage">
+            <div class="wf-layout">
+              <div class="wf-screen">
+                <div class="wf-chrome" aria-hidden="true"><i></i><i></i><i></i><span>syntropy.app/asignaturas/nueva</span></div>
+                <div class="wf-form-bg">
+                  <div class="wf-modal">
+                    <div class="wf-modal-top">
+                      <div>
+                        <h5>Nueva asignatura</h5>
+                        <p>La carpeta se guarda en el año activo.</p>
+                      </div>
+                      <span class="wf-close" aria-hidden="true">×</span>
+                    </div>
+
+                    <div class="wf-field">
+                      <label>Nombre de la asignatura</label>
+                      <div class="wf-input focus">Matemáticas</div>
+                    </div>
+                    <div class="wf-row2">
+                      <div class="wf-field">
+                        <label>Año de curso</label>
+                        <div class="wf-input" style="justify-content:space-between">5.º año · 2026 <span>▾</span></div>
+                      </div>
+                      <div class="wf-field">
+                        <label>Docente <span style="color:var(--faint);font-weight:400">(opcional)</span></label>
+                        <div class="wf-input">Prof. Laura Gómez</div>
+                      </div>
+                    </div>
+
+                    <div class="wf-field">
+                      <label>Color identificativo</label>
+                      <div class="wf-color-grid" aria-label="Paleta de colores">
+                        <span class="wf-color sel" style="background:#E01462" title="Rosa"></span>
+                        <span class="wf-color" style="background:#FF478D" title="Fucsia"></span>
+                        <span class="wf-color" style="background:#6F07C8" title="Morado"></span>
+                        <span class="wf-color" style="background:#9A15AF" title="Violeta"></span>
+                        <span class="wf-color" style="background:#2F6BFF" title="Azul"></span>
+                        <span class="wf-color" style="background:#22B8CF" title="Celeste"></span>
+                        <span class="wf-color" style="background:#12B886" title="Turquesa"></span>
+                        <span class="wf-color" style="background:#37B24D" title="Verde"></span>
+                        <span class="wf-color" style="background:#94D82D" title="Lima"></span>
+                        <span class="wf-color" style="background:#FFDE00" title="Amarillo"></span>
+                        <span class="wf-color" style="background:#FF922B" title="Naranja"></span>
+                        <span class="wf-color" style="background:#FA5252" title="Rojo"></span>
+                      </div>
+                      <div style="display:flex;align-items:center;gap:5px;margin-top:5px;color:var(--faint);font-size:6.5px"><span style="width:5px;height:5px;border-radius:50%;background:#E01462"></span>Rosa · seleccionado</div>
+                    </div>
+
+                    <div class="wf-advanced">
+                      <span>+ Detalles: descripción, criterios y metodología</span>
+                      <span>▾</span>
+                    </div>
+
+                    <div class="wf-check"><span style="display:grid;place-items:center;width:11px;height:11px;border:1px solid var(--rose-bright);border-radius:3px;color:var(--rose-bright);font-size:7px">✓</span>Ya tengo el programa de la materia</div>
+
+                    <div class="wf-modal-actions">
+                      <button class="wf-btn wf-btn--ghost" type="button">Cancelar</button>
+                      <button class="wf-btn" type="button" style="min-width:96px">Añadir asignatura</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <aside class="anno" aria-label="Decisiones del formulario de asignatura">
+                <div class="anno-item"><div class="anno-num">1</div><div><h5>El año no se escribe</h5><p>“Año de curso” es un selector del año activo, no un campo libre. Evita duplicados y errores de tipeo (D2).</p></div></div>
+                <div class="anno-item"><div class="anno-num">2</div><div><h5>Color con nombre, no solo color</h5><p>La selección se anuncia y se marca con un anillo. No se depende de distinguir tonos para completar el formulario.</p></div></div>
+                <div class="anno-item"><div class="anno-num">3</div><div><h5>Validación antes de enviar</h5><p>Nombre obligatorio y único dentro del año. El botón explica por qué está deshabilitado; no falla en silencio.</p></div></div>
+                <div class="anno-item"><div class="anno-num">4</div><div><h5>Detalles progresivos</h5><p>Docentes, metodología y criterios quedan plegados. Se pueden completar ahora o después desde la asignatura.</p></div></div>
+              </aside>
+            </div>
+          </div>
+        </div>
+
+        <div id="panel-calendario" class="wf-panel" role="tabpanel" aria-labelledby="tab-calendario" tabindex="0" hidden>
+          <div class="wf-stage">
+            <div class="wf-layout">
+              <div class="wf-screen">
+                <div class="wf-chrome" aria-hidden="true"><i></i><i></i><i></i><span>syntropy.app/calendario</span></div>
+                <div class="wf-app-top">
+                  <img src="../assets/logo-mark.svg" alt="">
+                  <b>Calendario</b>
+                  <span class="wf-crumb">General · 5.º año</span>
+                  <span class="wf-avatar" aria-hidden="true"></span>
+                </div>
+                <div class="wf-content" style="min-height:360px">
+                  <div class="wf-cal-top">
+                    <h5>Octubre de 2026</h5>
+                    <span>Mes</span><span style="color:var(--rose-soft)">Agenda</span>
+                    <button class="wf-btn" type="button">+ Nueva tarea</button>
+                  </div>
+                  <div class="wf-cal" aria-label="Vista mensual de octubre de 2026">
+                    <div class="wf-dow">Lun</div><div class="wf-dow">Mar</div><div class="wf-dow">Mié</div><div class="wf-dow">Jue</div><div class="wf-dow">Vie</div><div class="wf-dow">Sáb</div><div class="wf-dow">Dom</div>
+
+                    <div class="wf-day dim">28</div><div class="wf-day dim">29</div><div class="wf-day dim">30</div>
+                    <div class="wf-day">1<div class="wf-ev" style="--ev:#e01462">TP Lengua</div></div>
+                    <div class="wf-day">2</div><div class="wf-day">3</div><div class="wf-day">4</div>
+
+                    <div class="wf-day">5<div class="wf-ev" style="--ev:#2f6bff">Parcial Mat.</div></div>
+                    <div class="wf-day">6<div class="wf-ev" style="--ev:#ffde00">Ensayo</div></div>
+                    <div class="wf-day">7</div><div class="wf-day">8</div><div class="wf-day">9</div><div class="wf-day">10</div><div class="wf-day">11</div>
+
+                    <div class="wf-day">12</div>
+                    <div class="wf-day today sel">13<div class="wf-ev" style="--ev:#ff478d">Exposición Inglés</div><div class="wf-ev" style="--ev:#6f07c8">Lectura</div><div class="wf-ev more">+1</div></div>
+                    <div class="wf-day">14</div><div class="wf-day">15<div class="wf-ev" style="--ev:#2f6bff">TP Matemática</div></div><div class="wf-day">16</div><div class="wf-day">17</div><div class="wf-day">18</div>
+
+                    <div class="wf-day">19</div><div class="wf-day">20</div><div class="wf-day">21<div class="wf-ev" style="--ev:#9a15af">Examen Lengua</div></div><div class="wf-day">22<div class="wf-ev" style="--ev:#22b8cf">Estudio</div></div><div class="wf-day">23</div><div class="wf-day">24</div><div class="wf-day">25</div>
+
+                    <div class="wf-day">26</div><div class="wf-day">27</div><div class="wf-day">28<div class="wf-ev" style="--ev:#12b886">Entrega proyecto</div></div><div class="wf-day">29</div><div class="wf-day">30</div><div class="wf-day">31</div><div class="wf-day dim">1</div>
+                  </div>
+
+                  <div class="wf-cal-side">
+                    <h6>Miércoles 13 de octubre <span style="font-weight:400;color:var(--faint)">· 3 eventos</span></h6>
+                    <div class="item"><i style="background:#ff478d"></i><div><p>Exposición de Inglés</p><span>Inglés · 09:20 · Examen oral</span></div></div>
+                    <div class="item"><i style="background:#6f07c8"></i><div><p>Leer capítulo 4</p><span>Lengua · sin hora · Tarea</span></div></div>
+                    <div class="item"><i style="background:#22b8cf"></i><div><p>Repasar vocabulario</p><span>Inglés · 18:00 · Estudio</span></div></div>
+                  </div>
+                </div>
+              </div>
+
+              <aside class="anno" aria-label="Decisiones del calendario">
+                <div class="anno-item"><div class="anno-num">1</div><div><h5>Semana fija de lunes a domingo</h5><p>No se configura en el MVP (D22). El día actual y el seleccionado se distinguen por fondo y anillo, no solo por color.</p></div></div>
+                <div class="anno-item"><div class="anno-num">2</div><div><h5>Color + tipo de evento</h5><p>La barra de color identifica la materia; el ícono o la etiqueta distingue tarea, examen y estudio.</p></div></div>
+                <div class="anno-item"><div class="anno-num">3</div><div><h5>Sin saturación</h5><p>Máximo dos eventos visibles por celda y “+N”. La cuenta regresiva se ve en el detalle, no en la celda.</p></div></div>
+                <div class="anno-item"><div class="anno-num">4</div><div><h5>Móvil: mes o agenda</h5><p>La grilla completa no es usable en un teléfono. Se conserva una vista de agenda y se puede alternar a mes.</p></div></div>
+              </aside>
+            </div>
+          </div>
+        </div>
+
+        <div id="panel-tarea" class="wf-panel" role="tabpanel" aria-labelledby="tab-tarea" tabindex="0" hidden>
+          <div class="wf-stage">
+            <div class="wf-layout">
+              <div class="wf-screen">
+                <div class="wf-chrome" aria-hidden="true"><i></i><i></i><i></i><span>syntropy.app/calendario · detalle de tarea</span></div>
+                <div class="wf-task-bg">
+                  <div class="wf-task">
+                    <div class="wf-task-main">
+                      <div class="wf-task-kicker"><i></i>Inglés · Tarea</div>
+                      <h5>Preparar exposición: Feria de Ciencias</h5>
+                      <p class="subject">Creada el 8 de octubre · Vence el 14 de octubre, 09:20</p>
+
+                      <h6>Consigna</h6>
+                      <p>Presentar en inglés la organización de una feria de ciencias: temática, presupuesto, participantes y logística.</p>
+
+                      <h6>Entregable</h6>
+                      <ul>
+                        <li>Un diagrama visual con tareas y responsables.</li>
+                        <li>Fechas de inicio y fin, más las dependencias.</li>
+                        <li>Exposición oral de 5 minutos.</li>
+                      </ul>
+
+                      <h6>Notas personales</h6>
+                      <p>Repasar pronunciación de “logistics” y “budget”. Llevar la rúbrica impresa.</p>
+
+                      <div class="wf-task-actions">
+                        <span class="wf-iconbtn" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></span>
+                        <span class="wf-iconbtn" aria-hidden="true" style="background:rgba(255,107,138,.14);color:var(--danger);border:1px solid rgba(255,107,138,.3)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M8 6V4h8v2M19 6l-1 14H6L5 6"/><path d="M10 11v5M14 11v5"/></svg></span>
+                        <span class="wf-iconbtn" aria-hidden="true" style="margin-left:auto"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m5 12 4 4L19 6"/></svg></span>
+                        <span class="tag tag--warning" style="align-self:center;font-size:6px;padding:2px 6px">Pendiente</span>
+                      </div>
+                    </div>
+                    <aside class="wf-task-side">
+                      <div class="wf-meta"><span class="lbl">Materia</span><strong style="display:flex;align-items:center;gap:4px"><i style="width:5px;height:5px;border-radius:50%;background:#ffde00"></i>Inglés</strong></div>
+                      <div class="wf-meta"><span class="lbl">Vencimiento</span><strong>14 oct · 09:20</strong><div class="wf-progress"><i style="width:72%;background:var(--warning)"></i></div><span style="display:block;margin-top:3px;color:var(--warning);font-size:5.5px">Vence en 1 día</span></div>
+                      <div class="wf-meta"><span class="lbl">Nodo</span><strong>Sin tema</strong><span style="display:block;margin-top:2px;color:var(--faint);font-size:5.5px">Clasificar después · F5</span></div>
+                      <div class="wf-meta"><span class="lbl">Adjuntos</span><strong>rúbrica.pdf</strong><span style="display:block;margin-top:2px;color:var(--faint);font-size:5.5px">1 archivo · Storage</span></div>
+                      <div class="wf-annot">El panel lateral se convierte en una sección inferior en móvil.</div>
+                    </aside>
+                  </div>
+                </div>
+              </div>
+
+              <aside class="anno" aria-label="Decisiones del detalle de tarea">
+                <div class="anno-item"><div class="anno-num">1</div><div><h5>Todo lo necesario para actuar</h5><p>Título, materia, vencimiento, consigna, entregable, notas, adjuntos y estado en una sola vista.</p></div></div>
+                <div class="anno-item"><div class="anno-num">2</div><div><h5>Acciones con consecuencias claras</h5><p>Editar, eliminar y cambiar estado. Eliminar siempre pide confirmación y dice qué se pierde.</p></div></div>
+                <div class="anno-item"><div class="anno-num">3</div><div><h5>Fechas con contexto</h5><p>Se muestra la fecha límite y la cuenta regresiva. La hora se interpreta en la zona horaria del perfil, guardada en UTC.</p></div></div>
+                <div class="anno-item"><div class="anno-num">4</div><div><h5>Desktop y móvil, misma tarea</h5><p>En escritorio puede ser un panel lateral; en móvil, pantalla completa. El contenido no cambia.</p></div></div>
+              </aside>
+            </div>
+          </div>
+        </div>
+
+        <div class="note" style="margin-top:26px">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 2.6 17a2 2 0 0 0 1.7 3h15.4a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg>
+          <div><strong>Los wireframes son una guía, no una promesa de píxeles exactos.</strong> Antes de construir cada pantalla se validará con datos reales y se ajustará lo que no funcione. La accesibilidad y los estados vacíos se implementan desde la primera versión, no al final.</div>
+        </div>
+      </section>
+
+      <section id="sistema" class="section" aria-labelledby="titulo-sistema">
+        <div class="section-head">
+          <div class="section-index">05 / Sistema de diseño</div>
+          <div>
+            <span class="kicker">Identidad y reglas visuales</span>
+            <h2 id="titulo-sistema" class="section-title">Oscuro, preciso, con energía donde importa.</h2>
+            <p class="section-lead">
+              El 90 % de la interfaz es legible y tranquila; el 10 % restante puede ser neón. Rosa y morado se reservan
+              para acciones, estados activos y nodos. La estructura visual se apoya en superficies, bordes y jerarquía tipográfica.
+            </p>
+          </div>
+        </div>
+
+        <div class="brand-card">
+          <div class="brand-card-preview">
+            <img src="../assets/logo-mark.svg" alt="Símbolo provisional de Syntropy: cerebro con circuitos">
+          </div>
+          <div>
+            <div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:8px">
+              <span class="tag tag--rose">Marca</span>
+              <span class="tag tag--warning">Versión provisional · D10</span>
+            </div>
+            <h3>Cerebro, circuitos y un nodo central.</h3>
+            <p>
+              Dos hemisferios: rosa y morado. Los circuitos terminan en nodos que representan ideas y conexiones.
+              La versión actual es vectorial y respeta la dirección de las referencias, pero el trazo debe refinarse
+              con un diseñador antes de publicar. No se declara como logo final.
+            </p>
+            <div class="chip-row">
+              <span class="chip-demo"><i style="background:var(--rose-bright)"></i>Hemisferio rosa</span>
+              <span class="chip-demo"><i style="background:var(--purple)"></i>Hemisferio morado</span>
+              <span class="chip-demo"><i style="background:var(--magenta)"></i>Nodo central</span>
+              <span class="chip-demo">Inter 800</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div style="display:flex;flex-wrap:wrap;align-items:end;justify-content:space-between;gap:10px;margin-bottom:14px">
+          <div><span class="eyebrow">Color</span><h3 style="margin:5px 0 0;font-size:19px">Una paleta con función, no decorativa.</h3></div>
+          <span class="small">Contraste mínimo AA · 4,5:1 en texto normal</span>
+        </div>
+
+        <p class="eyebrow" style="margin-bottom:8px">Marca</p>
+        <div class="swatches" style="margin-bottom:12px">
+          <div class="swatch"><div class="swatch-color" style="background:#6F07C8"></div><b>Morado 700</b><span>#6F07C8</span></div>
+          <div class="swatch"><div class="swatch-color" style="background:#8B18D9"></div><b>Morado 500</b><span>#8B18D9</span></div>
+          <div class="swatch"><div class="swatch-color" style="background:#CA01CC"></div><b>Magenta</b><span>#CA01CC</span></div>
+          <div class="swatch"><div class="swatch-color" style="background:#E01462"></div><b>Rosa 600</b><span>#E01462</span></div>
+          <div class="swatch"><div class="swatch-color" style="background:#FF478D"></div><b>Rosa 500</b><span>#FF478D</span></div>
+          <div class="swatch"><div class="swatch-color" style="background:#FFDE00"></div><b>Amarillo</b><span>#FFDE00</span></div>
+        </div>
+
+        <p class="eyebrow" style="margin-bottom:8px">Interfaz oscura</p>
+        <div class="swatches" style="margin-bottom:12px">
+          <div class="swatch"><div class="swatch-color" style="background:#0C141F"></div><b>Canvas</b><span>#0C141F</span></div>
+          <div class="swatch"><div class="swatch-color" style="background:#161E2B"></div><b>Shell</b><span>#161E2B</span></div>
+          <div class="swatch"><div class="swatch-color" style="background:#29313C"></div><b>Surface</b><span>#29313C</span></div>
+          <div class="swatch"><div class="swatch-color" style="background:#121A27"></div><b>Sunken</b><span>#121A27</span></div>
+          <div class="swatch"><div class="swatch-color" style="background:#2F3947"></div><b>Border</b><span>#2F3947</span></div>
+          <div class="swatch"><div class="swatch-color" style="background:#C7CED8"></div><b>Texto 2</b><span>#C7CED8</span></div>
+        </div>
+
+        <p class="eyebrow" style="margin-bottom:8px">Estados semánticos</p>
+        <div class="swatches">
+          <div class="swatch"><div class="swatch-color" style="background:#5DD6A2"></div><b>Éxito</b><span>#5DD6A2</span></div>
+          <div class="swatch"><div class="swatch-color" style="background:#FFC857"></div><b>Advertencia</b><span>#FFC857</span></div>
+          <div class="swatch"><div class="swatch-color" style="background:#FF6B8A"></div><b>Peligro</b><span>#FF6B8A</span></div>
+          <div class="swatch"><div class="swatch-color" style="background:#8AB4FF"></div><b>Información</b><span>#8AB4FF</span></div>
+          <div class="swatch swatch--wide"><div class="swatch-color" style="background:linear-gradient(90deg,#E01462,#CA01CC,#6F07C8)"></div><b>Gradiente de marca</b><span>Rosa → magenta → morado</span></div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="type-row">
+          <div>
+            <div class="type-big grad">Aa</div>
+            <div class="type-meta">
+              <span class="tag">Inter Variable</span>
+              <span class="tag">Pesos 400–800</span>
+              <span class="tag">Local · sin CDN</span>
+            </div>
+            <p class="small" style="margin:12px 0 0">Diseñada para pantalla. Números tabulares en notas y fechas. Títulos con tracking negativo; cuerpo sin tracking.</p>
+          </div>
+          <div class="type-scale" aria-label="Escala tipográfica">
+            <div class="type-line"><p class="t-display">Estudiar mejor</p><span class="tl-name">display · 40/48 · 800</span></div>
+            <div class="type-line"><p class="t-h1">Tus materias, en orden</p><span class="tl-name">h1 · 32/40 · 700</span></div>
+            <div class="type-line"><p class="t-h2">Próximas entregas</p><span class="tl-name">h2 · 24/32 · 700</span></div>
+            <div class="type-line"><p class="t-body">La fecha límite se muestra con hora local y cuenta regresiva, para que nunca dependa de un cálculo mental.</p><span class="tl-name">body · 16/24 · 400</span></div>
+            <div class="type-line"><p class="t-small">Metadatos y ayudas con al menos 12 px de tamaño.</p><span class="tl-name">body-sm · 14/20 · 400</span></div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div style="display:flex;flex-wrap:wrap;align-items:end;justify-content:space-between;gap:10px;margin-bottom:14px">
+          <div><span class="eyebrow">Componentes</span><h3 style="margin:5px 0 0;font-size:19px">Estados completos desde el inicio.</h3></div>
+          <span class="small">Foco visible · área táctil 44 px · nada depende de hover</span>
+        </div>
+
+        <div class="component-grid">
+          <div class="component-card">
+            <h4>Acciones</h4>
+            <div class="btn-row">
+              <span class="demo-btn demo-btn--primary">Guardar cambios</span>
+              <span class="demo-btn demo-btn--secondary">Cancelar</span>
+              <span class="demo-btn demo-btn--ghost">Ver más</span>
+              <span class="demo-btn demo-btn--danger">Eliminar</span>
+              <span class="demo-btn demo-btn--focus">Con foco</span>
+            </div>
+            <p class="small" style="margin:10px 0 0;font-size:10px">Altura 40 px en escritorio y 48 px en móvil. El estado de carga mantiene el ancho del botón.</p>
+          </div>
+
+          <div class="component-card">
+            <h4>Campos y validación</h4>
+            <div class="demo-field" style="margin-bottom:10px">
+              <label>Correo electrónico</label>
+              <div class="input focus">marce@ejemplo.com <span style="color:var(--rose-soft)">✓</span></div>
+              <div class="help">Usaremos este correo para confirmar tu cuenta.</div>
+            </div>
+            <div class="demo-field">
+              <label>Contraseña</label>
+              <div class="input error">••••••••</div>
+              <div class="err">Mínimo 8 caracteres, una letra y un número.</div>
+            </div>
+          </div>
+
+          <div class="component-card">
+            <h4>Estados de tarea</h4>
+            <div class="chip-row">
+              <span class="chip-demo chip-demo--pending"><i></i>Pendiente</span>
+              <span class="chip-demo chip-demo--waiting"><i></i>En espera</span>
+              <span class="chip-demo chip-demo--done"><i></i>Terminada</span>
+              <span class="chip-demo chip-demo--late"><i></i>Atrasada</span>
+            </div>
+            <p class="small" style="margin:10px 0 0;font-size:10px">Color + ícono + texto. El color nunca es el único indicador. El estado “atrasada” se calcula, no se guarda.</p>
+          </div>
+
+          <div class="component-card">
+            <h4>Tarjetas</h4>
+            <div class="mini-folder-row">
+              <div class="mini-folder"><b>Inglés</b><span>Próximo: 14 oct</span></div>
+              <div class="mini-task">
+                <div class="mt-top"><b>Feria de Ciencias</b><span class="tag tag--warning" style="font-size:6px;padding:2px 5px">Pendiente</span></div>
+                <p>Inglés · vence mañana · 09:20</p>
+              </div>
+            </div>
+            <p class="small" style="margin:10px 0 0;font-size:10px">La carpeta representa la materia; la tarjeta de tarea muestra la barra de color, el estado y la fecha.</p>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div style="display:flex;flex-wrap:wrap;align-items:end;justify-content:space-between;gap:10px;margin-bottom:16px">
+          <div><span class="eyebrow">Nodos de conocimiento</span><h3 style="margin:5px 0 0;font-size:19px">La forma comunica dificultad; el anillo, la nota.</h3></div>
+          <span class="small">Preparado para Fase 5</span>
+        </div>
+
+        <div class="node-grid">
+          <div class="node-card">
+            <div class="node-outer" style="--ring:#B87333;border-radius:50%"><div class="node-inner" style="border-radius:50%">42%</div></div>
+            <b>Dificultad 2</b><span>Círculo<br>Bronce · 42 %</span>
+          </div>
+          <div class="node-card">
+            <div class="node-outer" style="--ring:#C0C7D1; clip-path:polygon(50% 0%,100% 100%,0% 100%)"><div class="node-inner" style="clip-path:polygon(50% 0%,100% 100%,0% 100%)">55%</div></div>
+            <b>Dificultad 3</b><span>Triángulo<br>Plata · 55 %</span>
+          </div>
+          <div class="node-card">
+            <div class="node-outer" style="--ring:#F5C542; clip-path:polygon(0 0,100% 0,100% 100%,0 100%)"><div class="node-inner" style="clip-path:polygon(0 0,100% 0,100% 100%,0 100%)">76%</div></div>
+            <b>Dificultad 4</b><span>Cuadrado<br>Oro · 76 %</span>
+          </div>
+          <div class="node-card">
+            <div class="node-outer" style="--ring:#7FE7FF; clip-path:polygon(50% 0%,100% 38%,82% 100%,18% 100%,0% 38%)"><div class="node-inner" style="clip-path:polygon(50% 0%,100% 38%,82% 100%,18% 100%,0% 38%)">93%</div></div>
+            <b>Dificultad 5</b><span>Pentágono<br>Diamante · 93 %</span>
+          </div>
+          <div class="node-card">
+            <div class="node-outer" style="clip-path:polygon(25% 0%,75% 0%,100% 50%,75% 100%,25% 100%,0% 50%)"><div class="node-inner" style="clip-path:polygon(25% 0%,75% 0%,100% 50%,75% 100%,25% 100%,0% 50%)">100%</div></div>
+            <b>Dificultad 6</b><span>Hexágono<br>Multicolor · 100 %</span>
+          </div>
+        </div>
+        <div class="chip-row" style="margin-top:14px">
+          <span class="chip-demo"><i style="background:var(--rose-bright)"></i>Forma = dificultad 1–10</span>
+          <span class="chip-demo"><i style="background:var(--purple)"></i>Relleno = dominio</span>
+          <span class="chip-demo"><i style="background:var(--yellow)"></i>Anillo = porcentaje de nota</span>
+          <span class="chip-demo"><i style="background:var(--faint)"></i>Sin notas = línea discontinua</span>
+        </div>
+
+        <div class="note" style="margin-top:26px">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 2.6 17a2 2 0 0 0 1.7 3h15.4a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg>
+          <div><strong>Contraste comprobado, no supuesto:</strong> blanco sobre canvas 18,49:1 · texto secundario sobre tarjeta 8,29:1 · rosa #FF478D sobre canvas 5,76:1. El rosa #E01462 no se usa como texto pequeño sobre fondo oscuro. El tema claro queda fuera del MVP (D13).</div>
+        </div>
+      </section>
+
+      <section id="datos" class="section" aria-labelledby="titulo-datos">
+        <div class="section-head">
+          <div class="section-index">06 / Modelo de datos</div>
+          <div>
+            <span class="kicker">La base que sostiene todo</span>
+            <h2 id="titulo-datos" class="section-title">Catorce tablas, una regla: cada dato tiene dueño.</h2>
+            <p class="section-lead">
+              PostgreSQL en Supabase, con RLS en todas las tablas y claves compuestas por usuario para que un error de
+              frontend no pueda mezclar cuentas. El árbol de nodos, la biblioteca y los recordatorios ya tienen su lugar
+              en el esquema, aunque se activen después del MVP.
+            </p>
+          </div>
+        </div>
+
+        <div class="data-layout">
+          <div class="data-groups">
+            <div class="data-group">
+              <h4><span>01</span>Cuenta y preferencias</h4>
+              <div class="table-chip-list">
+                <code class="table-chip table-chip--key">profiles</code>
+                <code class="table-chip">user_settings</code>
+                <code class="table-chip">grading_settings</code>
+              </div>
+              <p class="tiny" style="margin:8px 0 0">Perfil, zona horaria, escala global y preferencias de recordatorios.</p>
+            </div>
+            <div class="data-group">
+              <h4><span>02</span>Organización académica</h4>
+              <div class="table-chip-list">
+                <code class="table-chip table-chip--key">academic_years</code>
+                <code class="table-chip table-chip--key">subjects</code>
+                <code class="table-chip">schedule_entries</code>
+              </div>
+              <p class="tiny" style="margin:8px 0 0">Un solo año activo por usuario; asignaturas con color y horario semanal.</p>
+            </div>
+            <div class="data-group">
+              <h4><span>03</span>Trabajo y evaluación</h4>
+              <div class="table-chip-list">
+                <code class="table-chip">tasks</code>
+                <code class="table-chip">exams</code>
+                <code class="table-chip">study_sessions</code>
+                <code class="table-chip table-chip--key">assessments</code>
+              </div>
+              <p class="tiny" style="margin:8px 0 0">Tareas con estado, exámenes, plan de estudio y notas con peso y escala.</p>
+            </div>
+            <div class="data-group">
+              <h4><span>04</span>Conocimiento y correo</h4>
+              <div class="table-chip-list">
+                <code class="table-chip">nodes</code>
+                <code class="table-chip">node_links</code>
+                <code class="table-chip">sources</code>
+                <code class="table-chip">reminders</code>
+              </div>
+              <p class="tiny" style="margin:8px 0 0">Árbol jerárquico, enlaces entre materias, biblioteca y recordatorios.</p>
+            </div>
+          </div>
+
+          <div class="card" style="background:rgba(18,26,39,.6)">
+            <div class="data-stat"><strong>14</strong><span>tablas en la migración inicial</span></div>
+            <p class="tiny" style="margin-bottom:14px">Además de <code style="color:var(--rose-soft)">auth.users</code>, gestionada por Supabase.</p>
+            <div class="rule-list">
+              <div class="rule"><span>✓</span><p><b>user_id en todo.</b> Las políticas RLS comparan contra <code style="font-size:9px">auth.uid()</code>; no hay lectura pública.</p></div>
+              <div class="rule"><span>✓</span><p><b>Claves compuestas.</b> Una tarea no puede apuntar al nodo de otra materia ni al año de otra cuenta.</p></div>
+              <div class="rule"><span>✓</span><p><b>Escala congelada.</b> Cada evaluación guarda <code style="font-size:9px">scale_min</code> y <code style="font-size:9px">scale_max</code>; cambiar la escala no reinterpreta el pasado.</p></div>
+              <div class="rule"><span>✓</span><p><b>Un nodo raíz por asignatura.</b> Es contenedor, no evaluable (D5). Los temas hijos llevan dificultad, dominio y notas.</p></div>
+              <div class="rule"><span>✓</span><p><b>Las fuentes no desaparecen.</b> Si se elimina un nodo, la fuente queda “Sin tema” en lugar de borrarse en cascada.</p></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div style="display:flex;flex-wrap:wrap;align-items:end;justify-content:space-between;gap:10px">
+          <div><span class="eyebrow">Cálculos</span><h3 style="margin:5px 0 0;font-size:19px">Fórmulas explícitas y probables.</h3></div>
+          <span class="small">Lógica pura, separada de la interfaz</span>
+        </div>
+
+        <div class="formula-grid">
+          <div class="formula">
+            <span class="eyebrow">01 · Porcentaje</span>
+            <code>p = (nota − mín) / (máx − mín) × 100</code>
+            <p>Convierte cualquier escala a porcentaje. <b>7,0 en 1–10 → 66,7 %.</b> Se usa para comparar evaluaciones de escalas distintas.</p>
+          </div>
+          <div class="formula">
+            <span class="eyebrow">02 · Promedio ponderado</span>
+            <code>P = Σ(wi × pi) / Σwi</code>
+            <p>Los pesos son relativos y <b>no necesitan sumar 100</b>. Solo entran evaluaciones con nota. El resultado se redondea únicamente al mostrar.</p>
+          </div>
+          <div class="formula">
+            <span class="eyebrow">03 · Proyección</span>
+            <code>nota = mín + (máx − mín) × Pnec / 100</code>
+            <p>Con el peso de la próxima evaluación, calcula qué nota hace falta para llegar al objetivo. Distingue entre “ya asegurado”, “necesitas X” y “no es posible”.</p>
+          </div>
+          <div class="formula">
+            <span class="eyebrow">04 · Contorno del nodo</span>
+            <code>nivel = f(promedio de porcentajes)</code>
+            <p>Promedio simple de las notas del nodo, cada una con su escala. <b>Blanco → Bronce → Plata → Oro → Diamante → Multicolor.</b> Sin notas: contorno discontinuo.</p>
+          </div>
+        </div>
+
+        <div class="validation">
+          <div class="validation-head">
+            <div style="display:flex;align-items:center;gap:9px">
+              <span class="tag tag--success">Validación local ejecutada</span>
+              <h4>La migración no es solo un documento.</h4>
+            </div>
+            <span class="tiny">PGlite · PostgreSQL 17 embebido</span>
+          </div>
+          <div class="validation-grid">
+            <div class="validation-item"><i>✓</i>Migración completa ejecutada sin errores.</div>
+            <div class="validation-item"><i>✓</i>Trigger de registro crea el perfil.</div>
+            <div class="validation-item"><i>✓</i>RLS aisló correctamente a los usuarios A y B.</div>
+            <div class="validation-item"><i>✓</i>Un solo año activo por usuario.</div>
+            <div class="validation-item"><i>✓</i>Un solo nodo raíz y restricción de jerarquía.</div>
+            <div class="validation-item"><i>✓</i>Escala de notas dentro de rango.</div>
+            <div class="validation-item"><i>✓</i>Enlaces de nodos únicos y sin duplicados.</div>
+            <div class="validation-item"><i>✓</i>Borrado de nodo con fuente: bloqueado.</div>
+            <div class="validation-item"><i>✓</i>Borrado de nodo: tarea desvinculada.</div>
+            <div class="validation-item"><i>✓</i>Enlace entre asignaturas distintas permitido.</div>
+            <div class="validation-item"><i>✓</i>Índices únicos parciales activos.</div>
+            <div class="validation-item"><i>✓</i>Sin datos huérfanos en las pruebas.</div>
+          </div>
+          <p class="validation-foot">
+            <b>Honestidad técnica:</b> PGlite simula <code>citext</code> con un dominio de texto y no reemplaza una prueba en un proyecto real de Supabase.
+            Todavía no se probaron Storage, Edge Functions ni el flujo de correo. Antes de producción se repetirá la validación contra Supabase y se aplicará la migración definitiva.
+          </p>
+        </div>
+      </section>
+
+      <section id="decisiones" class="section" aria-labelledby="titulo-decisiones">
+        <div class="section-head">
+          <div class="section-index">07 / Decisiones</div>
+          <div>
+            <span class="kicker">Lo que necesito de ti</span>
+            <h2 id="titulo-decisiones" class="section-title">Siete decisiones bloquean el inicio. Las demás tienen un valor por defecto.</h2>
+            <p class="section-lead">
+              No hace falta escribir un documento. Alcanza con aprobar las recomendaciones o indicar los IDs que querés cambiar.
+              Las decisiones bloqueantes afectan el modelo, el empaquetado o el registro; resolverlas después obliga a rehacer trabajo.
+            </p>
+          </div>
+        </div>
+
+        <div class="decision-summary">
+          <span class="tag tag--rose">Bloqueantes para Fase 2</span>
+          <p><b>D1, D2, D3, D4, D8, D9 y D12.</b> D5 se necesita antes de los nodos (F5); D10, antes de publicar.</p>
+        </div>
+
+        <div class="decision-grid">
+          <article class="decision">
+            <div class="decision-top"><span class="decision-id">D1</span><span class="tag tag--rose">Bloqueante</span></div>
+            <h4>Windows: ¿Tauri 2, PWA o ambos?</h4>
+            <p class="context">El documento maestro aprobó web y móviles; el prompt pide un instalador de Windows. No son incompatibles, pero cambian las herramientas y el tiempo de build.</p>
+            <div class="rec"><span>✓</span><p><b>Recomendación: PWA + Tauri 2.</b> Una sola app; la PWA sigue disponible y Tauri envuelve el mismo build. Instalar Rust y MSVC.</p></div>
+            <p class="impact"><b>Impacto:</b> entorno, despliegue y pruebas de Windows. Si preferís solo PWA, se elimina Tauri del alcance.</p>
+          </article>
+
+          <article class="decision">
+            <div class="decision-top"><span class="decision-id">D2</span><span class="tag tag--rose">Bloqueante</span></div>
+            <h4>¿Qué significa “Año de curso”?</h4>
+            <p class="context">“2026” no distingue 5.º de 6.º; “5.º año” se repite cada año. El modelo necesita nombre y fechas para archivar ciclos.</p>
+            <div class="rec"><span>✓</span><p><b>Recomendación: nombre libre + fechas.</b> “5.º año · 2026”, “Universidad 2026” o “2026”. Un solo año activo por vez.</p></div>
+            <p class="impact"><b>Impacto:</b> formulario de asignatura, selector de año, planos de nodos y archivo histórico.</p>
+          </article>
+
+          <article class="decision">
+            <div class="decision-top"><span class="decision-id">D3</span><span class="tag tag--rose">Bloqueante</span></div>
+            <h4>¿Pesos por evaluación o por categorías?</h4>
+            <p class="context">Categorías como “Exámenes 60 % / Trabajos 40 %” agregan tablas, interfaz y reglas de reparto. El MVP necesita algo que se entienda y se pruebe.</p>
+            <div class="rec"><span>✓</span><p><b>Recomendación: peso directo por evaluación.</b> Parcial 30 %, TP 20 %, Final 50 %. Los pesos son relativos y se normalizan.</p></div>
+            <p class="impact"><b>Impacto:</b> tabla de notas, fórmulas, pruebas y configuración de cada materia.</p>
+          </article>
+
+          <article class="decision">
+            <div class="decision-top"><span class="decision-id">D4</span><span class="tag tag--rose">Bloqueante</span></div>
+            <h4>¿Una escala global o una por materia?</h4>
+            <p class="context">Cambiar la escala global no debería reinterpretar notas viejas. Una escala por materia es más flexible, pero multiplica la configuración y los casos borde.</p>
+            <div class="rec"><span>✓</span><p><b>Recomendación: escala global + copia por evaluación.</b> Cada nota guarda mín/máx al crearse. La escala por materia se evalúa después del MVP.</p></div>
+            <p class="impact"><b>Impacto:</b> modelo, promedio, proyección y contorno de nodos.</p>
+          </article>
+
+          <article class="decision">
+            <div class="decision-top"><span class="decision-id">D8</span><span class="tag tag--rose">Bloqueante</span></div>
+            <h4>Edad mínima y consentimiento</h4>
+            <p class="context">La app puede usarla un menor y el registro ya recoge datos. La política legal completa es de Fase 8, pero la edad mínima condiciona el formulario ahora.</p>
+            <div class="rec"><span>✓</span><p><b>Recomendación: 13+ con aceptación explícita.</b> Sin fecha de nacimiento, con privacidad, eliminación de cuenta y revisión legal antes de publicar.</p></div>
+            <p class="impact"><b>Impacto:</b> registro, términos, privacidad y eliminación de cuenta.</p>
+          </article>
+
+          <article class="decision">
+            <div class="decision-top"><span class="decision-id">D9</span><span class="tag tag--rose">Bloqueante</span></div>
+            <h4>¿Se guardan datos para usar sin conexión?</h4>
+            <p class="context">Consultar lo ya cargado sin internet es útil, pero un dispositivo compartido puede exponer datos académicos si la sesión queda abierta.</p>
+            <div class="rec"><span>✓</span><p><b>Recomendación: caché por usuario en IndexedDB.</b> Se limpia al cerrar sesión, caduca a las 24 h y nunca se cachean respuestas de Supabase en el service worker.</p></div>
+            <p class="impact"><b>Impacto:</b> TanStack Query, cierre de sesión, PWA y aviso de privacidad.</p>
+          </article>
+
+          <article class="decision">
+            <div class="decision-top"><span class="decision-id">D12</span><span class="tag tag--rose">Bloqueante</span></div>
+            <h4>Identidad técnica de la app</h4>
+            <p class="context">Tauri, Capacitor y las tiendas necesitan un identificador estable. Cambiarlo después de publicar es costoso.</p>
+            <div class="rec"><span>✓</span><p><b>Recomendación: <code style="font-size:9px">com.syntropy.app</code> · versión 0.1.0.</b> Esquema futuro <code style="font-size:9px">syntropy://</code>. Nombre visible: Syntropy.</p></div>
+            <p class="impact"><b>Impacto:</b> configuración de Tauri/Capacitor, firma y publicación en tiendas.</p>
+          </article>
+
+          <article class="decision">
+            <div class="decision-top"><span class="decision-id">D5</span><span class="tag tag--info">Antes de F5</span></div>
+            <h4>El nodo raíz de una asignatura</h4>
+            <p class="context">Si el nodo principal tiene dificultad y notas, el promedio de la materia contornea un nodo que no es un tema evaluable.</p>
+            <div class="rec"><span>✓</span><p><b>Recomendación: contenedor de asignatura.</b> Hexágono grande, color de la materia, sin dificultad ni contorno. Los temas hijos son los evaluables.</p></div>
+            <p class="impact"><b>Impacto:</b> tabla <code style="font-size:9px">nodes</code>, reglas visuales y cálculo de contorno.</p>
+          </article>
+        </div>
+
+        <div class="defaults" style="margin-top:18px">
+          <div class="defaults-row"><code>D6</code><b>Campana</b><p>Panel de próximos vencimientos calculado con tareas y exámenes; no hay centro de notificaciones persistente.</p></div>
+          <div class="defaults-row"><code>D7</code><b>Biblioteca</b><p>Asignatura obligatoria; nodo y tarea opcionales con “Sin tema” y filtro para completar la clasificación.</p></div>
+          <div class="defaults-row"><code>D10</code><b>Logo</b><p>Se aprueba la dirección provisional y se refina el trazo antes de publicar; no se declara como definitivo.</p></div>
+          <div class="defaults-row"><code>D11</code><b>Borrado</b><p>Definitivo, con confirmación y advertencia de cascada. Archivar queda para una versión posterior.</p></div>
+          <div class="defaults-row"><code>D13</code><b>Tema</b><p>Solo oscuro en el MVP; los tokens permiten un tema claro futuro sin reescribir componentes.</p></div>
+          <div class="defaults-row"><code>D14</code><b>Tipografía</b><p>Inter Variable en toda la interfaz, servida localmente. Sin fuentes externas ni parpadeo.</p></div>
+          <div class="defaults-row"><code>D22</code><b>Semana</b><p>Lunes a domingo, sin configuración por usuario en el MVP.</p></div>
+        </div>
+        <p class="tiny" style="margin:9px 2px 0">Hay 25 decisiones registradas. El detalle completo, incluido D15–D25, está en <a href="./07-decisiones-pendientes.md">07-decisiones-pendientes.md</a>.</p>
+
+        <div class="approval-layout">
+          <div class="checklist">
+            <h4>Checklist de aprobación de Fase 1</h4>
+            <div class="check-list">
+              <div class="check-item"><i></i>D1 · empaquetado de Windows</div>
+              <div class="check-item"><i></i>D2 · año de curso</div>
+              <div class="check-item"><i></i>D3 · ponderaciones</div>
+              <div class="check-item"><i></i>D4 · escala de notas</div>
+              <div class="check-item"><i></i>D8 · edad mínima</div>
+              <div class="check-item"><i></i>D9 · caché offline</div>
+              <div class="check-item"><i></i>D12 · identidad técnica</div>
+              <div class="check-item"><i></i>Logo aprobado o pedido de cambio</div>
+              <div class="check-item"><i></i>Mapa de navegación</div>
+              <div class="check-item"><i></i>Wireframes</div>
+              <div class="check-item"><i></i>Sistema de diseño</div>
+              <div class="check-item"><i></i>Modelo de datos</div>
+            </div>
+          </div>
+
+          <div class="response">
+            <h4>Cómo responder</h4>
+            <p>Podés aprobar todo o cambiar solo lo que no te cierre. No hace falta justificar cada punto.</p>
+            <code>“Apruebo todas las recomendaciones.”<br><br>o<br><br>“D1: solo PWA. D8: edad 16.<br>El resto, aprobado.”</code>
+            <p style="margin:10px 0 0;font-size:9px">Con esa respuesta actualizo las decisiones, ajusto la migración si cambió el modelo y recién ahí preparo el entorno de la Fase 2.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="siguiente" class="closing" aria-labelledby="titulo-siguiente">
+        <div class="closing-card">
+          <span class="kicker">Fin de la Fase 1</span>
+          <h2 id="titulo-siguiente">La base está diseñada. Falta tu <span class="grad">decisión</span>.</h2>
+          <p>
+            Esta entrega deja el producto interpretado, la arquitectura definida, el modelo validado localmente y las pantallas
+            principales resueltas. No se avanzó a la Fase 2 porque todavía hay decisiones que cambian el código y la base de datos.
+          </p>
+
+          <div class="closing-grid">
+            <div class="next-step">
+              <span>01</span>
+              <h4>Responder las decisiones</h4>
+              <p>Aprobar las recomendaciones o indicar los IDs que cambian. Es el único paso necesario para destrabar la Fase 2.</p>
+            </div>
+            <div class="next-step">
+              <span>02</span>
+              <h4>Preparar el entorno</h4>
+              <p>Instalar Node, Git y editor; crear el proyecto Vite + React + TypeScript; configurar Supabase de desarrollo.</p>
+            </div>
+            <div class="next-step">
+              <span>03</span>
+              <h4>Construir la Fase 2</h4>
+              <p>Autenticación, perfil, años de curso, asignaturas y carpetas. Cada pantalla con sus estados y pruebas.</p>
+            </div>
+          </div>
+
+          <div class="closing-actions">
+            <a class="btn" href="#decisiones">Revisar las decisiones</a>
+            <a class="btn btn--ghost" href="#portada">Volver al inicio</a>
+            <span class="tiny">No se escribirá código de la app hasta recibir tu aprobación.</span>
+          </div>
+
+          <div class="closing-foot">
+            <span>Syntropy · Documento de trabajo · Fase 1 de 8</span>
+            <span>Documentación completa en <a href="./README.md">docs/fase-1</a> · 10 de noviembre de 2026</span>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <script>
+    (() => {
+      const links = [...document.querySelectorAll(".nav-link")];
+      const sections = links
+        .map(link => document.querySelector(link.getAttribute("href")))
+        .filter(Boolean);
+
+      const setActive = id => {
+        links.forEach(link => {
+          const active = link.getAttribute("href") === "#" + id;
+          if (active) link.setAttribute("aria-current", "true");
+          else link.removeAttribute("aria-current");
+        });
+      };
+
+      const observer = new IntersectionObserver(entries => {
+        const visible = entries
+          .filter(entry => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
+        if (visible[0]) setActive(visible[0].target.id);
+      }, { rootMargin: "-18% 0px -55% 0px", threshold: [0, 0.1, 0.35, 0.6] });
+
+      sections.forEach(section => observer.observe(section));
+
+      const initial = location.hash && document.querySelector(location.hash);
+      if (initial) setActive(initial.id);
+
+      // Pestañas accesibles para los wireframes
+      const tabs = [...document.querySelectorAll('[role="tab"]')];
+      const panels = [...document.querySelectorAll('[role="tabpanel"]')];
+
+      const activateTab = tab => {
+        tabs.forEach(item => {
+          const selected = item === tab;
+          item.setAttribute("aria-selected", String(selected));
+          item.tabIndex = selected ? 0 : -1;
+          const panel = document.getElementById(item.getAttribute("aria-controls"));
+          if (panel) panel.hidden = !selected;
+        });
+        tab.focus({ preventScroll: true });
+      };
+
+      tabs.forEach(tab => {
+        tab.addEventListener("click", () => activateTab(tab));
+        tab.addEventListener("keydown", event => {
+          const index = tabs.indexOf(tab);
+          let next = null;
+          if (event.key === "ArrowRight") next = tabs[(index + 1) % tabs.length];
+          if (event.key === "ArrowLeft") next = tabs[(index - 1 + tabs.length) % tabs.length];
+          if (event.key === "Home") next = tabs[0];
+          if (event.key === "End") next = tabs[tabs.length - 1];
+          if (next) { event.preventDefault(); activateTab(next); }
+        });
+      });
+    })();
+  </script>
+</body>
+</html>
