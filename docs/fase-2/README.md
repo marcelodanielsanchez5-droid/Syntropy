@@ -17,7 +17,7 @@ Las dos pruebas que quedaban pendientes se completaron:
 1. **Aislamiento con dos cuentas.** Se confirmaron A y B, se crearon años y asignaturas para cada una y se ejecutaron 19 comprobaciones cruzadas: lectura, update, delete, insert con `user_id` ajeno, acceso anónimo, avatares y `academic-files`. Todas pasaron.
 2. **Recuperación de contraseña.** Se solicitó el enlace desde `/recuperar-contrasena`, llegó el correo real a un buzón temporal, se abrió el enlace, se guardó una contraseña nueva desde la app y el ingreso con la contraseña anterior dejó de funcionar.
 
-Para crear B se desactivó temporalmente “Confirm email” porque el servicio de correo integrado de Supabase seguía devolviendo `over_email_send_rate_limit` (HTTP 429). B quedó confirmada por autoconfirmación; el aislamiento de RLS y Storage no depende del método de confirmación. La opción debe quedar reactivada en el panel antes de continuar.
+Para crear B se desactivó temporalmente “Confirm email” porque el servicio de correo integrado de Supabase seguía devolviendo `over_email_send_rate_limit` (HTTP 429). B quedó confirmada por autoconfirmación; el aislamiento de RLS y Storage no depende del método de confirmación. La opción se reactivó al terminar y se verificó con `mailer_autoconfirm: false`.
 
 Las cuentas A y B se eliminaron al terminar (`delete_current_user` respondió `204` y el login posterior `400`); no se dejaron credenciales ni datos personales de prueba en el repositorio.
 
@@ -76,7 +76,7 @@ Las cuentas A y B se eliminaron al terminar (`delete_current_user` respondió `2
 - **Aislamiento A/B:** se crearon un año activo y una asignatura para cada cuenta. A leyó solo su año (1 fila), no vio el año ni la asignatura de B (0 filas), no pudo modificarlos ni borrarlos (0 filas) y recibió `403/42501` al intentar insertar a nombre de B. Los datos de B quedaron intactos.
 - **Storage A/B:** A subió un avatar y un PDF de `academic-files`; pudo firmar y descargar ambos (`200`). B no pudo firmar ni descargar el avatar de A (`400`), no pudo sobrescribirlo (`400`) y no pudo descargar el PDF de A (`400`). Un acceso anónimo al avatar también recibió `400`.
 - **Recuperación real:** se solicitó el enlace desde la interfaz y se repitió la solicitud por API para obtener un correo legible; llegó a un buzón temporal, se abrió en Edge, la app mostró “Creá una contraseña nueva”, se guardó la nueva contraseña y apareció “Contraseña actualizada”. El login con la contraseña nueva devolvió `200`; con la anterior, `400`.
-- **Alta de B:** como el correo integrado seguía limitado, se desactivó temporalmente “Confirm email”, se creó B con autoconfirmación y se indicó reactivar la opción al terminar. El correo de recuperación de A se envió después y llegó correctamente.
+- **Alta de B:** como el correo integrado seguía limitado, se desactivó temporalmente “Confirm email”, se creó B con autoconfirmación y se reactivó la opción al terminar; se verificó con `mailer_autoconfirm: false`. El correo de recuperación de A se envió después y llegó correctamente.
 
 ---
 
@@ -128,7 +128,7 @@ No se modificó el esquema de la base ni las políticas RLS durante esta validac
 ### Antes de producción
 
 - [ ] Configurar SMTP propio y plantillas de correo; el servicio integrado de Supabase tiene límites.
-- [ ] Reactivar “Confirm email” en Supabase si la validación se hizo con autoconfirmación temporal.
+- [x] Reactivar “Confirm email” en Supabase tras la autoconfirmación temporal; verificado con `mailer_autoconfirm: false`.
 - [ ] Instalar la PWA en un dispositivo real y repetir la revisión visual con datos reales.
 - [ ] Compilar y probar Tauri/Windows, Android e iOS; en esta máquina no están disponibles Rust/MSVC, Android Studio ni macOS.
 - [ ] Reducir el bundle principal (~966 kB, ~280 kB gzip) con división de código.
@@ -155,7 +155,7 @@ El 11 de noviembre de 2026 se aprobó impedir que el año activo se elimine. La 
 
 La Fase 2 está funcionalmente completa y las dos pruebas que bloqueaban la aprobación se completaron contra Supabase real: aislamiento entre dos cuentas (19/19) y recuperación por correo con cambio de contraseña. La fase queda a la espera de **aprobación explícita**; este documento no la marca aprobada por sí solo.
 
-No debe declararse “lista para producción” todavía. Antes de publicar faltan SMTP propio, instalación de la PWA en un dispositivo, compilación de Tauri/Android/iOS, división del bundle, revisión de los avisos de desarrollo de `npm audit`, prueba de `academic-files` con un archivo real y medición de índices. Si “Confirm email” quedó desactivado durante la validación, hay que reactivarlo en el panel.
+No debe declararse “lista para producción” todavía. Antes de publicar faltan SMTP propio, instalación de la PWA en un dispositivo, compilación de Tauri/Android/iOS, división del bundle, revisión de los avisos de desarrollo de `npm audit`, prueba de `academic-files` con un archivo real y medición de índices. “Confirm email” quedó reactivado y verificado.
 
 Para reproducir las pruebas:
 

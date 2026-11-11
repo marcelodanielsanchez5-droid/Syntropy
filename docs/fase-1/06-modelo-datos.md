@@ -994,7 +994,7 @@ El detalle de los flujos, las correcciones aplicadas y los pendientes está en [
 - **El trigger se probó con el flujo real de confirmación de correo**, además de las inserciones controladas de PGlite.
 - **El cliente Supabase se ejecutó contra el proyecto real** para los flujos listados en la sección 14.2. El aislamiento con dos cuentas se completó con 19/19 comprobaciones.
 - **La recuperación por enlace de correo se completó.** El correo llegó, el enlace abrió `/restablecer-contrasena`, la contraseña se cambió desde la app y el login con la contraseña anterior devolvió `400`.
-- **La segunda cuenta se creó con “Confirm email” desactivado temporalmente** porque el correo integrado seguía limitado. B quedó confirmada por autoconfirmación; hay que verificar que la opción quede reactivada en el panel.
+- **La segunda cuenta se creó con “Confirm email” desactivado temporalmente** porque el correo integrado seguía limitado. B quedó confirmada por autoconfirmación; la opción se reactivó al terminar y se verificó con `mailer_autoconfirm: false`.
 - **Las URLs firmadas pueden quedar en caché del CDN** después de borrar el objeto. Se comprobó que el origen responde `NoSuchKey` al evitar la caché, pero una URL ya cacheada puede seguir sirviendo la imagen hasta que expire su TTL.
 - Las versiones de PostgreSQL y de las extensiones pueden variar entre entornos.
 

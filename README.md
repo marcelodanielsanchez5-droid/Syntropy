@@ -44,7 +44,7 @@ Las migraciones [`001_schema_inicial.sql`](./supabase/migrations/001_schema_inic
 
 El cliente pasa `npm run typecheck`, `npm test` (55 pruebas en 5 archivos) y `npm run build` (966,74 kB, 279,91 kB gzip). Lighthouse dio 100 en accesibilidad, buenas prácticas y SEO en ingreso y registro.
 
-**Pendientes antes de producción:** configurar SMTP propio, reactivar “Confirm email” si quedó desactivado durante la validación, instalar la PWA en un dispositivo, compilar Tauri/Android/iOS, dividir el bundle, revisar los avisos de desarrollo de `npm audit`, probar `academic-files` con un archivo real y medir índices. No se debe considerar el proyecto “listo para producción” (ver [`docs/fase-2/README.md`](./docs/fase-2/README.md) y la sección 14 de [`06-modelo-datos.md`](./docs/fase-1/06-modelo-datos.md)).
+**Pendientes antes de producción:** configurar SMTP propio, instalar la PWA en un dispositivo, compilar Tauri/Android/iOS, dividir el bundle, revisar los avisos de desarrollo de `npm audit`, probar `academic-files` con un archivo real y medir índices. No se debe considerar el proyecto “listo para producción” (ver [`docs/fase-2/README.md`](./docs/fase-2/README.md) y la sección 14 de [`06-modelo-datos.md`](./docs/fase-1/06-modelo-datos.md)).
 
 ---
 

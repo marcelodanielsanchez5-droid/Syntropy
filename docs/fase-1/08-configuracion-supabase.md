@@ -157,7 +157,7 @@ Marcar cada punto solo después de comprobarlo en el navegador contra Supabase:
 - [x] Aislamiento con dos cuentas: la cuenta B no ve años, asignaturas ni archivos de la cuenta A.
 - [x] Eliminación de cuenta, limpieza del avatar y comprobación de que ya no puede ingresar.
 
-La recuperación por enlace se completó: el correo llegó, el enlace abrió `/restablecer-contrasena`, la contraseña se actualizó desde la app y el login con la contraseña anterior devolvió `400`. El límite `over_email_send_rate_limit` (429) del servicio integrado sigue siendo una limitación real de frecuencia: para crear la segunda cuenta se desactivó temporalmente “Confirm email” y hay que asegurarse de volver a activarlo. Para producción corresponde configurar SMTP propio.
+La recuperación por enlace se completó: el correo llegó, el enlace abrió `/restablecer-contrasena`, la contraseña se actualizó desde la app y el login con la contraseña anterior devolvió `400`. El límite `over_email_send_rate_limit` (429) del servicio integrado sigue siendo una limitación real de frecuencia: para crear la segunda cuenta se desactivó temporalmente “Confirm email”, se creó B con autoconfirmación y luego se reactivó la opción (`mailer_autoconfirm: false`). Para producción corresponde configurar SMTP propio.
 
 ### Limitaciones conocidas
 
@@ -180,8 +180,7 @@ El 11/11/2026 se ejecutaron las migraciones y se completó la validación real d
 Antes de producción:
 
 1. Configurar SMTP propio y plantillas de correo.
-2. Verificar que “Confirm email” esté reactivado en Auth.
-3. Instalar la PWA en un dispositivo y compilar Tauri/Android/iOS.
-4. Revisar el reporte completo en [`docs/fase-2/README.md`](../fase-2/README.md).
+2. Instalar la PWA en un dispositivo y compilar Tauri/Android/iOS.
+3. Revisar el reporte completo en [`docs/fase-2/README.md`](../fase-2/README.md).
 
 Si se prefiere probar sin un proyecto en la nube, la alternativa es instalar Docker Desktop y usar Supabase local. En esta máquina Docker no está instalado y el CLI de Supabase no puede levantar el stack sin Docker.
