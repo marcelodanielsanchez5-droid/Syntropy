@@ -42,9 +42,9 @@ Versiones, estructura y justificación: [`docs/fase-1/02-arquitectura-tecnica.md
 
 Las migraciones [`001_schema_inicial.sql`](./supabase/migrations/001_schema_inicial.sql) y [`002_ajustes_fase2.sql`](./supabase/migrations/002_ajustes_fase2.sql) se ejecutaron correctamente en PostgreSQL 17 embebido (PGlite). Se probaron RLS, triggers, restricciones principales, consentimientos D8, nodo opcional D7, activación de año y eliminación de cuenta.
 
-El cliente pasa `npm run typecheck`, `npm test` (50 pruebas) y `npm run build`.
+El cliente pasa `npm run typecheck`, `npm test` (51 pruebas) y `npm run build`. Lighthouse dio 100 en accesibilidad, buenas prácticas y SEO en ingreso y registro.
 
-**Nada de esto se ejecutó todavía en Supabase real.** Storage, Edge Functions, los empaquetados y la revisión visual del frontend no se probaron. No se debe considerar el proyecto “listo para producción” (ver la sección 14 de [`06-modelo-datos.md`](./docs/fase-1/06-modelo-datos.md)).
+**Nada de esto se ejecutó todavía en Supabase real.** Storage, Edge Functions y los empaquetados no se probaron. La revisión visual se hizo en 1440, 800 y 390 px con datos simulados, no contra un proyecto real. La PWA se verificó localmente (service worker, manifest y recarga offline), pero no se instaló en un dispositivo. No se debe considerar el proyecto “listo para producción” (ver la sección 14 de [`06-modelo-datos.md`](./docs/fase-1/06-modelo-datos.md)).
 
 ---
 
@@ -70,6 +70,6 @@ Falta lo indispensable para aprobar la fase:
 1. crear el proyecto de Supabase y completar `.env.local`;
 2. aplicar las migraciones 001 y 002;
 3. probar registro, confirmación, recuperación, perfil, años, asignaturas y borrado de cuenta con datos reales;
-4. revisar la interfaz en 1440, 800 y 390 px.
+4. instalar la PWA en un dispositivo y repetir la revisión visual con datos reales.
 
 El detalle de las decisiones aprobadas está en [`docs/fase-1/07-decisiones-pendientes.md`](./docs/fase-1/07-decisiones-pendientes.md).

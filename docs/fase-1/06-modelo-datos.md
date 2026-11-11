@@ -970,9 +970,12 @@ Las pruebas se ejecutaron con scripts de comprobación que crean usuarios, años
 ### 14.3. Pruebas de aplicación ejecutadas
 
 - `npm run typecheck`: sin errores.
-- `npm test`: 4 archivos y 50 pruebas unitarias aprobadas (esquemas de Auth, años y asignaturas; fechas; colores; errores; docentes; año activo).
+- `npm test`: 4 archivos y 51 pruebas unitarias aprobadas (esquemas de Auth, años y asignaturas; fechas; colores; errores; docentes; año activo).
 - `npm run build`: compila y genera el paquete de producción. Vite advierte que el fragmento principal supera los 500 kB; es una optimización pendiente, no un fallo.
-- Estas pruebas no sustituyen una prueba E2E ni la ejecución contra Supabase real. La interfaz todavía no se revisó visualmente en navegador.
+- Lighthouse en `/ingresar` y `/crear-cuenta`: 100 en accesibilidad, buenas prácticas y SEO, con `robots.txt` que bloquea la indexación de la app privada.
+- PWA: el build de producción registra el service worker, expone el manifest con iconos 192/512/maskable y permite recargar la app sin conexión en Edge. No se instaló todavía en un dispositivo real.
+- `npm audit`: 6 avisos (2 low, 4 moderate) en la cadena de desarrollo `vite-plugin-pwa`/`workbox-build`; `workbox-build` 7.4.1 es la última versión disponible. No afecta al bundle que se ejecuta en el navegador.
+- Estas pruebas no sustituyen una prueba E2E ni la ejecución contra Supabase real. La interfaz se revisó visualmente en 1440, 800 y 390 px con datos simulados.
 
 ### 14.4. Pendiente antes de producción
 
@@ -986,7 +989,8 @@ Las pruebas se ejecutaron con scripts de comprobación que crean usuarios, años
 8. Probar los borrados en cascada y las desvinculaciones desde la aplicación.
 9. Ejecutar las pruebas unitarias de notas y planes de estudio cuando existan esas fases.
 10. Medir planes de consulta e índices con un volumen representativo.
-11. Revisar visualmente la interfaz en 1440, 800 y 390 px y probar la PWA instalada.
-12. Solo entonces aplicar a producción.
+11. Instalar la PWA en un dispositivo real y repetir la revisión visual con datos reales.
+12. Actualizar la cadena de workbox cuando haya correcciones para los avisos de `npm audit`.
+13. Solo entonces aplicar a producción.
 
 Las migraciones están **validadas localmente**, no probadas en Supabase. No se debe declarar “lista para producción” hasta completar esta lista.

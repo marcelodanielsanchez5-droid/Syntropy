@@ -118,7 +118,7 @@ Las migraciones `001_schema_inicial.sql` y `002_ajustes_fase2.sql` se ejecutaron
 - desvinculación de tareas al borrar un nodo;
 - enlaces entre asignaturas distintas.
 
-En el cliente, `npm run typecheck`, `npm test` (50 pruebas) y `npm run build` pasan.
+En el cliente, `npm run typecheck`, `npm test` (51 pruebas) y `npm run build` pasan. Lighthouse dio 100 en accesibilidad, buenas prácticas y SEO en las pantallas de ingreso y registro.
 
 ### No validado todavía
 
@@ -126,7 +126,8 @@ En el cliente, `npm run typecheck`, `npm test` (50 pruebas) y `npm run build` pa
 - `citext` se simuló con un dominio de texto; debe confirmarse en Supabase.
 - Storage y Edge Functions no se probaron.
 - El trigger se probó con inserciones controladas, no con el flujo real de confirmación de correo.
-- El frontend existe, pero no se ejecutó contra Supabase real ni se revisó visualmente en navegador.
+- El frontend existe y se revisó visualmente en 1440, 800 y 390 px con datos simulados, pero no se ejecutó contra Supabase real.
+- La PWA se probó con service worker, manifest y recarga offline en local; no se instaló en un dispositivo real.
 - Los empaquetados de Windows, Android e iOS no se compilaron.
 - iOS requiere macOS o CI; no se puede compilar en Windows.
 
