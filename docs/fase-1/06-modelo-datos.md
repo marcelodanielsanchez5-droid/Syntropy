@@ -1,11 +1,11 @@
 # Syntropy — Modelo de datos
 
 **Fase:** 1 — Diseño / implementación de Fase 2  
-**Estado:** aprobada; migraciones validadas localmente, pendientes de ejecutar en Supabase real  
+**Estado:** aprobada; migraciones aplicadas y verificadas en Supabase real el 11 de noviembre de 2026, con pruebas de aislamiento pendientes de completar con dos cuentas
 **Motor:** PostgreSQL 15+ en Supabase  
 **Migraciones:** [`001_schema_inicial.sql`](../../supabase/migrations/001_schema_inicial.sql) y [`002_ajustes_fase2.sql`](../../supabase/migrations/002_ajustes_fase2.sql)
 
-> **Estado de validación:** la estructura, las restricciones, el trigger de registro, las políticas RLS y las funciones RPC de la Fase 2 se probaron localmente con PostgreSQL 17 embebido (PGlite) el 10 de noviembre de 2026. **Todavía no se ejecutaron en un proyecto real de Supabase** y Storage/Edge Functions no se probaron. El detalle y las limitaciones están en la sección 14.
+> **Estado de validación:** la estructura, las restricciones, el trigger de registro, las políticas RLS y las funciones RPC de la Fase 2 se probaron localmente con PostgreSQL 17 embebido (PGlite) el 10 de noviembre de 2026. El 11 de noviembre de 2026 se aplicaron las dos migraciones en el proyecto real de Supabase y se ejecutaron flujos E2E de registro, confirmación, perfil, avatar, años, asignaturas, contraseña y borrado de cuenta. La prueba de aislamiento entre dos cuentas y el enlace de recuperación por correo quedaron pendientes por el límite de envío de correo de Supabase. El detalle está en la sección 14 y en [`docs/fase-2/README.md`](../fase-2/README.md).
 
 ---
 
@@ -958,39 +958,71 @@ El detalle completo está en [`07-decisiones-pendientes.md`](./07-decisiones-pen
 
 Las pruebas se ejecutaron con scripts de comprobación que crean usuarios, años, asignaturas, nodos, tareas, fuentes, evaluaciones y enlaces, y luego intentan las operaciones permitidas y prohibidas. Los scripts no forman parte de la aplicación; son evidencia de esta fase.
 
-### 14.2. Limitaciones de la prueba
+### 14.2. Prueba real en Supabase
+
+**Fecha:** 11 de noviembre de 2026
+**Proyecto:** Supabase de desarrollo `rsxvugjdyarvpthidpya` (sin claves en el repositorio).
+**Cliente:** Edge headless a 1440×1000, app Vite en `http://localhost:5173`, flujo implícito de Auth.
+
+| Prueba | Resultado |
+|---|---|
+| Migraciones `001` y `002` en el SQL Editor | Aplicadas; las tablas principales respondieron `200` por REST |
+| Registro real con correo, usuario y tres consentimientos | Correcto; correo de confirmación recibido |
+| Confirmación, callback y onboarding | Correcto; primer año `2026` activo y home cargado |
+| Edición de perfil y avatar | Correcto; avatar en bucket privado y URL firmada |
+| Creación, activación y borrado de años inactivos | Correcto; un solo año activo |
+| Alta, detalle, edición y borrado de asignatura | Correcto; dos docentes y tarjeta en el home |
+| Cambio de contraseña y cierre de sesión | Correcto; nuevo ingreso con la contraseña nueva |
+| `activate_academic_year` y `delete_current_user` | Invocables con sesión; sin sesión responden `401` |
+| Eliminación de cuenta | Correcto; el login posterior falla y el avatar se borra del origen |
+| RLS con usuario anónimo | `0` filas en `profiles` y `academic_years` |
+| RLS con usuario autenticado | Solo ve su perfil y su año |
+| Insert con `user_id` ajeno | `403`, código PostgreSQL `42501` |
+| Update/delete sobre una fila ajena | `0` filas afectadas |
+| Storage del avatar | Dueño autenticado `200`; público y anónimo `400` |
+| Recuperación por enlace de correo | Bloqueada por `over_email_send_rate_limit` (429); el formulario y la pantalla de nueva contraseña sí se probaron con una sesión válida |
+| Aislamiento con dos cuentas | Pendiente: el límite de correo impidió crear la segunda cuenta confirmada |
+
+El detalle de los flujos, las correcciones aplicadas y los pendientes está en [`docs/fase-2/README.md`](../fase-2/README.md).
+
+### 14.3. Limitaciones de la prueba
 
 - **PGlite no es Supabase.** No reproduce exactamente el entorno gestionado, los roles de `auth`, ni las extensiones disponibles.
-- **`citext` se simuló con un dominio de texto.** La migración real usa `citext`; el comportamiento exacto de mayúsculas/minúsculas debe confirmarse en Supabase.
-- **Storage y Edge Functions no se probaron.** No hay proyecto real ni credenciales.
-- **El trigger se probó con inserciones controladas**, no con el flujo real de confirmación de correo.
-- **El cliente Supabase ya existe**, pero no se ejecutó contra un proyecto real. Las pruebas de la sección 14.1 son de base de datos, no de aplicación.
+- **`citext` se simuló con un dominio de texto.** La migración real usa `citext`; en Supabase se probaron correos y usuarios en minúsculas, pero no se repitió una prueba específica de mayúsculas/minúsculas.
+- **Storage se probó parcialmente.** El bucket `avatars` se probó con subida, URL firmada, acceso anónimo denegado y borrado al eliminar la cuenta. El bucket `academic-files` no se usó porque la carga de archivos académicos corresponde a una fase posterior.
+- **El trigger se probó con el flujo real de confirmación de correo**, además de las inserciones controladas de PGlite.
+- **El cliente Supabase se ejecutó contra el proyecto real** para los flujos listados en la sección 14.2. La prueba de aislamiento con dos cuentas confirmadas quedó pendiente.
+- **La recuperación por enlace de correo no se completó** por el límite de envío (`over_email_send_rate_limit`). La pantalla `/restablecer-contrasena` se probó con una sesión válida, pero no con un enlace de recuperación recién emitido.
+- **Las URLs firmadas pueden quedar en caché del CDN** después de borrar el objeto. Se comprobó que el origen responde `NoSuchKey` al evitar la caché, pero una URL ya cacheada puede seguir sirviendo la imagen hasta que expire su TTL.
 - Las versiones de PostgreSQL y de las extensiones pueden variar entre entornos.
 
-### 14.3. Pruebas de aplicación ejecutadas
+### 14.4. Pruebas de aplicación ejecutadas
 
 - `npm run typecheck`: sin errores.
-- `npm test`: 4 archivos y 51 pruebas unitarias aprobadas (esquemas de Auth, años y asignaturas; fechas; colores; errores; docentes; año activo).
+- `npm test`: 4 archivos y 52 pruebas unitarias aprobadas (esquemas de Auth, años y asignaturas; fechas; colores; errores; docentes; año activo). Se agregó una prueba para priorizar la traducción de códigos de Auth aunque el error sea una instancia de `Error`.
 - `npm run build`: compila y genera el paquete de producción. Vite advierte que el fragmento principal supera los 500 kB; es una optimización pendiente, no un fallo.
+- E2E real contra Supabase: registro, confirmación, callback, onboarding, perfil, avatar, años, asignaturas, cambio de contraseña, RLS y eliminación de cuenta (detalle en la sección 14.2).
 - Lighthouse en `/ingresar` y `/crear-cuenta`: 100 en accesibilidad, buenas prácticas y SEO, con `robots.txt` que bloquea la indexación de la app privada.
 - PWA: el build de producción registra el service worker, expone el manifest con iconos 192/512/maskable y permite recargar la app sin conexión en Edge. No se instaló todavía en un dispositivo real.
 - `npm audit`: 6 avisos (2 low, 4 moderate) en la cadena de desarrollo `vite-plugin-pwa`/`workbox-build`; `workbox-build` 7.4.1 es la última versión disponible. No afecta al bundle que se ejecuta en el navegador.
-- Estas pruebas no sustituyen una prueba E2E ni la ejecución contra Supabase real. La interfaz se revisó visualmente en 1440, 800 y 390 px con datos simulados (auth, onboarding, inicio, configuración, perfil y asignaturas), sin errores de consola.
+- La interfaz se revisó visualmente en 1440, 800 y 390 px con datos simulados (auth, onboarding, inicio, configuración, perfil y asignaturas), sin errores de consola; los flujos principales se repitieron con datos reales a 1440 px.
 
-### 14.4. Pendiente antes de producción
+### 14.5. Pendiente antes de producción
 
-1. Crear un proyecto de desarrollo en Supabase.
-2. Ejecutar `001` y `002` con `supabase db reset` o el editor SQL.
-3. Verificar tablas, índices, triggers, políticas y las dos funciones RPC con dos usuarios reales.
-4. Repetir el aislamiento RLS desde el cliente oficial, no solo por SQL.
-5. Probar Storage con archivos de ambos usuarios y URLs firmadas.
-6. Definir y probar la limpieza de archivos de Storage al eliminar una cuenta.
-7. Probar el flujo completo de confirmación y recuperación de contraseña.
-8. Probar los borrados en cascada y las desvinculaciones desde la aplicación.
-9. Ejecutar las pruebas unitarias de notas y planes de estudio cuando existan esas fases.
-10. Medir planes de consulta e índices con un volumen representativo.
-11. Instalar la PWA en un dispositivo real y repetir la revisión visual con datos reales.
-12. Actualizar la cadena de workbox cuando haya correcciones para los avisos de `npm audit`.
-13. Solo entonces aplicar a producción.
+1. [x] Crear un proyecto de desarrollo en Supabase.
+2. [x] Ejecutar `001` y `002` con el editor SQL.
+3. [ ] Verificar índices, triggers y políticas con dos usuarios reales; las tablas, los triggers principales y las dos RPC ya se probaron.
+4. [ ] Repetir el aislamiento RLS con dos cuentas confirmadas; el aislamiento anónimo, el insert con `user_id` ajeno y el update/delete ajeno ya se probaron.
+5. [ ] Probar Storage con archivos de dos usuarios distintos; el avatar de una cuenta ya se probó con URL firmada y borrado.
+6. [x] Definir y probar la limpieza de archivos de Storage al eliminar una cuenta.
+7. [ ] Probar el enlace real de recuperación de contraseña; la confirmación de registro ya se probó y el límite de correo bloqueó la recuperación.
+8. [ ] Probar los borrados en cascada de nodos, fuentes y evaluaciones desde la aplicación; en Fase 2 se probaron años, asignaturas y cuenta.
+9. [ ] Ejecutar las pruebas unitarias de notas y planes de estudio cuando existan esas fases.
+10. [ ] Medir planes de consulta e índices con un volumen representativo.
+11. [ ] Instalar la PWA en un dispositivo real y repetir la revisión visual con datos reales.
+12. [ ] Actualizar la cadena de workbox cuando haya correcciones para los avisos de `npm audit`.
+13. [ ] Solo entonces aplicar a producción.
 
-Las migraciones están **validadas localmente**, no probadas en Supabase. No se debe declarar “lista para producción” hasta completar esta lista.
+Queda además una decisión de producto: hoy el año activo se puede borrar y la app queda sin año activo. Si se quiere impedir, hay que agregar una restricción o un trigger en una migración nueva.
+
+Las migraciones están aplicadas y validadas en Supabase para los flujos de Fase 2, pero la cobertura de dos cuentas y la recuperación por correo siguen pendientes. No se debe declarar “lista para producción” hasta completar esta lista.

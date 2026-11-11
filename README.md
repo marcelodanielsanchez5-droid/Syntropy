@@ -2,7 +2,7 @@
 
 Aplicación multiplataforma de organización académica: años de curso, asignaturas, tareas, calendario, horario y calificaciones. Una sola base de código para web, Windows, Android e iOS.
 
-**Estado actual:** Fase 1 aprobada el 10 de noviembre de 2026. Fase 2 implementada localmente (autenticación, perfil, años de curso y asignaturas), pendiente de probar contra un proyecto real de Supabase.
+**Estado actual:** Fase 1 aprobada el 10 de noviembre de 2026. Fase 2 implementada y probada contra Supabase real en sus flujos principales el 11 de noviembre de 2026; todavía no está aprobada. Quedan pendientes el aislamiento con dos cuentas, el enlace de recuperación por correo y la instalación de la PWA en un dispositivo.
 
 ---
 
@@ -12,7 +12,7 @@ Aplicación multiplataforma de organización académica: años de curso, asignat
 2. Leer el índice y el resumen en [`docs/fase-1/README.md`](./docs/fase-1/README.md).
 3. Consultar las decisiones aprobadas en [`docs/fase-1/07-decisiones-pendientes.md`](./docs/fase-1/07-decisiones-pendientes.md).
 
-El usuario aprobó todas las recomendaciones D1–D25. La Fase 2 ya está implementada en el cliente y sus pruebas locales pasan; falta validarla con Supabase real.
+El usuario aprobó todas las recomendaciones D1–D25. La Fase 2 está implementada en el cliente y se probó contra Supabase real en sus flujos principales; falta completar la validación de dos cuentas y la recuperación por correo.
 
 ---
 
@@ -40,11 +40,11 @@ Versiones, estructura y justificación: [`docs/fase-1/02-arquitectura-tecnica.md
 
 ## Estado de validación
 
-Las migraciones [`001_schema_inicial.sql`](./supabase/migrations/001_schema_inicial.sql) y [`002_ajustes_fase2.sql`](./supabase/migrations/002_ajustes_fase2.sql) se ejecutaron correctamente en PostgreSQL 17 embebido (PGlite). Se probaron RLS, triggers, restricciones principales, consentimientos D8, nodo opcional D7, activación de año y eliminación de cuenta.
+Las migraciones [`001_schema_inicial.sql`](./supabase/migrations/001_schema_inicial.sql) y [`002_ajustes_fase2.sql`](./supabase/migrations/002_ajustes_fase2.sql) se aplicaron en el proyecto real de Supabase el 11 de noviembre de 2026. Se probaron con datos reales el registro, la confirmación por correo, el onboarding, el perfil, el avatar, los años de curso, las asignaturas, el cambio de contraseña, RLS y la eliminación de cuenta. La eliminación de cuenta ahora limpia el avatar y los archivos de Storage antes de borrar el usuario.
 
-El cliente pasa `npm run typecheck`, `npm test` (51 pruebas) y `npm run build`. Lighthouse dio 100 en accesibilidad, buenas prácticas y SEO en ingreso y registro.
+El cliente pasa `npm run typecheck`, `npm test` (52 pruebas) y `npm run build`. Lighthouse dio 100 en accesibilidad, buenas prácticas y SEO en ingreso y registro.
 
-**Nada de esto se ejecutó todavía en Supabase real.** Storage, Edge Functions y los empaquetados no se probaron. La revisión visual se hizo en 1440, 800 y 390 px con datos simulados, no contra un proyecto real. La PWA se verificó localmente (service worker, manifest y recarga offline), pero no se instaló en un dispositivo. No se debe considerar el proyecto “listo para producción” (ver la sección 14 de [`06-modelo-datos.md`](./docs/fase-1/06-modelo-datos.md)).
+**Pendientes para aprobar la Fase 2:** la prueba de aislamiento con dos cuentas reales, el enlace de recuperación de contraseña (el servicio de correo gratuito de Supabase devolvió `over_email_send_rate_limit`) y la instalación de la PWA en un dispositivo. Tauri, Android e iOS no se pudieron compilar en esta máquina. Storage se probó con avatares; `academic-files` se usará en una fase posterior. No se debe considerar el proyecto “listo para producción” (ver [`docs/fase-2/README.md`](./docs/fase-2/README.md) y la sección 14 de [`06-modelo-datos.md`](./docs/fase-1/06-modelo-datos.md)).
 
 ---
 
@@ -69,9 +69,13 @@ La Fase 2 comprende:
 
 Falta lo indispensable para aprobar la fase:
 
-1. crear el proyecto de Supabase y completar `.env.local`;
-2. aplicar las migraciones 001 y 002;
-3. probar registro, confirmación, recuperación, perfil, años, asignaturas y borrado de cuenta con datos reales;
-4. instalar la PWA en un dispositivo y repetir la revisión visual con datos reales.
+1. [x] crear el proyecto de Supabase y completar `.env.local`;
+2. [x] aplicar las migraciones 001 y 002;
+3. [x] probar registro, confirmación, perfil, años, asignaturas, cambio de contraseña, RLS y borrado de cuenta con datos reales;
+4. [ ] repetir el aislamiento con dos cuentas confirmadas;
+5. [ ] probar el enlace real de recuperación de contraseña cuando se libere el límite de correo o se configure SMTP;
+6. [ ] instalar la PWA en un dispositivo y repetir la revisión visual con datos reales.
+
+El reporte de validación está en [`docs/fase-2/README.md`](./docs/fase-2/README.md).
 
 El detalle de las decisiones aprobadas está en [`docs/fase-1/07-decisiones-pendientes.md`](./docs/fase-1/07-decisiones-pendientes.md).

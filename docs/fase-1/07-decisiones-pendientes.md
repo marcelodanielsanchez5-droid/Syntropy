@@ -116,7 +116,7 @@ La migración `001_schema_inicial.sql` refleja D2, D3, D4 y D5. La migración `0
 5. La app impide el registro sin las tres confirmaciones, aunque el trigger mantenga valores nulos para usuarios creados por otros medios.
 6. Se agregan las funciones `activate_academic_year` y `delete_current_user`.
 
-La migración 002 fue validada localmente con PGlite el 10 de noviembre de 2026. **Todavía no se ejecutó en un proyecto real de Supabase**; el detalle está en [`06-modelo-datos.md`](./06-modelo-datos.md), sección 14.
+La migración 002 fue validada localmente con PGlite el 10 de noviembre de 2026 y aplicada en el proyecto real de Supabase el 11 de noviembre de 2026. Los flujos principales se probaron contra ese proyecto; quedan pendientes el aislamiento con dos cuentas y el enlace de recuperación por correo. El detalle está en [`06-modelo-datos.md`](./06-modelo-datos.md), sección 14, y en [`../fase-2/README.md`](../fase-2/README.md).
 
 ---
 

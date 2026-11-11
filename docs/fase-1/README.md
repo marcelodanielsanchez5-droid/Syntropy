@@ -2,7 +2,7 @@
 
 **Diseño, arquitectura y modelo de datos**  
 **Estado:** aprobada por el usuario el 10 de noviembre de 2026  
-**Siguiente fase:** Fase 2 — implementada localmente; pendiente de validar con Supabase real.
+**Siguiente fase:** Fase 2 — implementada y probada contra Supabase real en sus flujos principales; pendiente de completar el aislamiento con dos cuentas y la recuperación por correo.
 
 > Esta fase no contiene código de la aplicación. Su objetivo fue acordar el producto, la técnica y el modelo antes de construir. La aprobación quedó registrada en [`07-decisiones-pendientes.md`](./07-decisiones-pendientes.md).
 
@@ -32,6 +32,7 @@ El repositorio está inicializado en Git (rama `main`) y el proyecto Vite ya tie
 | [`06-modelo-datos.md`](./06-modelo-datos.md) | Entidades, relaciones, fórmulas de notas, RLS y validación de la migración. |
 | [`07-decisiones-pendientes.md`](./07-decisiones-pendientes.md) | D1–D25, recomendaciones, impacto y checklist de aprobación. |
 | [`08-configuracion-supabase.md`](./08-configuracion-supabase.md) | Pasos para crear el proyecto, aplicar las migraciones y probar la Fase 2 contra Supabase real. |
+| [`../fase-2/README.md`](../fase-2/README.md) | Reporte de validación real de la Fase 2, evidencia de RLS y pendientes. |
 | [`../../supabase/migrations/001_schema_inicial.sql`](../../supabase/migrations/001_schema_inicial.sql) | Migración PostgreSQL inicial. |
 | [`../../supabase/migrations/002_ajustes_fase2.sql`](../../supabase/migrations/002_ajustes_fase2.sql) | Ajustes D7/D8, activación de año y eliminación de cuenta. |
 
@@ -119,15 +120,16 @@ Las migraciones `001_schema_inicial.sql` y `002_ajustes_fase2.sql` se ejecutaron
 - desvinculación de tareas al borrar un nodo;
 - enlaces entre asignaturas distintas.
 
-En el cliente, `npm run typecheck`, `npm test` (51 pruebas) y `npm run build` pasan. Lighthouse dio 100 en accesibilidad, buenas prácticas y SEO en las pantallas de ingreso y registro.
+En el cliente, `npm run typecheck`, `npm test` (52 pruebas) y `npm run build` pasan. Lighthouse dio 100 en accesibilidad, buenas prácticas y SEO en las pantallas de ingreso y registro.
 
 ### No validado todavía
 
-- Las migraciones **no se ejecutaron en un proyecto real de Supabase**.
-- `citext` se simuló con un dominio de texto; debe confirmarse en Supabase.
-- Storage y Edge Functions no se probaron.
-- El trigger se probó con inserciones controladas, no con el flujo real de confirmación de correo.
-- El frontend existe y se revisó visualmente en 1440, 800 y 390 px con datos simulados, pero no se ejecutó contra Supabase real.
+- Las migraciones se aplicaron en Supabase real, pero falta el aislamiento con dos cuentas confirmadas al mismo tiempo.
+- `citext` se simuló con un dominio de texto; en Supabase se probaron correos y usuarios en minúsculas, no una prueba específica de mayúsculas/minúsculas.
+- Storage se probó con avatares; `academic-files` y Edge Functions no se probaron.
+- El trigger se probó con el flujo real de confirmación de correo.
+- El frontend se ejecutó contra Supabase real para registro, confirmación, onboarding, perfil, avatar, años, asignaturas, contraseña, RLS y eliminación de cuenta.
+- El enlace real de recuperación de contraseña quedó bloqueado por el límite de correo de Supabase.
 - La PWA se probó con service worker, manifest y recarga offline en local; no se instaló en un dispositivo real.
 - Los empaquetados de Windows, Android e iOS no se compilaron.
 - iOS requiere macOS o CI; no se puede compilar en Windows.
@@ -174,9 +176,10 @@ Rust, Android Studio y Xcode se instalan cuando corresponda a cada empaquetado, 
 ## 8. Después de la aprobación
 
 1. [x] Se registran las decisiones finales en `07-decisiones-pendientes.md`.
-2. [x] Se ajusta la migración por D7 y D8 (`002_ajustes_fase2.sql`, validada localmente).
+2. [x] Se ajusta la migración por D7 y D8 (`002_ajustes_fase2.sql`, validada localmente y aplicada en Supabase real).
 3. [x] Se prepara Node.js y Git.
 4. [x] Se crea el proyecto Vite + React + TypeScript.
-5. [ ] Se configura el proyecto de desarrollo de Supabase.
+5. [x] Se configura el proyecto de desarrollo de Supabase.
 6. [x] Se implementa la Fase 2 en el cliente: autenticación, perfil, años de curso y asignaturas.
-7. [ ] Se prueba la Fase 2 contra Supabase real y se revisa visualmente.
+7. [x] Se prueban los flujos principales de la Fase 2 contra Supabase real.
+8. [ ] Se completa el aislamiento con dos cuentas y el enlace de recuperación por correo.

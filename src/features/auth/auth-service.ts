@@ -146,8 +146,60 @@ export async function updateProfile(userId: string, patch: ProfileUpdate): Promi
   return data
 }
 
+async function removeUserFiles(
+  bucket: 'avatars' | 'academic-files',
+  userId: string,
+): Promise<void> {
+  const supabase = requireSupabase()
+  const paths: string[] = []
+
+  async function walk(prefix: string) {
+    const { data, error } = await supabase.storage.from(bucket).list(prefix, { limit: 1000 })
+
+    if (error) {
+      throw error
+    }
+
+    for (const entry of data ?? []) {
+      const entryPath = prefix ? `${prefix}/${entry.name}` : entry.name
+
+      if (entry.id) {
+        paths.push(entryPath)
+      } else {
+        await walk(entryPath)
+      }
+    }
+  }
+
+  await walk(userId)
+
+  if (paths.length > 0) {
+    const { error } = await supabase.storage.from(bucket).remove(paths)
+
+    if (error) {
+      throw error
+    }
+  }
+}
+
 export async function deleteCurrentAccount() {
   const supabase = requireSupabase()
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser()
+
+  if (userError) {
+    throw userError
+  }
+
+  if (!user) {
+    throw new Error('No hay una sesión activa.')
+  }
+
+  await removeUserFiles('avatars', user.id)
+  await removeUserFiles('academic-files', user.id)
+
   const { error } = await supabase.rpc('delete_current_user')
 
   if (error) {

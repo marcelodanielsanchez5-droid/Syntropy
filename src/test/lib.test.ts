@@ -92,6 +92,17 @@ describe('errores', () => {
     expect(getErrorMessage(null, 'Fallback')).toBe('Fallback')
   })
 
+  it('prioriza el código traducido aunque el error sea una instancia de Error', () => {
+    const error = Object.assign(new Error('email rate limit exceeded'), {
+      code: 'over_email_send_rate_limit',
+      status: 429,
+    })
+
+    expect(getErrorMessage(error)).toBe(
+      'Enviaste demasiados correos seguidos. Esperá unos minutos antes de volver a intentar.',
+    )
+  })
+
   it('detecta violaciones de unicidad por código y restricción', () => {
     expect(isUniqueViolation({ code: '23505' })).toBe(true)
     expect(

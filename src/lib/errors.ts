@@ -29,10 +29,6 @@ const POSTGRES_MESSAGES: Record<string, string> = {
 }
 
 export function getErrorMessage(error: unknown, fallback = 'Ocurrió un error inesperado.'): string {
-  if (error instanceof Error && error.message) {
-    return error.message
-  }
-
   if (typeof error === 'string') {
     return error
   }
@@ -46,6 +42,10 @@ export function getErrorMessage(error: unknown, fallback = 'Ocurrió un error in
 
     if (candidate.code && POSTGRES_MESSAGES[candidate.code]) {
       return POSTGRES_MESSAGES[candidate.code]
+    }
+
+    if (error instanceof Error && error.message) {
+      return error.message
     }
 
     if (candidate.message) {
