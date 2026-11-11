@@ -1,6 +1,6 @@
 # Fase 2 — Validación real
 
-**Estado:** implementación completa en el cliente; flujos principales probados contra Supabase real el 11 de noviembre de 2026. **La fase todavía no está aprobada** y no está lista para producción.
+**Estado:** implementación completa en el cliente y **aprobada por el usuario el 11 de noviembre de 2026**. No está lista para producción.
 
 **Alcance:** autenticación, confirmación de correo, onboarding, perfil, avatar, años de curso, asignaturas, RLS y eliminación de cuenta.
 
@@ -153,9 +153,9 @@ El 11 de noviembre de 2026 se aprobó impedir que el año activo se elimine. La 
 
 ## 6. Recomendación
 
-La Fase 2 está funcionalmente completa y las dos pruebas que bloqueaban la aprobación se completaron contra Supabase real: aislamiento entre dos cuentas (19/19) y recuperación por correo con cambio de contraseña. La fase queda a la espera de **aprobación explícita**; este documento no la marca aprobada por sí solo.
+La Fase 2 está funcionalmente completa y las dos pruebas que bloqueaban la aprobación se completaron contra Supabase real: aislamiento entre dos cuentas (19/19) y recuperación por correo con cambio de contraseña. **La fase fue aprobada por el usuario el 11 de noviembre de 2026.**
 
-No debe declararse “lista para producción” todavía. Antes de publicar faltan SMTP propio, instalación de la PWA en un dispositivo, compilación de Tauri/Android/iOS, división del bundle, revisión de los avisos de desarrollo de `npm audit`, prueba de `academic-files` con un archivo real y medición de índices. “Confirm email” quedó reactivado y verificado.
+No debe declararse “lista para producción” todavía. Antes de publicar faltan SMTP propio, instalación de la PWA en un dispositivo, compilación de Tauri/Android/iOS, división del bundle, revisión de los avisos de desarrollo de `npm audit`, prueba de `academic-files` con un archivo real y medición de índices. “Confirm email” quedó reactivado y verificado. El usuario confirmó la revocación de la clave `sb_secret` expuesta.
 
 Para reproducir las pruebas:
 

@@ -2,7 +2,7 @@
 
 Aplicación multiplataforma de organización académica: años de curso, asignaturas, tareas, calendario, horario y calificaciones. Una sola base de código para web, Windows, Android e iOS.
 
-**Estado actual:** Fase 1 aprobada el 10 de noviembre de 2026. Fase 2 implementada y validada contra Supabase real el 11 de noviembre de 2026; **pendiente de aprobación explícita**. Para producción quedan SMTP propio, instalación de la PWA en un dispositivo, empaquetado Tauri/Android/iOS y mejoras de bundle y auditoría.
+**Estado actual:** Fase 1 aprobada el 10 de noviembre de 2026. Fase 2 aprobada por el usuario el 11 de noviembre de 2026. Para producción quedan SMTP propio, instalación de la PWA en un dispositivo, empaquetado Tauri/Android/iOS y mejoras de bundle y auditoría.
 
 ---
 
@@ -12,7 +12,7 @@ Aplicación multiplataforma de organización académica: años de curso, asignat
 2. Leer el índice y el resumen en [`docs/fase-1/README.md`](./docs/fase-1/README.md).
 3. Consultar las decisiones aprobadas en [`docs/fase-1/07-decisiones-pendientes.md`](./docs/fase-1/07-decisiones-pendientes.md).
 
-El usuario aprobó todas las recomendaciones D1–D25 y la decisión posterior D26 (bloqueo del borrado del año activo). La Fase 2 está implementada y validada contra Supabase real, incluido el aislamiento entre dos cuentas y el enlace de recuperación por correo; falta la aprobación explícita de la fase.
+El usuario aprobó todas las recomendaciones D1–D25 y la decisión posterior D26 (bloqueo del borrado del año activo). La Fase 2 fue aprobada por el usuario el 11 de noviembre de 2026.
 
 ---
 
@@ -76,6 +76,6 @@ Falta lo indispensable para aprobar la fase:
 5. [x] probar el enlace real de recuperación de contraseña y el cambio desde la app;
 6. [ ] instalar la PWA en un dispositivo y repetir la revisión visual con datos reales.
 
-La Fase 2 queda a la espera de aprobación explícita. El reporte de validación está en [`docs/fase-2/README.md`](./docs/fase-2/README.md).
+La Fase 2 fue aprobada por el usuario el 11 de noviembre de 2026. El reporte de validación está en [`docs/fase-2/README.md`](./docs/fase-2/README.md).
 
 El detalle de las decisiones aprobadas está en [`docs/fase-1/07-decisiones-pendientes.md`](./docs/fase-1/07-decisiones-pendientes.md).

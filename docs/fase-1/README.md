@@ -2,7 +2,7 @@
 
 **Diseño, arquitectura y modelo de datos**  
 **Estado:** aprobada por el usuario el 10 de noviembre de 2026  
-**Siguiente fase:** Fase 2 — implementada y validada contra Supabase real, incluido el aislamiento con dos cuentas y la recuperación por correo; pendiente de aprobación explícita.
+**Siguiente fase:** Fase 2 — aprobada por el usuario el 11 de noviembre de 2026.
 
 > Esta fase no contiene código de la aplicación. Su objetivo fue acordar el producto, la técnica y el modelo antes de construir. La aprobación quedó registrada en [`07-decisiones-pendientes.md`](./07-decisiones-pendientes.md).
 

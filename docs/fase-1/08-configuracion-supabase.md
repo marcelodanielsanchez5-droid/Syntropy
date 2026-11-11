@@ -2,7 +2,7 @@
 
 Esta guía deja el proyecto listo para ejecutar las migraciones y probar los flujos reales de la Fase 2. No contiene claves ni credenciales.
 
-> Estado: **migraciones ejecutadas y validación completa** el 11 de noviembre de 2026 contra el proyecto real. Se probaron los flujos principales, el aislamiento entre dos cuentas (19/19) y la recuperación por enlace de correo. La Fase 2 sigue pendiente de aprobación explícita. El detalle está en [`docs/fase-2/README.md`](../fase-2/README.md).
+> Estado: **migraciones ejecutadas y validación completa** el 11 de noviembre de 2026 contra el proyecto real. Se probaron los flujos principales, el aislamiento entre dos cuentas (19/19) y la recuperación por enlace de correo. La Fase 2 fue aprobada por el usuario el 11 de noviembre de 2026. El detalle está en [`docs/fase-2/README.md`](../fase-2/README.md).
 
 ---
 
@@ -175,7 +175,7 @@ La recuperación por enlace se completó: el correo llegó, el enlace abrió `/r
 
 ## 7. Qué hacer después
 
-El 11/11/2026 se ejecutaron las migraciones y se completó la validación real de la Fase 2, incluidas las dos pruebas que dependían del correo. La fase queda a la espera de aprobación explícita.
+El 11/11/2026 se ejecutaron las migraciones y se completó la validación real de la Fase 2, incluidas las dos pruebas que dependían del correo. La Fase 2 fue aprobada por el usuario el 11 de noviembre de 2026.
 
 Antes de producción:
 
