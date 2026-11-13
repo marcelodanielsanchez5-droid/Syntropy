@@ -1,0 +1,16 @@
+{
+  "name": "syntropy-dev-backend",
+  "private": true,
+  "type": "module",
+  "description": "Backend local de pruebas para Syntropy: PostgreSQL embebido (PGlite) con las migraciones reales y una API mínima compatible con el cliente de Supabase. No forma parte de la app.",
+  "engines": {
+    "node": ">=23.6"
+  },
+  "scripts": {
+    "start": "node server.mjs",
+    "validate": "node validate.mjs"
+  },
+  "dependencies": {
+    "@electric-sql/pglite": "0.5.16"
+  }
+}
