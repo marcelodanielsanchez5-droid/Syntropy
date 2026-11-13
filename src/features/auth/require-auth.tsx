@@ -1,10 +1,18 @@
-import type { ReactNode } from 'react'
+import { lazy, Suspense, type ReactNode } from 'react'
 import { Navigate, useLocation } from 'react-router-dom'
 import { AlertCircle } from 'lucide-react'
 import { Alert } from '@/components/ui/Alert'
 import { Button } from '@/components/ui/Button'
 import { LoadingScreen } from '@/components/ui/Spinner'
+import { needsLegalAcceptance, pendingLegalAcceptance } from '@/features/legal/legal-versions'
 import { useAuth } from './auth-provider'
+
+// Solo la ven quienes tienen que aceptar una versión nueva: se carga aparte.
+const LegalUpdateScreen = lazy(() =>
+  import('@/features/legal/LegalUpdateScreen').then((module) => ({
+    default: module.LegalUpdateScreen,
+  })),
+)
 
 function ProfileErrorScreen({
   message,
@@ -80,6 +88,17 @@ export function RequireAuth({ children }: { children: ReactNode }) {
 
   if (!profile) {
     return <LoadingScreen label="Cargando tu perfil…" />
+  }
+
+  // Fase 8: sin aceptar la versión vigente de los textos legales no se entra.
+  const pending = pendingLegalAcceptance(profile)
+
+  if (needsLegalAcceptance(pending)) {
+    return (
+      <Suspense fallback={<LoadingScreen label="Cargando los términos…" />}>
+        <LegalUpdateScreen pending={pending} />
+      </Suspense>
+    )
   }
 
   return <>{children}</>

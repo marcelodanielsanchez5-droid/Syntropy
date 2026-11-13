@@ -1,10 +1,18 @@
 import { Link } from 'react-router-dom'
 import { ArrowUpRight, FolderOpen } from 'lucide-react'
+import type { UpcomingItem } from '@/features/calendar/upcoming'
 import type { Subject } from '@/types/database'
 import { withAlpha } from '@/lib/colors'
 import { formatTeacherNames } from './subject-utils'
 
-export function SubjectCard({ subject }: { subject: Subject }) {
+export function SubjectCard({
+  subject,
+  nextDue,
+}: {
+  subject: Subject
+  /** Próximo vencimiento (tarea o examen) de la materia, si hay. */
+  nextDue?: UpcomingItem
+}) {
   return (
     <Link
       to={`/asignaturas/${subject.id}`}
@@ -43,10 +51,17 @@ export function SubjectCard({ subject }: { subject: Subject }) {
 
       <div className="relative mt-4 flex items-center gap-2 border-t border-line/70 pt-3">
         <span
-          className="h-1.5 w-1.5 rounded-full"
+          className="h-1.5 w-1.5 shrink-0 rounded-full"
           style={{ backgroundColor: subject.color_hex }}
         />
-        <span className="text-[11px] font-medium text-ink-disabled">Ver información</span>
+        {nextDue ? (
+          <span className="min-w-0 truncate text-[11px] text-ink-muted">
+            <span className="font-semibold text-ink-secondary">{nextDue.label}:</span>{' '}
+            {nextDue.title}
+          </span>
+        ) : (
+          <span className="text-[11px] font-medium text-ink-disabled">Sin vencimientos esta semana</span>
+        )}
       </div>
     </Link>
   )

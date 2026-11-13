@@ -106,7 +106,7 @@ export function SubjectFormPage() {
       if (isEditing && id) {
         await updateSubject.mutateAsync(input)
         toast.success('Asignatura actualizada.')
-        navigate(`/asignaturas/${id}`)
+        navigate(`/asignaturas/${id}/informacion`)
         return
       }
 
@@ -184,7 +184,7 @@ export function SubjectFormPage() {
   }
 
   const loading = createSubject.isPending || updateSubject.isPending
-  const backTo = id ? `/asignaturas/${id}` : '/inicio'
+  const backTo = id ? `/asignaturas/${id}/informacion` : '/inicio'
 
   return (
     <div className="space-y-6">
@@ -206,7 +206,7 @@ export function SubjectFormPage() {
 
       {error ? <Alert variant="error">{error}</Alert> : null}
 
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_340px]">
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_340px]">
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6" noValidate>
           <Card>
             <CardHeader>

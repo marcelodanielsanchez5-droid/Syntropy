@@ -23,9 +23,13 @@ import { PageHeader } from '@/components/ui/PageHeader'
 import { Spinner } from '@/components/ui/Spinner'
 import { useAuth } from '@/features/auth/auth-provider'
 import { useYears } from '@/features/academic-years/year-hooks'
+import { SubjectScheduleCard } from '@/features/schedule/SubjectSchedule'
+import { useScheduleEntries } from '@/features/schedule/schedule-hooks'
+import { cn } from '@/lib/cn'
 import { withAlpha } from '@/lib/colors'
 import { getErrorMessage } from '@/lib/errors'
 import { useDeleteSubject, useSubject } from './subject-hooks'
+import { SubjectTabs } from './SubjectTabs'
 import { formatTeacherNames } from './subject-utils'
 
 function InfoBlock({
@@ -58,11 +62,17 @@ function InfoBlock({
   )
 }
 
-const modules = [
-  { title: 'Calendario', description: 'Tareas y exámenes de la materia.', phase: 'Fase 3', icon: CalendarDays },
-  { title: 'Calificaciones', description: 'Evaluaciones, pesos y promedio.', phase: 'Fase 4', icon: GraduationCap },
-  { title: 'Nodos', description: 'Mapa de temas y dominio.', phase: 'Fase 5', icon: Network },
-  { title: 'Biblioteca', description: 'Fuentes y materiales.', phase: 'Fase 6', icon: Library },
+const modules: Array<{
+  title: string
+  description: string
+  icon: typeof CalendarDays
+  path: string
+  phase?: string
+}> = [
+  { title: 'Calendario', description: 'Tareas, exámenes y plan de estudio.', icon: CalendarDays, path: 'calendario' },
+  { title: 'Calificaciones', description: 'Evaluaciones, pesos y promedio.', icon: GraduationCap, path: 'calificaciones' },
+  { title: 'Nodos', description: 'Mapa de temas y dominio.', icon: Network, path: 'nodos' },
+  { title: 'Biblioteca', description: 'Fuentes y materiales.', icon: Library, path: 'biblioteca' },
 ]
 
 export function SubjectDetailPage() {
@@ -76,6 +86,8 @@ export function SubjectDetailPage() {
   const [error, setError] = useState<string | null>(null)
   const subject = subjectQuery.data
   const year = yearsQuery.data?.find((item) => item.id === subject?.academic_year_id)
+  const scheduleQuery = useScheduleEntries(user?.id, subject?.academic_year_id)
+  const subjectEntries = (scheduleQuery.data ?? []).filter((entry) => entry.subject_id === subject?.id)
 
   if (subjectQuery.isLoading) {
     return (
@@ -152,9 +164,11 @@ export function SubjectDetailPage() {
         }
       />
 
+      <SubjectTabs subjectId={subject.id} active="informacion" />
+
       {error ? <Alert variant="error">{error}</Alert> : null}
 
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
         <div className="space-y-6">
           <Card className="overflow-hidden">
             <div className="h-1.5 w-full" style={{ backgroundColor: subject.color_hex }} />
@@ -229,6 +243,8 @@ export function SubjectDetailPage() {
         </div>
 
         <aside className="space-y-4">
+          <SubjectScheduleCard entries={subjectEntries} isLoading={scheduleQuery.isLoading} />
+
           <Card>
             <CardHeader className="pb-3">
               <div className="flex items-center gap-2">
@@ -237,22 +253,39 @@ export function SubjectDetailPage() {
               </div>
             </CardHeader>
             <CardContent className="space-y-2">
-              {modules.map(({ title, description, phase, icon: Icon }) => (
-                <div
+              {modules.map(({ title, description, phase, icon: Icon, path }) => (
+                <Link
                   key={title}
-                  className="flex items-start gap-3 rounded-xl border border-line/70 bg-sunken/30 p-3"
+                  to={`/asignaturas/${subject.id}/${path}`}
+                  className={cn(
+                    'flex items-start gap-3 rounded-xl border p-3 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-bright/60',
+                    phase
+                      ? 'border-line/70 bg-sunken/30 hover:bg-sunken/50'
+                      : 'border-rose/25 bg-rose/[0.06] hover:bg-rose/10',
+                  )}
                 >
-                  <span className="mt-0.5 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-line bg-white/5 text-ink-muted">
+                  <span
+                    className={cn(
+                      'mt-0.5 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border',
+                      phase
+                        ? 'border-line bg-white/5 text-ink-muted'
+                        : 'border-rose/25 bg-rose/10 text-rose-bright',
+                    )}
+                  >
                     <Icon className="h-4 w-4" />
                   </span>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between gap-2">
                       <p className="text-xs font-semibold text-ink-secondary">{title}</p>
-                      <Badge variant="muted">{phase}</Badge>
+                      {phase ? (
+                        <Badge variant="muted">{phase}</Badge>
+                      ) : (
+                        <Badge variant="success">Disponible</Badge>
+                      )}
                     </div>
                     <p className="mt-0.5 text-[11px] leading-4 text-ink-disabled">{description}</p>
                   </div>
-                </div>
+                </Link>
               ))}
             </CardContent>
           </Card>

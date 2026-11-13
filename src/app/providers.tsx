@@ -11,7 +11,9 @@ export function Providers({ children }: { children: ReactNode }) {
         persister: queryPersister,
         maxAge: queryCacheMaxAge,
         dehydrateOptions: {
-          shouldDehydrateQuery: (query) => query.state.status === 'success',
+          // Las consultas marcadas con `meta.persist = false` (enlaces firmados que vencen) no se guardan.
+          shouldDehydrateQuery: (query) =>
+            query.state.status === 'success' && query.meta?.persist !== false,
         },
       }}
     >

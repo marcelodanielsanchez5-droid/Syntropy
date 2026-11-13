@@ -211,7 +211,7 @@ export function RegisterPage() {
                   target="_blank"
                   className="font-semibold text-rose-bright underline-offset-2 hover:underline"
                 >
-                  borrador de términos
+                  términos de uso
                 </Link>
                 .
               </>

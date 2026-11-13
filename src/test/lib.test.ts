@@ -9,7 +9,12 @@ import {
   getTimezoneOptions,
   isIsoDate,
 } from '@/lib/dates'
-import { getErrorMessage, isUniqueViolation } from '@/lib/errors'
+import {
+  getErrorMessage,
+  isNetworkError,
+  isUniqueViolation,
+  NETWORK_ERROR_MESSAGE,
+} from '@/lib/errors'
 import type { AcademicYear } from '@/types/database'
 
 describe('colores', () => {
@@ -101,6 +106,36 @@ describe('errores', () => {
     expect(getErrorMessage(error)).toBe(
       'Enviaste demasiados correos seguidos. Esperá unos minutos antes de volver a intentar.',
     )
+  })
+
+  it('traduce los fallos de red de cada navegador', () => {
+    const chrome = new TypeError('Failed to fetch')
+    const firefox = new TypeError('NetworkError when attempting to fetch resource.')
+    const safari = new TypeError('Load failed')
+    const authWrapper = Object.assign(new Error('Failed to fetch'), {
+      name: 'AuthRetryableFetchError',
+      status: 0,
+    })
+    const postgrest = { message: 'TypeError: Failed to fetch', details: '', hint: '', code: '' }
+
+    for (const error of [chrome, firefox, safari, authWrapper, postgrest]) {
+      expect(isNetworkError(error)).toBe(true)
+      expect(getErrorMessage(error, 'Fallback')).toBe(NETWORK_ERROR_MESSAGE)
+    }
+  })
+
+  it('no confunde otros errores con un fallo de red', () => {
+    expect(isNetworkError(new Error('Fallo de red'))).toBe(false)
+    expect(isNetworkError({ code: '23505', message: 'duplicate key value' })).toBe(false)
+    expect(isNetworkError(null)).toBe(false)
+    expect(isNetworkError('Failed to fetch')).toBe(false)
+  })
+
+  it('avisa que la sesión expiró cuando el token ya no sirve', () => {
+    const expected = 'Tu sesión expiró. Volvé a ingresar.'
+
+    expect(getErrorMessage({ code: 'refresh_token_not_found' })).toBe(expected)
+    expect(getErrorMessage({ code: 'PGRST301', message: 'JWT expired' })).toBe(expected)
   })
 
   it('detecta violaciones de unicidad por código y restricción', () => {

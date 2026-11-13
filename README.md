@@ -2,7 +2,7 @@
 
 Aplicación multiplataforma de organización académica: años de curso, asignaturas, tareas, calendario, horario y calificaciones. Una sola base de código para web, Windows, Android e iOS.
 
-**Estado actual:** Fase 1 aprobada el 10 de noviembre de 2026. Fase 2 aprobada por el usuario el 11 de noviembre de 2026. Para producción quedan SMTP propio, instalación de la PWA en un dispositivo, empaquetado Tauri/Android/iOS y mejoras de bundle y auditoría.
+**Estado actual:** Fase 1 aprobada el 10 de noviembre de 2026. Fase 2 aprobada el 11 de noviembre de 2026. Fases 3 (calendario y tareas), 4 (horario y calificaciones), 5 (nodos de conocimiento), 6 (biblioteca) y 7 (recordatorios por correo) implementadas el 13 de noviembre de 2026. De la Fase 8 (pruebas, pulido y lanzamiento, la última del plan) está hecho lo que depende del código: textos legales con versiones, descarga de datos y carga inicial más liviana. **Falta validar todo contra Supabase real, aplicar las migraciones 003 a 006, desplegar la Edge Function con Resend, completar los datos del responsable, la revisión legal, las pruebas con estudiantes y la publicación** (ver [`docs/fase-8/02-lanzamiento.md`](./docs/fase-8/02-lanzamiento.md)).
 
 ---
 
@@ -12,7 +12,7 @@ Aplicación multiplataforma de organización académica: años de curso, asignat
 2. Leer el índice y el resumen en [`docs/fase-1/README.md`](./docs/fase-1/README.md).
 3. Consultar las decisiones aprobadas en [`docs/fase-1/07-decisiones-pendientes.md`](./docs/fase-1/07-decisiones-pendientes.md).
 
-El usuario aprobó todas las recomendaciones D1–D25 y la decisión posterior D26 (bloqueo del borrado del año activo). La Fase 2 fue aprobada por el usuario el 11 de noviembre de 2026.
+El usuario aprobó todas las recomendaciones D1–D25 y las decisiones posteriores D26 (bloqueo del borrado del año activo), D27 (límites de la biblioteca) y D28 (reglas de los recordatorios). La D29 (textos legales) está pendiente. La Fase 2 fue aprobada por el usuario el 11 de noviembre de 2026.
 
 ---
 
@@ -40,11 +40,13 @@ Versiones, estructura y justificación: [`docs/fase-1/02-arquitectura-tecnica.md
 
 ## Estado de validación
 
+**Fases 3 a 8:** ver [`docs/fase-3/README.md`](./docs/fase-3/README.md), [`docs/fase-4/README.md`](./docs/fase-4/README.md), [`docs/fase-5/README.md`](./docs/fase-5/README.md), [`docs/fase-6/README.md`](./docs/fase-6/README.md), [`docs/fase-7/README.md`](./docs/fase-7/README.md) y [`docs/fase-8/README.md`](./docs/fase-8/README.md). Se probaron con pruebas automáticas y en el navegador contra PostgreSQL local con las migraciones reales y RLS, no contra el proyecto de Supabase; los correos, con un Resend simulado. Las migraciones [`003_proteger_consentimientos.sql`](./supabase/migrations/003_proteger_consentimientos.sql), [`004_biblioteca.sql`](./supabase/migrations/004_biblioteca.sql), [`005_recordatorios.sql`](./supabase/migrations/005_recordatorios.sql) y [`006_versiones_legales.sql`](./supabase/migrations/006_versiones_legales.sql) **todavía no se aplicaron** en el proyecto real, y la Edge Function [`send-reminders`](./supabase/functions/send-reminders/) no se desplegó.
+
 Las migraciones [`001_schema_inicial.sql`](./supabase/migrations/001_schema_inicial.sql) y [`002_ajustes_fase2.sql`](./supabase/migrations/002_ajustes_fase2.sql) se aplicaron en el proyecto real de Supabase el 11 de noviembre de 2026. Se probaron con datos reales el registro, la confirmación por correo, el onboarding, el perfil, el avatar, los años de curso, las asignaturas, el cambio de contraseña, la recuperación por correo, RLS con dos cuentas, Storage y la eliminación de cuenta. El aislamiento A/B pasó 19/19 comprobaciones; la recuperación real cambió la contraseña y el login anterior dejó de funcionar. La eliminación de cuenta limpia los archivos de `avatars` y `academic-files` antes de borrar el usuario.
 
-El cliente pasa `npm run typecheck`, `npm test` (55 pruebas en 5 archivos) y `npm run build` (966,74 kB, 279,91 kB gzip). Lighthouse dio 100 en accesibilidad, buenas prácticas y SEO en ingreso y registro.
+El cliente pasa `npm run typecheck`, `npm test` (284 pruebas en 17 archivos al 13/11/2026) y `npm run build`. Cada pantalla se carga aparte: la carga inicial bajó de ~1.044 kB a 779 kB (230 kB comprimidos). Lighthouse dio 100 en accesibilidad, buenas prácticas y SEO en ingreso y registro (medido en la Fase 2). Las comprobaciones de la base (77/77) y la app sin Supabase se pueden repetir con el backend local de [`tools/dev-backend`](./tools/dev-backend/README.md).
 
-**Pendientes antes de producción:** configurar SMTP propio, instalar la PWA en un dispositivo, compilar Tauri/Android/iOS, dividir el bundle, revisar los avisos de desarrollo de `npm audit`, probar `academic-files` con un archivo real y medir índices. No se debe considerar el proyecto “listo para producción” (ver [`docs/fase-2/README.md`](./docs/fase-2/README.md) y la sección 14 de [`06-modelo-datos.md`](./docs/fase-1/06-modelo-datos.md)).
+**Pendientes antes de producción:** la lista completa está en [`docs/fase-8/02-lanzamiento.md`](./docs/fase-8/02-lanzamiento.md) (responsable y revisión legal, SMTP propio, hosting, pruebas con estudiantes, PWA en dispositivos, `npm audit`, respaldos). Tauri/Android/iOS quedan para después del lanzamiento. No se debe considerar el proyecto “listo para producción” (ver [`docs/fase-2/README.md`](./docs/fase-2/README.md) y la sección 14 de [`06-modelo-datos.md`](./docs/fase-1/06-modelo-datos.md)).
 
 ---
 
@@ -58,24 +60,20 @@ Guía paso a paso para crear el proyecto, configurar Auth, aplicar las migracion
 
 ## Próximo hito
 
-La Fase 2 comprende:
+Validar las Fases 3 a 8 contra el proyecto real de Supabase, aprobarlas y lanzar:
 
-1. [x] proyecto Vite + React + TypeScript y sistema de diseño base;
-2. [x] autenticación con Supabase, confirmación de correo y recuperación de contraseña en el cliente;
-3. [x] perfil y consentimientos (13+, términos y privacidad);
-4. [x] años de curso con un solo año activo;
-5. [x] asignaturas con color, docentes y datos de información;
-6. [x] pruebas de lógica, typecheck y build.
+1. [ ] aplicar las migraciones `003_proteger_consentimientos.sql`, `004_biblioteca.sql`, `005_recordatorios.sql` y `006_versiones_legales.sql` en el SQL Editor;
+2. [ ] repetir con datos reales: tareas, exámenes con plan de estudio, horario, calificaciones, nodos y adjuntos en `academic-files`;
+3. [ ] repetir el aislamiento con dos cuentas en `tasks`, `exams`, `study_sessions`, `schedule_entries`, `assessments`, `nodes`, `node_links` y `sources`;
+4. [ ] comprobar que editar el perfil sigue funcionando y que los consentimientos ya no se pueden cambiar por la API;
+5. [x] límites de la biblioteca aprobados el 13/11/2026 (D27): 25 MB por archivo, 200 MB y 1000 fuentes por usuario;
+6. [ ] recordatorios: verificar un dominio en Resend, cargar los secretos, desplegar `send-reminders`, programar pg_cron y recibir el correo de prueba (pasos en [`docs/fase-7/README.md`](./docs/fase-7/README.md#4-puesta-en-marcha));
+7. [x] reglas de los recordatorios aprobadas el 13/11/2026 (D28): solo al correo de la cuenta, sesiones de estudio apagadas por defecto, sin avisos tardíos y tope de 20 correos por día;
+8. [ ] aprobar la D29 (jurisdicción argentina y compromisos de los textos legales) y completar `VITE_LEGAL_OWNER`, `VITE_LEGAL_CONTACT_EMAIL` y `VITE_LEGAL_LOCATION`;
+9. [ ] revisión de los textos legales por un profesional;
+10. [ ] pruebas con 5 a 10 estudiantes ([`docs/fase-8/01-plan-de-pruebas.md`](./docs/fase-8/01-plan-de-pruebas.md)) y corrección de lo crítico;
+11. [ ] aprobación de las fases por el usuario y publicación ([`docs/fase-8/02-lanzamiento.md`](./docs/fase-8/02-lanzamiento.md)).
 
-Falta lo indispensable para aprobar la fase:
-
-1. [x] crear el proyecto de Supabase y completar `.env.local`;
-2. [x] aplicar las migraciones 001 y 002;
-3. [x] probar registro, confirmación, perfil, años, asignaturas, cambio de contraseña, RLS y borrado de cuenta con datos reales;
-4. [x] repetir el aislamiento con dos cuentas confirmadas (19/19);
-5. [x] probar el enlace real de recuperación de contraseña y el cambio desde la app;
-6. [ ] instalar la PWA en un dispositivo y repetir la revisión visual con datos reales.
-
-La Fase 2 fue aprobada por el usuario el 11 de noviembre de 2026. El reporte de validación está en [`docs/fase-2/README.md`](./docs/fase-2/README.md).
+La Fase 2 fue aprobada por el usuario el 11 de noviembre de 2026; su reporte está en [`docs/fase-2/README.md`](./docs/fase-2/README.md). La Fase 8 es la última del plan; después del lanzamiento sigue el plan de mejoras ([`docs/fase-8/03-mejoras-futuras.md`](./docs/fase-8/03-mejoras-futuras.md)): logros, niveles y experiencia, edición sin conexión y tiendas de aplicaciones.
 
 El detalle de las decisiones aprobadas está en [`docs/fase-1/07-decisiones-pendientes.md`](./docs/fase-1/07-decisiones-pendientes.md).

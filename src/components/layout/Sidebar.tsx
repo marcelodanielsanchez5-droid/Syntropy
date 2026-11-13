@@ -12,18 +12,19 @@ import {
 } from 'lucide-react'
 import { Logo } from '@/components/ui/Logo'
 import { cn } from '@/lib/cn'
+import { env } from '@/lib/env'
 import { YearSwitcher } from './YearSwitcher'
 
 const primaryItems = [
   { to: '/inicio', label: 'Inicio', icon: Home, end: true },
-  { to: '/calendario', label: 'Calendario', icon: CalendarDays, phase: 'F3' },
-  { to: '/horario', label: 'Horario', icon: Clock3, phase: 'F4' },
-  { to: '/calificaciones', label: 'Calificaciones', icon: GraduationCap, phase: 'F4' },
+  { to: '/calendario', label: 'Calendario', icon: CalendarDays },
+  { to: '/horario', label: 'Horario', icon: Clock3 },
+  { to: '/calificaciones', label: 'Calificaciones', icon: GraduationCap },
 ]
 
 const knowledgeItems = [
-  { to: '/nodos', label: 'Nodos', icon: Network, phase: 'F5' },
-  { to: '/biblioteca', label: 'Biblioteca', icon: Library, phase: 'F6' },
+  { to: '/nodos', label: 'Nodos', icon: Network },
+  { to: '/biblioteca', label: 'Biblioteca', icon: Library },
 ]
 
 const accountItems = [
@@ -127,10 +128,10 @@ export function Sidebar() {
         <div className="rounded-xl border border-line bg-sunken/60 p-3">
           <div className="flex items-center gap-2 text-xs font-semibold text-ink-secondary">
             <BookOpen className="h-3.5 w-3.5 text-rose-bright" />
-            Syntropy 0.1.0
+            Syntropy {env.version}
           </div>
           <p className="mt-1 text-[11px] leading-4 text-ink-disabled">
-            Fase 2 en desarrollo. El logo es provisional.
+            Versión previa al lanzamiento. El logo es provisional.
           </p>
         </div>
       </div>

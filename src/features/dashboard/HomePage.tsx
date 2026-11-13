@@ -1,16 +1,18 @@
+import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import {
   ArrowRight,
   BookOpen,
+  CalendarCheck,
   CalendarDays,
   CalendarRange,
   CheckCircle2,
   Circle,
   FolderPlus,
   GraduationCap,
+  ListTodo,
   Plus,
   Settings2,
-  Sparkles,
 } from 'lucide-react'
 import { Badge } from '@/components/ui/Badge'
 import { buttonStyles } from '@/components/ui/Button'
@@ -19,10 +21,16 @@ import { EmptyState } from '@/components/ui/EmptyState'
 import { PageHeader } from '@/components/ui/PageHeader'
 import { Spinner } from '@/components/ui/Spinner'
 import { useAuth } from '@/features/auth/auth-provider'
-import { useYears } from '@/features/academic-years/year-hooks'
-import { getActiveYear } from '@/features/academic-years/year-service'
-import { useSubjects } from '@/features/subjects/subject-hooks'
+import { UpcomingList } from '@/features/calendar/UpcomingList'
+import { getNextDueBySubject, getUpcomingItems } from '@/features/calendar/upcoming'
+import { useActiveYearAgenda, useProfileTimeZone } from '@/features/calendar/use-agenda'
+import { getExamCountdown } from '@/features/exams/exam-utils'
+import { DayAgenda } from '@/features/schedule/DayAgenda'
+import { useScheduleEntries } from '@/features/schedule/schedule-hooks'
+import { WEEKDAY_NAMES, zonedWeekdayAndTime } from '@/features/schedule/schedule-utils'
 import { SubjectCard } from '@/features/subjects/SubjectCard'
+import { getTaskDueState } from '@/features/tasks/task-utils'
+import { useNow } from '@/hooks/use-now'
 import { formatDateRange, getFirstName, getGreeting } from '@/lib/dates'
 
 function StatCard({
@@ -63,47 +71,50 @@ function StatCard({
 function FirstStepsCard({
   hasYear,
   hasSubjects,
+  hasDates,
 }: {
   hasYear: boolean
   hasSubjects: boolean
+  hasDates: boolean
 }) {
   const steps = [
     { label: 'Cuenta creada', done: true },
     { label: 'Año de curso configurado', done: hasYear },
     { label: 'Primera asignatura agregada', done: hasSubjects },
-    { label: 'Tareas y calendario', done: false, phase: 'Fase 3' },
+    { label: 'Primera tarea o examen en el calendario', done: hasDates },
   ]
+  const next = !hasYear
+    ? { to: '/configuracion', label: 'Configurar mi año' }
+    : !hasSubjects
+      ? { to: '/asignaturas/nueva', label: 'Agregar una asignatura' }
+      : { to: '/calendario', label: 'Cargar una fecha en el calendario' }
 
   return (
     <Card>
       <CardHeader className="pb-3">
-        <div className="flex items-center justify-between gap-2">
-          <CardTitle className="text-base">Primeros pasos</CardTitle>
-          <Badge variant="rose">Fase 2</Badge>
-        </div>
+        <CardTitle className="text-base">Primeros pasos</CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
         {steps.map((step) => (
           <div key={step.label} className="flex items-center gap-2.5">
             {step.done ? (
-              <CheckCircle2 className="h-4 w-4 shrink-0 text-success" />
+              <CheckCircle2 className="h-4 w-4 shrink-0 text-success" aria-label="Hecho" />
             ) : (
-              <Circle className="h-4 w-4 shrink-0 text-ink-disabled" />
+              <Circle className="h-4 w-4 shrink-0 text-ink-disabled" aria-label="Pendiente" />
             )}
             <span
               className={`flex-1 text-xs ${step.done ? 'text-ink-secondary' : 'text-ink-muted'}`}
             >
               {step.label}
             </span>
-            {step.phase ? <Badge variant="muted">{step.phase}</Badge> : null}
           </div>
         ))}
         <div className="pt-1">
           <Link
-            to={hasYear ? '/asignaturas/nueva' : '/configuracion'}
+            to={next.to}
             className="inline-flex items-center gap-1.5 text-xs font-semibold text-rose-bright transition hover:text-rose-soft"
           >
-            {hasYear ? 'Agregar una asignatura' : 'Configurar mi año'}
+            {next.label}
             <ArrowRight className="h-3.5 w-3.5" />
           </Link>
         </div>
@@ -113,13 +124,28 @@ function FirstStepsCard({
 }
 
 export function HomePage() {
-  const { user, profile } = useAuth()
-  const yearsQuery = useYears(user?.id)
-  const activeYear = getActiveYear(yearsQuery.data)
-  const subjectsQuery = useSubjects(user?.id, activeYear?.id)
-  const subjects = subjectsQuery.data ?? []
+  const { profile } = useAuth()
+  const agenda = useActiveYearAgenda()
+  const timeZone = useProfileTimeZone()
+  const now = useNow()
+  const { activeYear, subjects, tasks, exams, subjectsById } = agenda
   const firstName = getFirstName(profile?.full_name, profile?.username ?? 'estudiante')
-  const isLoading = yearsQuery.isLoading || (activeYear && subjectsQuery.isLoading)
+  // Solo se espera al año; tareas y exámenes completan la pantalla cuando llegan.
+  const isLoading = !activeYear && agenda.isLoading
+
+  const weekItems = useMemo(
+    () => getUpcomingItems({ tasks, exams, subjectsById, timeZone, now, withinDays: 7 }),
+    [tasks, exams, subjectsById, timeZone, now],
+  )
+  const nextDueBySubject = useMemo(() => getNextDueBySubject(weekItems), [weekItems])
+  const openTasks = tasks.filter((task) => task.status !== 'done')
+  const overdueCount = openTasks.filter(
+    (task) => getTaskDueState(task, { timeZone, now }).kind === 'overdue',
+  ).length
+  const nextExam = exams.find((exam) => Date.parse(exam.exam_at) >= now.getTime())
+  const hasDates = tasks.length > 0 || exams.length > 0
+  const scheduleQuery = useScheduleEntries(agenda.userId, activeYear?.id)
+  const today = zonedWeekdayAndTime(now, timeZone)
 
   if (isLoading) {
     return (
@@ -146,10 +172,6 @@ export function HomePage() {
         <div className="relative flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-2xl">
             <div className="mb-3 flex flex-wrap items-center gap-2">
-              <Badge variant="rose">
-                <Sparkles className="h-3 w-3" />
-                Fase 2
-              </Badge>
               {activeYear ? (
                 <Badge variant="success">Año activo</Badge>
               ) : (
@@ -161,19 +183,23 @@ export function HomePage() {
             </h1>
             <p className="mt-2 max-w-xl text-sm leading-6 text-ink-muted sm:text-base">
               {activeYear
-                ? `Estás trabajando en ${activeYear.name}. Este es el punto de partida para organizar tus materias.`
+                ? `Estás trabajando en ${activeYear.name} (${formatDateRange(activeYear.starts_on, activeYear.ends_on)}).`
                 : 'Creá tu primer año de curso para empezar a agrupar asignaturas, fechas y calificaciones.'}
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
-            <Link to="/asignaturas/nueva" className={buttonStyles({ size: 'md' })}>
+            <Link to="/calendario" className={buttonStyles({ size: 'md' })}>
+              <CalendarDays className="h-4 w-4" />
+              Calendario
+            </Link>
+            <Link
+              to="/asignaturas/nueva"
+              className={buttonStyles({ variant: 'secondary', size: 'md' })}
+            >
               <Plus className="h-4 w-4" />
               Nueva asignatura
             </Link>
-            <Link
-              to="/configuracion"
-              className={buttonStyles({ variant: 'secondary', size: 'md' })}
-            >
+            <Link to="/configuracion" className={buttonStyles({ variant: 'ghost', size: 'md' })}>
               <Settings2 className="h-4 w-4" />
               Año de curso
             </Link>
@@ -210,23 +236,31 @@ export function HomePage() {
             hint={subjects.length === 1 ? 'materia en el año activo' : 'materias en el año activo'}
           />
           <StatCard
-            icon={CalendarDays}
-            label="Período"
-            value={formatDateRange(activeYear.starts_on, activeYear.ends_on)}
-            hint={activeYear.name}
-            accent="purple"
+            icon={ListTodo}
+            label="Tareas abiertas"
+            value={String(openTasks.length)}
+            hint={
+              overdueCount > 0
+                ? `${overdueCount} atrasada${overdueCount === 1 ? '' : 's'}`
+                : 'ninguna atrasada'
+            }
+            accent="info"
           />
           <StatCard
             icon={GraduationCap}
-            label="Calificaciones"
-            value="Fase 4"
-            hint="Escala, pesos y promedio"
-            accent="info"
+            label="Próximo examen"
+            value={nextExam ? getExamCountdown(nextExam, { timeZone, now }).label : 'Ninguno'}
+            hint={
+              nextExam
+                ? `${nextExam.title} · ${subjectsById.get(nextExam.subject_id)?.name ?? ''}`
+                : 'sin exámenes cargados'
+            }
+            accent="purple"
           />
         </div>
       )}
 
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
         <section className="min-w-0 space-y-4">
           <PageHeader
             title="Tus asignaturas"
@@ -248,7 +282,11 @@ export function HomePage() {
           {activeYear && subjects.length > 0 ? (
             <div className="grid gap-3 sm:grid-cols-2 2xl:grid-cols-3">
               {subjects.map((subject) => (
-                <SubjectCard key={subject.id} subject={subject} />
+                <SubjectCard
+                  key={subject.id}
+                  subject={subject}
+                  nextDue={nextDueBySubject.get(subject.id)}
+                />
               ))}
             </div>
           ) : (
@@ -257,7 +295,7 @@ export function HomePage() {
               title={activeYear ? 'Tu primera asignatura empieza acá' : 'Primero, tu año de curso'}
               description={
                 activeYear
-                  ? 'Agregá una materia con su color, docentes y descripción. Después vas a poder sumar tareas, notas y nodos.'
+                  ? 'Agregá una materia con su color, docentes y descripción. Después vas a poder cargarle tareas y exámenes.'
                   : 'Creá un año de curso y volvé para agregar tus asignaturas.'
               }
               action={
@@ -278,7 +316,71 @@ export function HomePage() {
         </section>
 
         <aside className="space-y-4">
-          <FirstStepsCard hasYear={Boolean(activeYear)} hasSubjects={subjects.length > 0} />
+          {activeYear && (scheduleQuery.data?.length ?? 0) > 0 ? (
+            <Card>
+              <CardHeader className="pb-2">
+                <div className="flex items-center justify-between gap-2">
+                  <CardTitle className="text-base">Hoy · {WEEKDAY_NAMES[today.weekday]}</CardTitle>
+                  <Link
+                    to="/horario"
+                    className="text-xs font-semibold text-rose-bright hover:text-rose-soft"
+                  >
+                    Ver horario
+                  </Link>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <DayAgenda
+                  entries={scheduleQuery.data ?? []}
+                  subjectsById={subjectsById}
+                  weekday={today.weekday}
+                  currentTime={today.time}
+                  emptyMessage="Hoy no tenés clases ni actividades."
+                />
+              </CardContent>
+            </Card>
+          ) : null}
+
+          {activeYear && subjects.length > 0 ? (
+            <Card>
+              <CardHeader className="pb-2">
+                <div className="flex items-center justify-between gap-2">
+                  <CardTitle className="text-base">Esta semana</CardTitle>
+                  <Link
+                    to="/calendario"
+                    className="text-xs font-semibold text-rose-bright hover:text-rose-soft"
+                  >
+                    Ver calendario
+                  </Link>
+                </div>
+              </CardHeader>
+              <CardContent className="px-3 sm:px-3">
+                {weekItems.length > 0 ? (
+                  <UpcomingList items={weekItems.slice(0, 6)} timeZone={timeZone} />
+                ) : (
+                  <div className="flex flex-col items-center px-3 py-6 text-center">
+                    <CalendarCheck className="h-5 w-5 text-success" aria-hidden="true" />
+                    <p className="mt-2 text-sm text-ink-muted">
+                      {agenda.isLoading ? 'Cargando tus fechas…' : 'Nada vence en los próximos 7 días.'}
+                    </p>
+                  </div>
+                )}
+                {weekItems.length > 6 ? (
+                  <p className="px-2.5 pt-2 text-xs text-ink-disabled">
+                    Y {weekItems.length - 6} más en el calendario.
+                  </p>
+                ) : null}
+              </CardContent>
+            </Card>
+          ) : null}
+
+          {!activeYear || subjects.length === 0 || !hasDates ? (
+            <FirstStepsCard
+              hasYear={Boolean(activeYear)}
+              hasSubjects={subjects.length > 0}
+              hasDates={hasDates}
+            />
+          ) : null}
 
           <Card>
             <CardHeader className="pb-3">
@@ -289,10 +391,10 @@ export function HomePage() {
             </CardHeader>
             <CardContent className="space-y-3">
               {[
-                { label: 'Calendario y tareas', phase: 'Fase 3', color: 'text-info' },
-                { label: 'Horario y calificaciones', phase: 'Fase 4', color: 'text-warning' },
-                { label: 'Nodos de conocimiento', phase: 'Fase 5', color: 'text-[#d8b4fe]' },
-                { label: 'Biblioteca', phase: 'Fase 6', color: 'text-success' },
+                { label: 'Calendario y tareas', phase: 'Disponible', color: 'text-success' },
+                { label: 'Horario y calificaciones', phase: 'Disponible', color: 'text-success' },
+                { label: 'Nodos de conocimiento', phase: 'Disponible', color: 'text-success' },
+                { label: 'Biblioteca', phase: 'Disponible', color: 'text-success' },
               ].map((item) => (
                 <div key={item.label} className="flex items-center justify-between gap-2">
                   <span className="text-xs text-ink-muted">{item.label}</span>

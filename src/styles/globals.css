@@ -252,3 +252,234 @@
     transition-duration: 0.01ms !important;
   }
 }
+
+/*
+ * Calendario (FullCalendar) en tema oscuro.
+ * Estas reglas van fuera de @layer a propósito: FullCalendar inyecta sus
+ * estilos sin capa y le ganarían a cualquier regla dentro de una.
+ */
+.syntropy-calendar {
+  --fc-border-color: var(--color-line);
+  --fc-page-bg-color: transparent;
+  --fc-neutral-bg-color: rgb(255 255 255 / 0.03);
+  --fc-neutral-text-color: var(--color-ink-muted);
+  --fc-today-bg-color: #1a2433;
+  --fc-highlight-color: rgb(255 71 141 / 0.12);
+  --fc-now-indicator-color: var(--color-rose-bright);
+  --fc-list-event-hover-bg-color: rgb(255 255 255 / 0.04);
+  --fc-more-link-bg-color: transparent;
+  --fc-more-link-text-color: var(--color-rose-soft);
+  --fc-small-font-size: 0.75rem;
+  color: var(--color-ink-secondary);
+}
+
+.syntropy-calendar .fc .fc-scrollgrid,
+.syntropy-calendar .fc .fc-list {
+  border-radius: 0.875rem;
+  overflow: hidden;
+}
+
+.syntropy-calendar .fc .fc-col-header-cell {
+  background-color: var(--color-sunken);
+}
+
+.syntropy-calendar .fc .fc-col-header-cell-cushion {
+  padding: 0.5rem 0.25rem;
+  color: var(--color-ink-muted);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-decoration: none;
+}
+
+.syntropy-calendar .fc .fc-daygrid-day {
+  cursor: pointer;
+  transition: background-color 120ms cubic-bezier(0.2, 0, 0, 1);
+}
+
+.syntropy-calendar .fc .fc-daygrid-day:hover {
+  background-color: rgb(255 255 255 / 0.025);
+}
+
+.syntropy-calendar .fc .fc-daygrid-day-number {
+  margin: 0.25rem;
+  display: inline-flex;
+  min-width: 1.6rem;
+  height: 1.6rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  padding: 0 0.35rem;
+  color: var(--color-ink-secondary);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.syntropy-calendar .fc .fc-day-other .fc-daygrid-day-number {
+  color: var(--color-ink-disabled);
+}
+
+.syntropy-calendar .fc .fc-daygrid-day.fc-day-today {
+  box-shadow: inset 0 0 0 1px rgb(255 71 141 / 0.55);
+}
+
+.syntropy-calendar .fc .fc-day-today .fc-daygrid-day-number {
+  background-color: var(--color-rose);
+  color: #ffffff;
+}
+
+.syntropy-calendar .fc .syntropy-event {
+  margin-top: 2px;
+  border-radius: 0.375rem;
+  border-width: 1px;
+  border-left-width: 3px;
+  padding: 1px 4px;
+  cursor: pointer;
+}
+
+.syntropy-calendar .fc .syntropy-event--task-range {
+  border-left-width: 1px;
+  border-radius: 9999px;
+  padding-left: 8px;
+}
+
+.syntropy-calendar .fc .syntropy-event--session {
+  border-style: dashed;
+  border-left-width: 1px;
+}
+
+.syntropy-calendar .fc .syntropy-event:focus-visible {
+  outline: 2px solid var(--color-rose-bright);
+  outline-offset: 1px;
+}
+
+.syntropy-calendar .fc .fc-daygrid-more-link {
+  margin-top: 2px;
+  padding: 0 4px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+}
+
+.syntropy-calendar .fc .fc-popover {
+  border-radius: 0.875rem;
+  border-color: var(--color-line);
+  background-color: var(--color-shell);
+  box-shadow: var(--shadow-panel);
+}
+
+.syntropy-calendar .fc .fc-popover-header {
+  background-color: var(--color-sunken);
+  color: var(--color-ink);
+  font-weight: 600;
+}
+
+.syntropy-calendar .fc .fc-timegrid-slot-label-cushion,
+.syntropy-calendar .fc .fc-timegrid-axis-cushion {
+  color: var(--color-ink-disabled);
+  font-size: 0.6875rem;
+}
+
+.syntropy-calendar .fc .fc-timegrid-slot {
+  height: 2.25rem;
+}
+
+.syntropy-calendar .fc .fc-timegrid-event .fc-event-main {
+  padding: 2px;
+}
+
+.syntropy-calendar .fc .fc-list-day-cushion {
+  background-color: var(--color-sunken);
+}
+
+.syntropy-calendar .fc .fc-list-day-text,
+.syntropy-calendar .fc .fc-list-day-side-text {
+  color: var(--color-ink);
+  font-weight: 700;
+  text-decoration: none;
+  text-transform: capitalize;
+}
+
+.syntropy-calendar .fc .fc-list-event td {
+  border-color: var(--color-line);
+}
+
+.syntropy-calendar .fc .fc-list-event-time {
+  color: var(--color-ink-muted);
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+.syntropy-calendar .fc .fc-list-event {
+  cursor: pointer;
+}
+
+.syntropy-calendar .fc .fc-list-empty {
+  background-color: transparent;
+  color: var(--color-ink-muted);
+}
+
+@media (max-width: 639px) {
+  .syntropy-calendar .fc .fc-daygrid-day-number {
+    min-width: 1.35rem;
+    height: 1.35rem;
+    font-size: 0.6875rem;
+  }
+
+  .syntropy-calendar .fc .syntropy-event {
+    padding: 0 2px;
+    font-size: 0.625rem;
+  }
+}
+
+/*
+ * Lienzo de nodos (React Flow) en tema oscuro. Fuera de @layer por el mismo
+ * motivo que el calendario: los estilos de la librería no usan capas.
+ */
+.syntropy-map {
+  --xy-background-color: var(--color-sunken);
+  --xy-node-background-color: transparent;
+  --xy-node-border: none;
+  --xy-node-boxshadow-selected: none;
+  --xy-edge-label-background-color: var(--color-shell);
+  --xy-edge-label-color: var(--color-ink-secondary);
+  --xy-controls-button-background-color: var(--color-shell);
+  --xy-controls-button-background-color-hover: #1e2735;
+  --xy-controls-button-color: var(--color-ink-secondary);
+  --xy-controls-button-color-hover: #ffffff;
+  --xy-controls-button-border-color: var(--color-line);
+  --xy-controls-box-shadow: 0 10px 30px -12px rgb(0 0 0 / 0.8);
+}
+
+.syntropy-map .react-flow__node-knowledge {
+  border: none;
+  background: transparent;
+  padding: 0;
+  box-shadow: none;
+}
+
+.syntropy-map .react-flow__node:focus-visible {
+  outline: 2px solid var(--color-rose-bright);
+  outline-offset: 2px;
+  border-radius: 9999px;
+}
+
+.syntropy-map .react-flow__controls {
+  overflow: hidden;
+  border: 1px solid var(--color-line);
+  border-radius: 0.75rem;
+}
+
+.syntropy-map .react-flow__controls-button {
+  width: 32px;
+  height: 32px;
+}
+
+/* Objetivos táctiles de 44 px en pantallas táctiles. */
+@media (pointer: coarse) {
+  .syntropy-map .react-flow__controls-button {
+    width: 44px;
+    height: 44px;
+  }
+}

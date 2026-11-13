@@ -17,12 +17,15 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
+  mobileSheetClassName,
 } from '@/components/ui/Dialog'
 import { useAuth } from '@/features/auth/auth-provider'
+import { cn } from '@/lib/cn'
 
-const links = [
-  { to: '/nodos', label: 'Nodos de conocimiento', icon: Network, phase: 'F5' },
-  { to: '/biblioteca', label: 'Biblioteca', icon: Library, phase: 'F6' },
+// `phase` marca accesos de fases futuras (hoy no hay ninguno).
+const links: Array<{ to: string; label: string; icon: typeof Network; phase?: string }> = [
+  { to: '/nodos', label: 'Nodos de conocimiento', icon: Network },
+  { to: '/biblioteca', label: 'Biblioteca', icon: Library },
   { to: '/perfil', label: 'Mi perfil', icon: UserRound },
   { to: '/configuracion', label: 'Configuración y año de curso', icon: Settings },
 ]
@@ -57,7 +60,7 @@ export function MobileMoreSheet() {
         </span>
         Más
       </button>
-      <DialogContent className="max-sm:bottom-0 max-sm:left-0 max-sm:top-auto max-sm:max-h-[82dvh] max-sm:w-full max-sm:max-w-none max-sm:translate-x-0 max-sm:translate-y-0 max-sm:rounded-b-none max-sm:rounded-t-3xl max-sm:pb-safe">
+      <DialogContent className={cn(mobileSheetClassName, 'max-sm:max-h-[82dvh]')}>
         <DialogHeader>
           <DialogTitle>Más opciones</DialogTitle>
           <DialogDescription>Accesos, cuenta y preferencias.</DialogDescription>

@@ -8,10 +8,12 @@ export type BadgeVariant =
   | 'success'
   | 'warning'
   | 'info'
+  | 'danger'
   | 'outline'
   | 'muted'
 
 const variants: Record<BadgeVariant, string> = {
+  danger: 'border-danger/25 bg-danger/10 text-danger',
   default: 'border-line bg-white/5 text-ink-secondary',
   rose: 'border-rose/25 bg-rose/10 text-rose-soft',
   purple: 'border-purple/30 bg-purple/15 text-[#d8b4fe]',

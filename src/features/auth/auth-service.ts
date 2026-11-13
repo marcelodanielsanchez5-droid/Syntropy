@@ -1,5 +1,6 @@
 import { authRedirectUrl } from '@/lib/env'
 import { requireSupabase } from '@/lib/supabase'
+import { LEGAL_VERSIONS } from '@/features/legal/legal-versions'
 import type { Profile } from '@/types/database'
 
 function delay(milliseconds: number) {
@@ -42,6 +43,9 @@ export async function signUpWithEmail(payload: SignUpPayload) {
         terms_accepted: true,
         privacy_accepted: true,
         age_confirmed: true,
+        // La base guarda la versión solo si es la vigente (migración 006).
+        terms_version: LEGAL_VERSIONS.terms,
+        privacy_version: LEGAL_VERSIONS.privacy,
       },
     },
   })
@@ -146,23 +150,60 @@ export async function updateProfile(userId: string, patch: ProfileUpdate): Promi
   return data
 }
 
-async function removeUserFiles(
-  bucket: 'avatars' | 'academic-files',
-  userId: string,
-): Promise<void> {
-  const supabase = requireSupabase()
-  const paths: string[] = []
+type StorageBucket = 'avatars' | 'academic-files'
 
-  async function walk(prefix: string) {
-    const { data, error } = await supabase.storage.from(bucket).list(prefix, { limit: 1000 })
+// Storage devuelve como máximo esta cantidad de entradas por consulta.
+export const STORAGE_PAGE_SIZE = 1000
+const STORAGE_REMOVE_BATCH = 200
+
+/** Lista una carpeta completa, pidiendo todas las páginas que hagan falta. */
+async function listFolder(bucket: StorageBucket, prefix: string) {
+  const supabase = requireSupabase()
+  const entries: Array<{ name: string; id: string | null }> = []
+  let offset = 0
+
+  for (;;) {
+    const { data, error } = await supabase.storage
+      .from(bucket)
+      .list(prefix, { limit: STORAGE_PAGE_SIZE, offset, sortBy: { column: 'name', order: 'asc' } })
 
     if (error) {
       throw error
     }
 
-    for (const entry of data ?? []) {
+    const page = data ?? []
+    entries.push(...page)
+
+    if (page.length < STORAGE_PAGE_SIZE) {
+      return entries
+    }
+
+    offset += page.length
+  }
+}
+
+async function removePaths(bucket: StorageBucket, paths: string[]): Promise<void> {
+  const supabase = requireSupabase()
+
+  for (let index = 0; index < paths.length; index += STORAGE_REMOVE_BATCH) {
+    const { error } = await supabase.storage
+      .from(bucket)
+      .remove(paths.slice(index, index + STORAGE_REMOVE_BATCH))
+
+    if (error) {
+      throw error
+    }
+  }
+}
+
+async function removeUserFiles(bucket: StorageBucket, userId: string): Promise<void> {
+  const paths: string[] = []
+
+  async function walk(prefix: string) {
+    for (const entry of await listFolder(bucket, prefix)) {
       const entryPath = prefix ? `${prefix}/${entry.name}` : entry.name
 
+      // Las carpetas llegan sin id; los archivos, con id.
       if (entry.id) {
         paths.push(entryPath)
       } else {
@@ -172,14 +213,7 @@ async function removeUserFiles(
   }
 
   await walk(userId)
-
-  if (paths.length > 0) {
-    const { error } = await supabase.storage.from(bucket).remove(paths)
-
-    if (error) {
-      throw error
-    }
-  }
+  await removePaths(bucket, paths)
 }
 
 export async function deleteCurrentAccount() {
@@ -207,6 +241,19 @@ export async function deleteCurrentAccount() {
   }
 }
 
+/** Acepta las versiones vigentes de los términos y la privacidad (migración 006). */
+export async function acceptLegalDocuments(ageConfirmed: boolean) {
+  const { error } = await requireSupabase().rpc('accept_legal_documents', {
+    p_terms_version: LEGAL_VERSIONS.terms,
+    p_privacy_version: LEGAL_VERSIONS.privacy,
+    p_age_confirmed: ageConfirmed,
+  })
+
+  if (error) {
+    throw error
+  }
+}
+
 export async function createAvatarSignedUrl(path: string): Promise<string | null> {
   const supabase = requireSupabase()
   const { data, error } = await supabase.storage.from('avatars').createSignedUrl(path, 60 * 60)
@@ -218,9 +265,26 @@ export async function createAvatarSignedUrl(path: string): Promise<string | null
   return data.signedUrl
 }
 
+const AVATAR_EXTENSIONS: Record<string, string> = {
+  'image/png': 'png',
+  'image/jpeg': 'jpg',
+  'image/webp': 'webp',
+}
+
+/** Borra las fotos de perfil que ya no se usan (por ejemplo, la anterior en otro formato). */
+async function removeStaleAvatars(userId: string, currentPath: string): Promise<void> {
+  const stale = (await listFolder('avatars', userId))
+    .filter((entry) => entry.id)
+    .map((entry) => `${userId}/${entry.name}`)
+    .filter((path) => path !== currentPath)
+
+  await removePaths('avatars', stale)
+}
+
 export async function uploadAvatar(userId: string, file: File): Promise<string> {
   const supabase = requireSupabase()
-  const extension = file.name.split('.').pop()?.toLowerCase() ?? 'png'
+  const extension =
+    AVATAR_EXTENSIONS[file.type] ?? file.name.split('.').pop()?.toLowerCase() ?? 'png'
   const path = `${userId}/avatar.${extension}`
   const { error } = await supabase.storage.from('avatars').upload(path, file, {
     upsert: true,
@@ -233,6 +297,17 @@ export async function uploadAvatar(userId: string, file: File): Promise<string> 
   }
 
   await updateProfile(userId, { avatar_path: path })
+
+  // El nombre del archivo depende del formato: al pasar de PNG a JPG la foto
+  // anterior quedaría guardada sin uso. La limpieza es secundaria: si falla, la
+  // foto nueva ya está en uso y el resto se borra en la próxima subida o al
+  // eliminar la cuenta.
+  try {
+    await removeStaleAvatars(userId, path)
+  } catch {
+    // Sin acción: no debe impedir que el cambio de foto termine bien.
+  }
+
   return path
 }
 

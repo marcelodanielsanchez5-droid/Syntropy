@@ -7,12 +7,19 @@ interface ColorPickerProps {
   onChange: (value: string) => void
   className?: string
   error?: string
+  label?: string
 }
 
-export function ColorPicker({ value, onChange, className, error }: ColorPickerProps) {
+export function ColorPicker({
+  value,
+  onChange,
+  className,
+  error,
+  label = 'Color de la asignatura',
+}: ColorPickerProps) {
   return (
     <div className={cn('space-y-2', className)}>
-      <div className="flex flex-wrap gap-2.5" role="radiogroup" aria-label="Color de la asignatura">
+      <div className="flex flex-wrap gap-2.5" role="radiogroup" aria-label={label}>
         {SUBJECT_COLORS.map((color) => {
           const selected = color.hex.toLowerCase() === value.toLowerCase()
 

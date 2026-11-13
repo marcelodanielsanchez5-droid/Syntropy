@@ -157,3 +157,30 @@ Falta el paso decisivo: crear el proyecto real de Supabase, aplicar 001 y 002, c
 ### D26. Borrado del año activo
 
 Aprobada el 11 de noviembre de 2026 durante la validación de Fase 2. El año activo no se puede eliminar: la interfaz deshabilita el botón y el servicio agrega `is_active=false` al borrado. Para borrar un año hay que activar otro primero. La decisión no cambia el esquema ni las políticas RLS.
+
+### D27. Límites de la biblioteca
+
+Aprobada el 13 de noviembre de 2026 (Fase 6): 25 MB por archivo, 200 MB de archivos y 1000 fuentes por usuario. La base los hace cumplir con la migración `004_biblioteca.sql`. Revisar antes de abrir el registro, porque el plan gratuito de Supabase tiene 1 GB de Storage en total.
+
+### D28. Reglas de los recordatorios por correo
+
+Aprobada el 13 de noviembre de 2026 (Fase 7):
+
+- enviar solo al correo de la cuenta, que ya está verificado; el cliente no puede cambiar `reminder_email` para que nadie use Syntropy para escribirle a terceros (una dirección alternativa necesita verificación propia);
+- recordatorios apagados hasta que el usuario los active; con tareas y exámenes activados, sesiones de estudio no, y 1 día de anticipación;
+- no mandar avisos tardíos (si la hora del aviso ya pasó, no se programa; si el evento pasó sin enviarlo, queda como «No enviado»);
+- tope de 20 correos por usuario cada 24 horas para cuidar la cuota de Resend.
+
+Detalle en [`docs/fase-7/README.md`](../fase-7/README.md#12-decisión-d28-aprobada-el-13-de-noviembre-de-2026).
+
+### D29. Textos legales
+
+**Pendiente de aprobación** (Fase 8). Se propone:
+
+- jurisdicción de la República Argentina (Ley 25.326 de datos personales y Ley 24.240 de defensa del consumidor);
+- uso desde los 13 años (D8) y, de 13 a 17, con conocimiento y autorización de padres o tutores;
+- aceptación obligatoria de cada versión nueva al ingresar, con la opción de descargar los datos o eliminar la cuenta;
+- compromisos: gratuito hoy y sin cobros sin aceptación expresa, 30 días de aviso antes de cerrar el servicio, no borrar lo guardado si se reducen los límites y aviso por correo ante incidentes;
+- datos del responsable por variables de entorno.
+
+Los textos no reemplazan la revisión de un profesional antes de publicar. Detalle en [`docs/fase-8/README.md`](../fase-8/README.md#23-decisión-d29-propuesta-a-aprobar).

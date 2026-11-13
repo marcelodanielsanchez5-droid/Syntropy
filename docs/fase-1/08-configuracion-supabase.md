@@ -82,8 +82,17 @@ En **SQL Editor**, crear una consulta nueva y ejecutar, en este orden:
 
 1. Todo el contenido de `supabase/migrations/001_schema_inicial.sql`.
 2. Todo el contenido de `supabase/migrations/002_ajustes_fase2.sql`.
+3. Todo el contenido de `supabase/migrations/003_proteger_consentimientos.sql`.
+4. Todo el contenido de `supabase/migrations/004_biblioteca.sql`.
+5. Todo el contenido de `supabase/migrations/005_recordatorios.sql`.
+6. Todo el contenido de `supabase/migrations/006_versiones_legales.sql`.
 
 Cada archivo abre y cierra su propia transacción. Si algo falla, no continuar con el siguiente.
+
+> **Proyecto ya creado en la Fase 2:** solo faltan de la `003` a la `006`, en ese orden. Todas se pueden correr más de una vez. Después de la `006`, las cuentas existentes van a tener que aceptar los textos legales vigentes al ingresar. Al final de cada una se comprueban los permisos y, si algo no quedó como debe, falla y revierte todo.
+>
+> **Recordatorios por correo (Fase 7):** además de la `005`, hay que desplegar la Edge Function `send-reminders`, cargar sus secretos y programarla con `supabase/setup/programar-recordatorios.sql`. Los pasos están en [`docs/fase-7/README.md`](../fase-7/README.md#4-puesta-en-marcha).
+
 
 ### Verificación mínima
 

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Navigate, useNavigate } from 'react-router-dom'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { useQueryClient } from '@tanstack/react-query'
@@ -98,6 +98,11 @@ export function OnboardingPage() {
     } finally {
       setFinishing(false)
     }
+  }
+
+  // Quien ya completó la bienvenida no vuelve a verla (por ejemplo, al entrar por la URL).
+  if (profile?.onboarded_at && !finishing) {
+    return <Navigate to="/inicio" replace />
   }
 
   return (

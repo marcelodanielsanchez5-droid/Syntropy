@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import {
   AlertTriangle,
@@ -7,6 +7,7 @@ import {
   ChevronRight,
   CircleHelp,
   DatabaseZap,
+  Download,
   LogOut,
   Moon,
   Pencil,
@@ -26,32 +27,19 @@ import { PageHeader } from '@/components/ui/PageHeader'
 import { useAuth } from '@/features/auth/auth-provider'
 import { useAvatarUrl } from '@/features/profile/use-avatar-url'
 import { clearLocalCache } from '@/lib/query-client'
-import { formatDateRange } from '@/lib/dates'
+import { formatDate, formatDateRange } from '@/lib/dates'
 import { getErrorMessage } from '@/lib/errors'
 import type { AcademicYear } from '@/types/database'
 import { DeleteAccountDialog } from './DeleteAccountDialog'
+import { exportMyData } from './data-export'
+import { LEGAL_EFFECTIVE_LABEL, LEGAL_VERSIONS } from '@/features/legal/legal-versions'
+import { SettingRow } from './SettingRow'
+import { ReminderSettingsCard } from '@/features/reminders/ReminderSettingsCard'
+import { GradingSettingsDialog } from '@/features/grades/GradingSettingsDialog'
+import { scaleLabel } from '@/features/grades/grade-math'
+import { useGradingSettings } from '@/features/grades/grade-hooks'
 import { YearDialog } from '@/features/academic-years/YearDialog'
 import { useActivateYear, useDeleteYear, useYears } from '@/features/academic-years/year-hooks'
-
-function SettingRow({
-  title,
-  description,
-  children,
-}: {
-  title: string
-  description: string
-  children?: ReactNode
-}) {
-  return (
-    <div className="flex flex-col gap-3 border-b border-line/70 py-4 first:pt-0 last:border-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between">
-      <div className="min-w-0">
-        <p className="text-sm font-semibold text-ink">{title}</p>
-        <p className="mt-0.5 text-xs leading-5 text-ink-muted">{description}</p>
-      </div>
-      {children ? <div className="flex shrink-0 items-center gap-2">{children}</div> : null}
-    </div>
-  )
-}
 
 function YearRow({
   year,
@@ -134,11 +122,14 @@ export function SettingsPage() {
   const activateYear = useActivateYear(user?.id ?? '')
   const deleteYear = useDeleteYear(user?.id ?? '')
   const { data: avatarUrl } = useAvatarUrl(profile?.avatar_path)
+  const grading = useGradingSettings(user?.id)
   const [yearDialogOpen, setYearDialogOpen] = useState(false)
   const [editingYear, setEditingYear] = useState<AcademicYear | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<AcademicYear | null>(null)
   const [deleteAccountOpen, setDeleteAccountOpen] = useState(false)
   const [localError, setLocalError] = useState<string | null>(null)
+  const [scaleOpen, setScaleOpen] = useState(false)
+  const [exporting, setExporting] = useState(false)
 
   const nuevo = searchParams.get('nuevo')
 
@@ -184,6 +175,23 @@ export function SettingsPage() {
     toast.success('Se borró la copia local. Los datos se van a volver a descargar.')
   }
 
+  async function handleExport() {
+    if (!user) {
+      return
+    }
+
+    setExporting(true)
+
+    try {
+      const rows = await exportMyData(user, profile)
+      toast.success(`Descargaste tus datos (${rows} registros).`)
+    } catch (error) {
+      toast.error(getErrorMessage(error, 'No pudimos preparar la descarga.'))
+    } finally {
+      setExporting(false)
+    }
+  }
+
   async function handleSignOut() {
     await signOut()
     navigate('/ingresar', { replace: true })
@@ -194,12 +202,12 @@ export function SettingsPage() {
       <PageHeader
         eyebrow="Cuenta"
         title="Configuración"
-        description="Administrá tus años de curso, la privacidad del dispositivo y tu cuenta."
+        description="Administrá tus años de curso, los recordatorios por correo, la privacidad del dispositivo y tu cuenta."
       />
 
       {localError ? <Alert variant="error">{localError}</Alert> : null}
 
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
         <div className="space-y-6">
           <Card id="anios">
             <CardHeader>
@@ -251,6 +259,8 @@ export function SettingsPage() {
               )}
             </CardContent>
           </Card>
+
+          <ReminderSettingsCard />
 
           <Card id="privacidad">
             <CardHeader>
@@ -309,12 +319,47 @@ export function SettingsPage() {
             <CardHeader>
               <CardTitle>Cuenta</CardTitle>
               <p className="mt-1 text-sm text-ink-muted">
-                Sesión, correo y eliminación definitiva de la cuenta.
+                Sesión, textos legales, descarga de tus datos y eliminación definitiva.
               </p>
             </CardHeader>
             <CardContent>
               <SettingRow title="Correo" description={user?.email ?? 'Sin correo disponible'}>
                 <Badge variant="outline">Verificado</Badge>
+              </SettingRow>
+              <SettingRow
+                title="Términos y privacidad"
+                description={
+                  profile?.terms_version === LEGAL_VERSIONS.terms && profile.terms_accepted_at
+                    ? `Aceptaste la versión vigente el ${formatDate(profile.terms_accepted_at, "d 'de' MMMM 'de' yyyy")}.`
+                    : `Versión vigente desde el ${LEGAL_EFFECTIVE_LABEL}.`
+                }
+              >
+                <Link
+                  to="/legal/terminos"
+                  className="text-xs font-semibold text-rose-bright hover:text-rose-soft"
+                >
+                  Términos
+                </Link>
+                <Link
+                  to="/legal/privacidad"
+                  className="text-xs font-semibold text-rose-bright hover:text-rose-soft"
+                >
+                  Privacidad
+                </Link>
+              </SettingRow>
+              <SettingRow
+                title="Descargar mis datos"
+                description="Un archivo JSON con tu perfil, tus preferencias y todo tu contenido. Los archivos de la biblioteca se descargan desde la biblioteca."
+              >
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => void handleExport()}
+                  loading={exporting}
+                  leftIcon={<Download className="h-3.5 w-3.5" />}
+                >
+                  Descargar
+                </Button>
               </SettingRow>
               <SettingRow
                 title="Cerrar sesión"
@@ -331,7 +376,7 @@ export function SettingsPage() {
               </SettingRow>
               <SettingRow
                 title="Eliminar cuenta"
-                description="Borra el perfil, los años, las asignaturas y todos los datos asociados."
+                description="Borra el perfil, el contenido, los archivos y los recordatorios. No se puede deshacer."
               >
                 <Button
                   variant="danger"
@@ -371,18 +416,27 @@ export function SettingsPage() {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card id="calificaciones">
             <CardHeader className="pb-3">
-              <CardTitle className="text-base">Calificaciones</CardTitle>
+              <div className="flex items-center justify-between gap-2">
+                <CardTitle className="text-base">Calificaciones</CardTitle>
+                {grading.isConfigured ? null : <Badge variant="warning">Sin confirmar</Badge>}
+              </div>
             </CardHeader>
             <CardContent>
-              <p className="text-xs leading-5 text-ink-muted">
-                La escala global (mínimo, máximo y nota de aprobación) se configura en la Fase 4,
-                junto con las evaluaciones y el promedio.
+              <p className="text-sm font-semibold text-ink-secondary">{scaleLabel(grading.rules)}</p>
+              <p className="mt-1 text-xs leading-5 text-ink-muted">
+                Se usa en las evaluaciones nuevas y para mostrar los promedios. Las notas ya
+                cargadas conservan su escala.
               </p>
-              <div className="mt-3">
-                <Badge variant="info">Fase 4</Badge>
-              </div>
+              <Button
+                variant="secondary"
+                size="sm"
+                className="mt-3"
+                onClick={() => setScaleOpen(true)}
+              >
+                Configurar escala
+              </Button>
             </CardContent>
           </Card>
 
@@ -411,10 +465,20 @@ export function SettingsPage() {
 
           <div className="flex items-start gap-2 rounded-xl border border-warning/20 bg-warning/[0.04] p-3 text-[11px] leading-5 text-ink-muted">
             <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-warning" />
-            El logo y los textos legales son provisionales. No publicar sin revisión.
+            El logo es provisional. Los textos legales tienen que revisarse con un profesional antes de publicar.
           </div>
         </aside>
       </div>
+
+      {user ? (
+        <GradingSettingsDialog
+          open={scaleOpen}
+          onOpenChange={setScaleOpen}
+          userId={user.id}
+          rules={grading.rules}
+          hasAssessments
+        />
+      ) : null}
 
       <YearDialog
         open={yearDialogOpen}

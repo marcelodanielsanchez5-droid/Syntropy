@@ -185,7 +185,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setProfile(null)
   }, [])
 
-  const isLoading = sessionLoading || (Boolean(session) && profileLoading)
+  // Con sesión, el perfil se considera cargando hasta que llega o falla. Si no,
+  // en el render que sigue al ingreso (sesión sí, perfil todavía no) las rutas
+  // públicas redirigían a la bienvenida aunque la cuenta ya estuviera configurada.
+  const isLoading =
+    sessionLoading || (Boolean(session) && (profileLoading || (!profile && !profileError)))
 
   const value = useMemo<AuthContextValue>(
     () => ({

@@ -1,73 +1,85 @@
-import { createBrowserRouter, Navigate } from 'react-router-dom'
-import {
-  CalendarDays,
-  Clock3,
-  GraduationCap,
-  Library,
-  Network,
-} from 'lucide-react'
+import type { ComponentType } from 'react'
+import { createBrowserRouter, Navigate, Outlet } from 'react-router-dom'
 import { AppLayout } from './layouts/AppLayout'
-import { LoginPage } from '@/features/auth/LoginPage'
-import { RegisterPage } from '@/features/auth/RegisterPage'
-import { ForgotPasswordPage } from '@/features/auth/ForgotPasswordPage'
-import { ResetPasswordPage } from '@/features/auth/ResetPasswordPage'
-import { AuthCallbackPage } from '@/features/auth/AuthCallbackPage'
-import { SetupPage } from '@/features/auth/SetupPage'
-import { OnboardingPage } from '@/features/auth/OnboardingPage'
 import { PublicOnly, RequireAuth, RequireOnboarded } from '@/features/auth/require-auth'
-import { HomePage } from '@/features/dashboard/HomePage'
-import { SettingsPage } from '@/features/settings/SettingsPage'
-import { ProfilePage } from '@/features/profile/ProfilePage'
-import { SubjectFormPage } from '@/features/subjects/SubjectFormPage'
-import { SubjectDetailPage } from '@/features/subjects/SubjectDetailPage'
-import { ComingSoonPage } from '@/features/coming-soon/ComingSoonPage'
-import { LegalPage } from '@/features/legal/LegalPage'
-import { NotFoundPage } from '@/features/errors/NotFoundPage'
+
+/**
+ * Cada pantalla se carga aparte (Fase 8): la primera carga solo trae el
+ * enrutador, la sesión y el marco de la app, y cada ruta baja su código la
+ * primera vez que se abre. La PWA igual las guarda todas para usar sin conexión.
+ */
+function lazyPage<Module>(load: () => Promise<Module>, pick: (module: Module) => ComponentType) {
+  return async () => ({ Component: pick(await load()) })
+}
 
 export const router = createBrowserRouter([
   {
-    path: '/ingresar',
     element: (
       <PublicOnly>
-        <LoginPage />
+        <Outlet />
       </PublicOnly>
     ),
-  },
-  {
-    path: '/crear-cuenta',
-    element: (
-      <PublicOnly>
-        <RegisterPage />
-      </PublicOnly>
-    ),
-  },
-  {
-    path: '/recuperar-contrasena',
-    element: (
-      <PublicOnly>
-        <ForgotPasswordPage />
-      </PublicOnly>
-    ),
+    children: [
+      {
+        path: '/ingresar',
+        lazy: lazyPage(
+          () => import('@/features/auth/LoginPage'),
+          (m) => m.LoginPage,
+        ),
+      },
+      {
+        path: '/crear-cuenta',
+        lazy: lazyPage(
+          () => import('@/features/auth/RegisterPage'),
+          (m) => m.RegisterPage,
+        ),
+      },
+      {
+        path: '/recuperar-contrasena',
+        lazy: lazyPage(
+          () => import('@/features/auth/ForgotPasswordPage'),
+          (m) => m.ForgotPasswordPage,
+        ),
+      },
+    ],
   },
   {
     path: '/restablecer-contrasena',
-    element: <ResetPasswordPage />,
+    lazy: lazyPage(
+      () => import('@/features/auth/ResetPasswordPage'),
+      (m) => m.ResetPasswordPage,
+    ),
   },
   {
     path: '/auth/callback',
-    element: <AuthCallbackPage />,
+    lazy: lazyPage(
+      () => import('@/features/auth/AuthCallbackPage'),
+      (m) => m.AuthCallbackPage,
+    ),
   },
   {
     path: '/configuracion-inicial',
-    element: <SetupPage />,
+    lazy: lazyPage(
+      () => import('@/features/auth/SetupPage'),
+      (m) => m.SetupPage,
+    ),
   },
   {
     path: '/bienvenida',
     element: (
       <RequireAuth>
-        <OnboardingPage />
+        <Outlet />
       </RequireAuth>
     ),
+    children: [
+      {
+        index: true,
+        lazy: lazyPage(
+          () => import('@/features/auth/OnboardingPage'),
+          (m) => m.OnboardingPage,
+        ),
+      },
+    ],
   },
   {
     path: '/',
@@ -80,120 +92,133 @@ export const router = createBrowserRouter([
     ),
     children: [
       { index: true, element: <Navigate to="/inicio" replace /> },
-      { path: 'inicio', element: <HomePage /> },
+      {
+        path: 'inicio',
+        lazy: lazyPage(
+          () => import('@/features/dashboard/HomePage'),
+          (m) => m.HomePage,
+        ),
+      },
       {
         path: 'calendario',
-        element: (
-          <ComingSoonPage
-            title="Calendario"
-            phase="Fase 3"
-            description="Tareas, exámenes y vencimientos en una vista mensual, semanal y de agenda."
-            icon={CalendarDays}
-          />
+        lazy: lazyPage(
+          () => import('@/features/calendar/CalendarPage'),
+          (m) => m.CalendarPage,
         ),
       },
       {
         path: 'horario',
-        element: (
-          <ComingSoonPage
-            title="Horario"
-            phase="Fase 4"
-            description="Tu grilla semanal de clases, descansos y actividades, con el detalle de cada bloque."
-            icon={Clock3}
-          />
+        lazy: lazyPage(
+          () => import('@/features/schedule/SchedulePage'),
+          (m) => m.SchedulePage,
         ),
       },
       {
         path: 'calificaciones',
-        element: (
-          <ComingSoonPage
-            title="Calificaciones"
-            phase="Fase 4"
-            description="Evaluaciones con pesos, escala configurable, promedio y proyección por materia."
-            icon={GraduationCap}
-          />
+        lazy: lazyPage(
+          () => import('@/features/grades/GradesPage'),
+          (m) => m.GradesPage,
         ),
       },
       {
         path: 'nodos',
-        element: (
-          <ComingSoonPage
-            title="Nodos de conocimiento"
-            phase="Fase 5"
-            description="El mapa de temas de tu año, con dificultad, dominio y conexiones entre materias."
-            icon={Network}
-          />
+        lazy: lazyPage(
+          () => import('@/features/nodes/NodesPage'),
+          (m) => m.NodesPage,
         ),
       },
       {
         path: 'biblioteca',
-        element: (
-          <ComingSoonPage
-            title="Biblioteca"
-            phase="Fase 6"
-            description="Fuentes, documentos, enlaces y materiales vinculados a tus temas y tareas."
-            icon={Library}
-          />
+        lazy: lazyPage(
+          () => import('@/features/library/LibraryPage'),
+          (m) => m.LibraryPage,
         ),
       },
-      { path: 'perfil', element: <ProfilePage /> },
-      { path: 'configuracion', element: <SettingsPage /> },
-      { path: 'asignaturas/nueva', element: <SubjectFormPage /> },
-      { path: 'asignaturas/:id', element: <SubjectDetailPage /> },
-      { path: 'asignaturas/:id/editar', element: <SubjectFormPage /> },
-      { path: 'asignaturas/:id/informacion', element: <SubjectDetailPage /> },
+      {
+        path: 'perfil',
+        lazy: lazyPage(
+          () => import('@/features/profile/ProfilePage'),
+          (m) => m.ProfilePage,
+        ),
+      },
+      {
+        path: 'configuracion',
+        lazy: lazyPage(
+          () => import('@/features/settings/SettingsPage'),
+          (m) => m.SettingsPage,
+        ),
+      },
+      {
+        path: 'asignaturas/nueva',
+        lazy: lazyPage(
+          () => import('@/features/subjects/SubjectFormPage'),
+          (m) => m.SubjectFormPage,
+        ),
+      },
+      // Al entrar en una asignatura, lo primero que se ve es su calendario.
+      {
+        path: 'asignaturas/:id',
+        lazy: lazyPage(
+          () => import('@/features/calendar/SubjectCalendarPage'),
+          (m) => m.SubjectCalendarPage,
+        ),
+      },
       {
         path: 'asignaturas/:id/calendario',
-        element: (
-          <ComingSoonPage
-            title="Calendario de la asignatura"
-            phase="Fase 3"
-            description="Tareas y exámenes de esta materia, con su color y sus vencimientos."
-            icon={CalendarDays}
-          />
+        lazy: lazyPage(
+          () => import('@/features/calendar/SubjectCalendarPage'),
+          (m) => m.SubjectCalendarPage,
+        ),
+      },
+      {
+        path: 'asignaturas/:id/editar',
+        lazy: lazyPage(
+          () => import('@/features/subjects/SubjectFormPage'),
+          (m) => m.SubjectFormPage,
+        ),
+      },
+      {
+        path: 'asignaturas/:id/informacion',
+        lazy: lazyPage(
+          () => import('@/features/subjects/SubjectDetailPage'),
+          (m) => m.SubjectDetailPage,
         ),
       },
       {
         path: 'asignaturas/:id/nodos',
-        element: (
-          <ComingSoonPage
-            title="Nodos de la asignatura"
-            phase="Fase 5"
-            description="El árbol de temas de esta materia, con dificultad, dominio y conexiones."
-            icon={Network}
-          />
+        lazy: lazyPage(
+          () => import('@/features/nodes/SubjectNodesPage'),
+          (m) => m.SubjectNodesPage,
         ),
       },
       {
         path: 'asignaturas/:id/calificaciones',
-        element: (
-          <ComingSoonPage
-            title="Calificaciones de la asignatura"
-            phase="Fase 4"
-            description="Evaluaciones, pesos y promedio de esta materia."
-            icon={GraduationCap}
-          />
+        lazy: lazyPage(
+          () => import('@/features/grades/SubjectGradesPage'),
+          (m) => m.SubjectGradesPage,
         ),
       },
       {
         path: 'asignaturas/:id/biblioteca',
-        element: (
-          <ComingSoonPage
-            title="Biblioteca de la asignatura"
-            phase="Fase 6"
-            description="Fuentes y materiales vinculados a los temas de esta materia."
-            icon={Library}
-          />
+        lazy: lazyPage(
+          () => import('@/features/library/SubjectLibraryPage'),
+          (m) => m.SubjectLibraryPage,
         ),
       },
     ],
   },
   {
     path: '/legal/:kind',
-    element: <LegalPage />,
+    lazy: lazyPage(
+      () => import('@/features/legal/LegalPage'),
+      (m) => m.LegalPage,
+    ),
   },
   {
     path: '*',
-    element: <NotFoundPage />,
+    lazy: lazyPage(
+      () => import('@/features/errors/NotFoundPage'),
+      (m) => m.NotFoundPage,
+    ),
   },
 ])

@@ -51,7 +51,7 @@ export function AuthLayout({ children }: { children: ReactNode }) {
         <div className="relative z-10 max-w-xl">
           <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] font-semibold text-ink-secondary backdrop-blur">
             <span className="h-1.5 w-1.5 rounded-full bg-rose-bright shadow-[0_0_10px_rgba(255,71,141,0.9)]" />
-            Versión 0.1.0 · Fase 2
+            Versión {env.version}
           </div>
           <h1 className="text-4xl font-extrabold leading-[1.08] tracking-[-0.035em] text-white xl:text-5xl">
             Tu año académico,
@@ -97,7 +97,7 @@ export function AuthLayout({ children }: { children: ReactNode }) {
         </div>
 
         <footer className="flex flex-col items-center justify-between gap-3 border-t border-line/60 px-5 py-5 text-[11px] text-ink-disabled sm:flex-row sm:px-8">
-          <span>© 2026 Syntropy · Fase 2</span>
+          <span>© 2026 Syntropy</span>
           <div className="flex items-center gap-4">
             <Link to="/legal/terminos" className="transition hover:text-ink-secondary">
               Términos
