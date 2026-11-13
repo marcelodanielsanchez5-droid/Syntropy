@@ -1,6 +1,6 @@
 # Fase 4 — Horario y calificaciones
 
-**Estado:** implementada el 13 de noviembre de 2026. Probada con pruebas automáticas y en el navegador contra una base PostgreSQL local con las migraciones reales. **Falta validarla contra el proyecto real de Supabase** y que el usuario la apruebe. Con esta fase queda completo el MVP (fases 2, 3 y 4).
+**Estado:** implementada el 13 de noviembre de 2026. Probada con pruebas automáticas, en el navegador contra una base PostgreSQL local y, el 13 de noviembre de 2026, contra el proyecto real de Supabase (horario, escala de calificaciones, notas y aislamiento A/B; ver [`docs/fase-8/04-validacion-real.md`](../fase-8/04-validacion-real.md)). **Falta la aprobación explícita del usuario.** Con esta fase queda completo el MVP (fases 2, 3 y 4).
 
 **Alcance (documento maestro):** horario semanal con materias, descansos y actividades secundarias; tabla de notas con promedio automático y nota necesaria para aprobar; reglas de calificación configurables.
 
@@ -42,6 +42,6 @@ No hizo falta cambiar la base: `schedule_entries`, `assessments` y `grading_sett
 
 ### Limitaciones
 
-- No se probó contra el proyecto real de Supabase.
+- La validación real del 13/11/2026 cubrió horario, escala y notas en Supabase, con aislamiento A/B. No se probó con muchas materias ni en Safari/Firefox.
 - No hay feriados ni clases canceladas por fecha (fuera del MVP según el modelo).
 - No hay escala por asignatura ni categorías de pesos (fuera del MVP, D3 y D4).

@@ -1,6 +1,6 @@
 # Fase 3 — Calendario y panel de tareas
 
-**Estado:** implementada el 13 de noviembre de 2026. Probada con pruebas automáticas y en el navegador contra una base PostgreSQL local con las migraciones reales. **Falta validarla contra el proyecto real de Supabase** y que el usuario la apruebe.
+**Estado:** implementada el 13 de noviembre de 2026. Probada con pruebas automáticas, en el navegador contra una base PostgreSQL local y, el 13 de noviembre de 2026, contra el proyecto real de Supabase (tareas, exámenes, sesiones de estudio, aislamiento A/B y cascadas; ver [`docs/fase-8/04-validacion-real.md`](../fase-8/04-validacion-real.md)). **Falta la aprobación explícita del usuario.**
 
 **Alcance (documento maestro):** calendario por asignatura y general; tareas, proyectos y exámenes con fecha límite; cuenta regresiva visual; plan de estudio para exámenes; panel de tareas con estados y filtros.
 
@@ -50,7 +50,6 @@
 
 ### Limitaciones
 
-- **No se probó contra el proyecto real de Supabase** (no había credenciales). La base local reproduce roles, RLS y permisos, pero no es Supabase.
-- La migración `003` todavía **no se aplicó** en el proyecto real.
+- La validación real del 13/11/2026 cubrió tareas, exámenes, sesiones, restricciones, cascadas y aislamiento A/B en Supabase. La migración `003` ya está aplicada. No se probó con un volumen grande de tareas ni en Safari/Firefox.
 - El calendario trae todas las tareas y exámenes del año activo, no solo el rango visible. Alcanza para el volumen de un año; con mucho más habría que paginar por rango.
 - Sin conexión, guardar queda en espera hasta que vuelve la red (igual que en la Fase 2).

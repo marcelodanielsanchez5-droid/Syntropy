@@ -1,6 +1,6 @@
 # Fase 6 — Biblioteca de fuentes
 
-**Estado:** implementada el 13 de noviembre de 2026. Probada con pruebas automáticas y en el navegador contra una base PostgreSQL local con las migraciones reales y un Storage local. **Falta aplicar la migración 004 y validarla contra el proyecto real de Supabase.** Los límites fueron aprobados por el usuario el 13 de noviembre de 2026.
+**Estado:** implementada el 13 de noviembre de 2026. Probada con pruebas automáticas, en el navegador contra una base PostgreSQL local con un Storage local y, el 13 de noviembre de 2026, contra el proyecto real de Supabase (migración 004, cuota de 200 MB, 1000 fuentes, carga/descarga/borrado real en `academic-files`, aislamiento A/B; ver [`docs/fase-8/04-validacion-real.md`](../fase-8/04-validacion-real.md)). **Falta la aprobación explícita del usuario.** Los límites fueron aprobados por el usuario el 13 de noviembre de 2026.
 
 **Alcance (documento maestro):** subida de libros, enlaces, documentos, videos e imágenes; etiquetado con asignatura, tema y tarea; vista con miniatura y contorno del color de la asignatura; búsqueda y filtros; límites de tamaño por archivo y por usuario.
 
@@ -55,6 +55,6 @@ La ruta de cada archivo sigue el modelo de datos: `{user_id}/{source_id}/archivo
 
 ### Limitaciones
 
-- No se probó contra el proyecto real de Supabase ni contra su Storage.
+- La validación real del 13/11/2026 cubrió cuota de 200 MB, 1000 fuentes, carga/descarga/borrado en `academic-files` y aislamiento A/B. No se subió un archivo de 25 MB (solo se comprobó el límite del bucket) ni se probó en Safari/Firefox.
 - Los PDF, documentos y videos no tienen miniatura propia: se muestra el ícono del tipo.
 - El archivo de una fuente no se reemplaza: hay que borrarla y subir otra.

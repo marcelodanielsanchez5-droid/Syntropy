@@ -1,6 +1,6 @@
 # Fase 8 · Lista para el lanzamiento
 
-Pasos para publicar Syntropy como app web instalable (PWA). Las tiendas de Android e iOS quedan para después (sección 9). Ningún paso se hizo todavía: todos necesitan las cuentas y los datos del responsable.
+Pasos para publicar Syntropy como app web instalable (PWA). Las tiendas de Android e iOS quedan para después (sección 9). Los pasos que no dependen de cuentas ni datos del responsable ya se hicieron y están marcados; el resto sigue pendiente. La validación técnica contra Supabase real del 13/11/2026 está en [`04-validacion-real.md`](./04-validacion-real.md).
 
 Marcar cada casilla al completarla.
 
@@ -17,9 +17,9 @@ Marcar cada casilla al completarla.
 ## 2. Supabase
 
 - [ ] Proyecto de producción en la región más cercana a los usuarios (por ejemplo, São Paulo).
-- [ ] Aplicar las migraciones `001` a `006` en orden (guía: [`08-configuracion-supabase.md`](../fase-1/08-configuracion-supabase.md)).
+- [x] Aplicar las migraciones `001` a `006` en orden (guía: [`08-configuracion-supabase.md`](../fase-1/08-configuracion-supabase.md)).
 - [ ] Revisar el plan (verificar las condiciones vigentes en la página de precios): el gratuito pausa el proyecto tras una semana sin actividad y no incluye copias de seguridad diarias. Para usuarios reales conviene el plan pago, o al menos un respaldo manual programado.
-- [ ] Probar el aislamiento con dos cuentas (checklist del README).
+- [x] Probar el aislamiento con dos cuentas (checklist del README).
 
 ## 3. Correo
 
@@ -32,7 +32,7 @@ Marcar cada casilla al completarla.
 ## 4. Auth
 
 - [ ] `Site URL` y URLs de redirección con el dominio final.
-- [ ] Confirmación de correo obligatoria.
+- [x] Confirmación de correo obligatoria.
 - [ ] CAPTCHA en el registro y el ingreso (Supabase admite hCaptcha y Cloudflare Turnstile), para frenar cuentas automáticas.
 - [ ] Revisar los límites de intentos de Auth.
 
@@ -46,13 +46,13 @@ Marcar cada casilla al completarla.
 
 ## 6. Calidad
 
-- [ ] `npm run typecheck`, `npm test` y `npm run build` sin errores.
-- [ ] Validar las fases 3 a 8 contra el proyecto real (pasos del README).
+- [x] `npm run typecheck`, `npm test` y `npm run build` sin errores.
+- [x] Validar las fases 3 a 8 contra el proyecto real (pasos del README). Resultado: [`04-validacion-real.md`](./04-validacion-real.md).
 - [ ] Pruebas con estudiantes y corrección de los hallazgos críticos y altos ([`01-plan-de-pruebas.md`](./01-plan-de-pruebas.md)).
 - [ ] Probar en Chrome y Safari de celular, y en Chrome, Edge, Firefox y Safari de computadora.
 - [ ] Instalar la PWA en Android e iOS y abrirla sin conexión.
 - [ ] Lighthouse en inicio, calendario y configuración.
-- [ ] Revisar los avisos de `npm audit` (hoy son de herramientas de desarrollo).
+- [x] Revisar los avisos de `npm audit` (hoy son de herramientas de desarrollo; quedan 2 low y 4 moderate, sin impacto en producción).
 
 ## 7. Operación
 

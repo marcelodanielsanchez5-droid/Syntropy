@@ -126,7 +126,7 @@ En el cliente, `npm run typecheck`, `npm test` (55 pruebas en 5 archivos) y `npm
 
 - El aislamiento con dos cuentas confirmadas se completó con 19/19 comprobaciones, incluidos años, asignaturas y Storage.
 - `citext` se simuló con un dominio de texto; en Supabase se probaron correos y usuarios en minúsculas, no una prueba específica de mayúsculas/minúsculas.
-- Storage se probó con avatares y con un PDF mínimo en `academic-files`; falta un archivo real de la aplicación. Las Edge Functions todavía no se probaron.
+- Storage se probó con avatares y con archivos reales en `academic-files`; la Edge Function `send-reminders` todavía no se desplegó.
 - El trigger se probó con el flujo real de confirmación de correo.
 - El frontend se ejecutó contra Supabase real para registro, confirmación, onboarding, perfil, avatar, años, asignaturas, contraseña, RLS y eliminación de cuenta.
 - El enlace real de recuperación de contraseña se abrió, cambió la contraseña y el login anterior dejó de funcionar (`400`).

@@ -1,6 +1,6 @@
 # Fase 5 — Nodos de conocimiento
 
-**Estado:** implementada el 13 de noviembre de 2026 (5A y 5B). Probada con pruebas automáticas y en el navegador contra una base PostgreSQL local con las migraciones reales. **Falta validarla contra el proyecto real de Supabase** y que el usuario la apruebe.
+**Estado:** implementada el 13 de noviembre de 2026 (5A y 5B). Probada con pruebas automáticas, en el navegador contra una base PostgreSQL local y, el 13 de noviembre de 2026, contra el proyecto real de Supabase (nodos, conexiones entre materias, cascadas y aislamiento A/B; ver [`docs/fase-8/04-validacion-real.md`](../fase-8/04-validacion-real.md)). **Falta la aprobación explícita del usuario.**
 
 **Alcance (documento maestro):** ingreso de temas, árbol y visualización interactiva (zoom, arrastre, ramas); reglas visuales de forma, intensidad y contorno; resumen tipo mapa conceptual y adjuntos; vinculación de tareas y exámenes con nodos; un plano por año de curso con menú rápido a cada nodo principal y enlaces entre materias.
 
@@ -44,7 +44,7 @@ No hizo falta cambiar la base: `nodes`, `node_links` y `sources` existen desde l
 
 ### Limitaciones
 
-- **No se probó contra Supabase real** ni con el Storage real: los adjuntos se probaron con un Storage local que imita sus políticas.
+- La validación real del 13/11/2026 cubrió nodos, conexiones entre materias, cascadas y aislamiento A/B en Supabase; los adjuntos se probaron con Storage real en la Fase 6. No se probó el mapa con decenas de nodos ni en Safari/Firefox.
 - Al arrastrar un tema no se mueven sus subtemas; «Ordenar mapa» vuelve a acomodar todo.
 - El resumen es texto con sangrías (estilo esquema), no un diagrama dibujado.
 - Las fuentes no tienen miniatura todavía (Fase 6).

@@ -2,7 +2,7 @@
 
 Esta guía deja el proyecto listo para ejecutar las migraciones y probar los flujos reales de la Fase 2. No contiene claves ni credenciales.
 
-> Estado: **migraciones ejecutadas y validación completa** el 11 de noviembre de 2026 contra el proyecto real. Se probaron los flujos principales, el aislamiento entre dos cuentas (19/19) y la recuperación por enlace de correo. La Fase 2 fue aprobada por el usuario el 11 de noviembre de 2026. El detalle está en [`docs/fase-2/README.md`](../fase-2/README.md).
+> Estado: **migraciones `001` a `006` ejecutadas y validación completa** contra el proyecto real. La Fase 2 se validó el 11 de noviembre de 2026 (flujos principales, aislamiento 19/19 y recuperación por enlace) y las fases 3 a 8 se validaron el 13 de noviembre de 2026 (154/154 comprobaciones de API/RLS, Storage y pantallas; ver [`docs/fase-8/04-validacion-real.md`](../fase-8/04-validacion-real.md)). La Fase 2 fue aprobada por el usuario el 11 de noviembre de 2026; las fases 3 a 8 esperan su aprobación explícita. El detalle de la Fase 2 está en [`docs/fase-2/README.md`](../fase-2/README.md).
 
 ---
 
@@ -89,7 +89,7 @@ En **SQL Editor**, crear una consulta nueva y ejecutar, en este orden:
 
 Cada archivo abre y cierra su propia transacción. Si algo falla, no continuar con el siguiente.
 
-> **Proyecto ya creado en la Fase 2:** solo faltan de la `003` a la `006`, en ese orden. Todas se pueden correr más de una vez. Después de la `006`, las cuentas existentes van a tener que aceptar los textos legales vigentes al ingresar. Al final de cada una se comprueban los permisos y, si algo no quedó como debe, falla y revierte todo.
+> **Proyecto ya creado en la Fase 2:** las migraciones `003` a `006` ya se aplicaron el 13/11/2026 en el proyecto real. Si se recrea el proyecto, ejecutarlas en ese orden. Todas se pueden correr más de una vez. Después de la `006`, las cuentas existentes van a tener que aceptar los textos legales vigentes al ingresar. Al final de cada una se comprueban los permisos y, si algo no quedó como debe, falla y revierte todo.
 >
 > **Recordatorios por correo (Fase 7):** además de la `005`, hay que desplegar la Edge Function `send-reminders`, cargar sus secretos y programarla con `supabase/setup/programar-recordatorios.sql`. Los pasos están en [`docs/fase-7/README.md`](../fase-7/README.md#4-puesta-en-marcha).
 
@@ -184,12 +184,15 @@ La recuperación por enlace se completó: el correo llegó, el enlace abrió `/r
 
 ## 7. Qué hacer después
 
-El 11/11/2026 se ejecutaron las migraciones y se completó la validación real de la Fase 2, incluidas las dos pruebas que dependían del correo. La Fase 2 fue aprobada por el usuario el 11 de noviembre de 2026.
+El 11/11/2026 se ejecutaron las migraciones `001` y `002` y se completó la validación real de la Fase 2, incluidas las dos pruebas que dependían del correo. El 13/11/2026 se aplicaron las migraciones `003` a `006` y se validaron las fases 3 a 8 contra el proyecto real (154/154 comprobaciones; ver [`docs/fase-8/04-validacion-real.md`](../fase-8/04-validacion-real.md)). La Fase 2 fue aprobada por el usuario el 11 de noviembre de 2026; las fases 3 a 8 esperan aprobación.
 
 Antes de producción:
 
 1. Configurar SMTP propio y plantillas de correo.
-2. Instalar la PWA en un dispositivo y compilar Tauri/Android/iOS.
-3. Revisar el reporte completo en [`docs/fase-2/README.md`](../fase-2/README.md).
+2. Desplegar `send-reminders`, configurar Resend y programar pg_cron.
+3. Completar los datos del responsable y la revisión legal (D29).
+4. Elegir hosting, configurar Auth y probar respaldos.
+5. Instalar la PWA en un dispositivo y compilar Tauri/Android/iOS.
+6. Revisar el reporte completo en [`docs/fase-2/README.md`](../fase-2/README.md) y la lista de lanzamiento en [`docs/fase-8/02-lanzamiento.md`](../fase-8/02-lanzamiento.md).
 
 Si se prefiere probar sin un proyecto en la nube, la alternativa es instalar Docker Desktop y usar Supabase local. En esta máquina Docker no está instalado y el CLI de Supabase no puede levantar el stack sin Docker.
