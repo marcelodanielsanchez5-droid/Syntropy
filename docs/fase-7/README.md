@@ -83,7 +83,7 @@ La ejecución periódica **no** está en la migración porque necesita la URL de
 Necesita la [CLI de Supabase](https://supabase.com/docs/guides/cli) y una cuenta de [Resend](https://resend.com).
 
 1. **Resend:** verificar un dominio propio (registros DNS SPF y DKIM) y crear una API key con permiso solo de envío. Sin dominio verificado, Resend solo deja mandar al correo del dueño de la cuenta: sirve para probar, no para usuarios.
-2. **Migración:** ejecutar `supabase/migrations/005_recordatorios.sql` en el SQL Editor (después de la 003 y la 004).
+2. **Migración:** la `005_recordatorios.sql` ya está aplicada en el proyecto real desde el 13/11/2026. Si se recrea el proyecto, ejecutarla en el SQL Editor después de la 003 y la 004.
 3. **Secretos de la función** (desde la carpeta del proyecto):
 
    ```bash
