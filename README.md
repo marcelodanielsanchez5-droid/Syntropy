@@ -2,7 +2,7 @@
 
 Aplicación multiplataforma de organización académica: años de curso, asignaturas, tareas, calendario, horario y calificaciones. Una sola base de código para web, Windows, Android e iOS.
 
-**Estado actual:** Fase 1 aprobada el 10 de noviembre de 2026. Fase 2 aprobada el 11 de noviembre de 2026. Fases 3 (calendario y tareas), 4 (horario y calificaciones), 5 (nodos de conocimiento), 6 (biblioteca) y 7 (recordatorios por correo) implementadas y **validadas técnicamente contra el proyecto real de Supabase el 13 de noviembre de 2026** (154/154 comprobaciones de API/RLS, Storage y pantallas principales; ver [`docs/fase-8/04-validacion-real.md`](./docs/fase-8/04-validacion-real.md)). De la Fase 8 (la última del plan) está hecho lo que depende del código y la validación real. **Faltan el envío real de recordatorios con Resend/pg_cron, la aprobación explícita de las fases 3 a 8, los datos del responsable, la revisión legal (D29), el hosting, las pruebas con estudiantes y la publicación** (ver [`docs/fase-8/02-lanzamiento.md`](./docs/fase-8/02-lanzamiento.md)).
+**Estado actual:** Fase 1 aprobada el 10 de noviembre de 2026. Fase 2 aprobada el 11 de noviembre de 2026. Fases 3 (calendario y tareas), 4 (horario y calificaciones), 5 (nodos de conocimiento), 6 (biblioteca) y 7 (recordatorios por correo) implementadas, **validadas técnicamente contra el proyecto real de Supabase** y **aprobadas por el usuario el 13 de noviembre de 2026** (154/154 comprobaciones de API/RLS, Storage y pantallas principales; ver [`docs/fase-8/04-validacion-real.md`](./docs/fase-8/04-validacion-real.md)). De la Fase 8 (la última del plan) está hecho lo que depende del código y la validación real, y la decisión D29 fue aprobada. **Faltan el envío real de recordatorios con Resend/pg_cron, los datos del responsable, la revisión legal profesional, el hosting, los respaldos, las pruebas con estudiantes y la publicación** (ver [`docs/fase-8/02-lanzamiento.md`](./docs/fase-8/02-lanzamiento.md)).
 
 ---
 
@@ -12,7 +12,7 @@ Aplicación multiplataforma de organización académica: años de curso, asignat
 2. Leer el índice y el resumen en [`docs/fase-1/README.md`](./docs/fase-1/README.md).
 3. Consultar las decisiones aprobadas en [`docs/fase-1/07-decisiones-pendientes.md`](./docs/fase-1/07-decisiones-pendientes.md).
 
-El usuario aprobó todas las recomendaciones D1–D25 y las decisiones posteriores D26 (bloqueo del borrado del año activo), D27 (límites de la biblioteca) y D28 (reglas de los recordatorios). La D29 (textos legales) está pendiente. La Fase 2 fue aprobada por el usuario el 11 de noviembre de 2026.
+El usuario aprobó todas las recomendaciones D1–D25 y las decisiones posteriores D26 (bloqueo del borrado del año activo), D27 (límites de la biblioteca), D28 (reglas de los recordatorios) y D29 (textos legales, el 13 de noviembre de 2026). La Fase 2 fue aprobada por el usuario el 11 de noviembre de 2026; las fases 3 a 8, el 13 de noviembre de 2026.
 
 ---
 
@@ -60,7 +60,7 @@ Guía paso a paso para crear el proyecto, configurar Auth, aplicar las migracion
 
 ## Próximo hito
 
-Validar y aprobar las Fases 3 a 8 y lanzar. La validación técnica contra Supabase real ya se hizo el 13/11/2026 ([`docs/fase-8/04-validacion-real.md`](./docs/fase-8/04-validacion-real.md)); falta la aprobación explícita y lo que depende de cuentas y datos reales:
+Lanzar. Las fases 3 a 8 ya están validadas y aprobadas; falta lo que depende de cuentas y datos reales:
 
 1. [x] aplicar las migraciones `003_proteger_consentimientos.sql`, `004_biblioteca.sql`, `005_recordatorios.sql` y `006_versiones_legales.sql` en el SQL Editor;
 2. [x] repetir con datos reales: tareas, exámenes con plan de estudio, horario, calificaciones, nodos y adjuntos en `academic-files`;
@@ -69,10 +69,11 @@ Validar y aprobar las Fases 3 a 8 y lanzar. La validación técnica contra Supab
 5. [x] límites de la biblioteca aprobados el 13/11/2026 (D27): 25 MB por archivo, 200 MB y 1000 fuentes por usuario;
 6. [ ] recordatorios: verificar un dominio en Resend, cargar los secretos, desplegar `send-reminders`, programar pg_cron y recibir el correo de prueba (pasos en [`docs/fase-7/README.md`](./docs/fase-7/README.md#4-puesta-en-marcha));
 7. [x] reglas de los recordatorios aprobadas el 13/11/2026 (D28): solo al correo de la cuenta, sesiones de estudio apagadas por defecto, sin avisos tardíos y tope de 20 correos por día;
-8. [ ] aprobar la D29 (jurisdicción argentina y compromisos de los textos legales) y completar `VITE_LEGAL_OWNER`, `VITE_LEGAL_CONTACT_EMAIL` y `VITE_LEGAL_LOCATION`;
-9. [ ] revisión de los textos legales por un profesional;
+8. [x] D29 aprobada el 13/11/2026: jurisdicción argentina, uso desde los 13 años y compromisos de los textos legales;
+9. [ ] completar `VITE_LEGAL_OWNER`, `VITE_LEGAL_CONTACT_EMAIL` y `VITE_LEGAL_LOCATION`, y hacer la revisión de los textos por un profesional;
 10. [ ] pruebas con 5 a 10 estudiantes ([`docs/fase-8/01-plan-de-pruebas.md`](./docs/fase-8/01-plan-de-pruebas.md)) y corrección de lo crítico;
-11. [ ] aprobación explícita de las fases 3 a 8 por el usuario y publicación ([`docs/fase-8/02-lanzamiento.md`](./docs/fase-8/02-lanzamiento.md)).
+11. [ ] publicar en Vercel, configurar el dominio, las redirecciones de Auth y un respaldo probado;
+12. [ ] aprobación final del lanzamiento y publicación ([`docs/fase-8/02-lanzamiento.md`](./docs/fase-8/02-lanzamiento.md)).
 
 La Fase 2 fue aprobada por el usuario el 11 de noviembre de 2026; su reporte está en [`docs/fase-2/README.md`](./docs/fase-2/README.md). La Fase 8 es la última del plan; después del lanzamiento sigue el plan de mejoras ([`docs/fase-8/03-mejoras-futuras.md`](./docs/fase-8/03-mejoras-futuras.md)): logros, niveles y experiencia, edición sin conexión y tiendas de aplicaciones.
 

@@ -1,6 +1,6 @@
 # Fase 8 — Pruebas, pulido y lanzamiento
 
-**Estado:** la parte que se puede hacer desde el código quedó implementada el 13 de noviembre de 2026 y se probó con pruebas automáticas, con el validador SQL y en el navegador, contra una base PostgreSQL local con las migraciones reales. El 13 de noviembre de 2026 se validó además contra el proyecto real de Supabase (154/154 comprobaciones de API/RLS, Storage y pantallas principales; ver [`04-validacion-real.md`](./04-validacion-real.md)). **Faltan las tareas que necesitan personas, cuentas o datos reales:** el envío de recordatorios con Resend, las pruebas con estudiantes, los datos del responsable, la revisión legal profesional y la publicación. La decisión D29 (sección 2.3) está pendiente de aprobación.
+**Estado:** la parte que se puede hacer desde el código quedó implementada el 13 de noviembre de 2026 y se probó con pruebas automáticas, con el validador SQL y en el navegador, contra una base PostgreSQL local con las migraciones reales. El 13 de noviembre de 2026 se validó además contra el proyecto real de Supabase (154/154 comprobaciones de API/RLS, Storage y pantallas principales; ver [`04-validacion-real.md`](./04-validacion-real.md)). La implementación y la validación de las fases 3 a 8 y la decisión D29 fueron **aprobadas por el usuario el 13 de noviembre de 2026**. **Faltan las tareas de lanzamiento que necesitan personas, cuentas o datos reales:** el envío de recordatorios con Resend, las pruebas con estudiantes, los datos del responsable, la revisión legal profesional y la publicación.
 
 **Alcance (documento maestro):** pruebas con 5 a 10 estudiantes reales y ajustes de usabilidad; corrección de errores y optimización; política de privacidad y términos («son datos de estudiantes, posiblemente menores»); publicación y plan de mejoras futuras (logros, niveles y puntos de experiencia). Es la última fase del plan.
 
@@ -54,15 +54,17 @@ Lo que queda es React, el enrutador, el cliente de Supabase, TanStack Query, la 
 3. Crear una migración que reemplace `current_legal_versions()` con la misma versión.
 4. Publicar la app y aplicar la migración juntas: la próxima vez que cada usuario ingrese, se le pide aceptar.
 
-### 2.3. Decisión D29 (propuesta a aprobar)
+### 2.3. Decisión D29 (aprobada el 13 de noviembre de 2026)
 
-| Tema | Propuesta |
+| Tema | Decisión |
 |---|---|
 | Jurisdicción | República Argentina: Ley 25.326 de datos personales y Ley 24.240 de defensa del consumidor. La app está en español rioplatense y la cuenta de prueba usa la zona de Buenos Aires. Si el responsable está en otro país, hay que reescribir partes del texto. |
 | Menores | 13 años o más (D8); de 13 a 17, con conocimiento y autorización de padres o tutores. |
 | Aceptación | Toda versión nueva se acepta al ingresar; sin aceptar no se usa la app, pero se pueden descargar los datos y eliminar la cuenta. |
 | Compromisos | Gratuito hoy y sin cobros sin aceptación expresa; aviso de 30 días antes de cerrar el servicio; si se reducen los límites, no se borra lo ya guardado; aviso por correo ante un incidente de seguridad. |
 | Datos del responsable | Por variables de entorno, públicas en la app pero fuera del repositorio. |
+
+**Aprobada por el usuario el 13 de noviembre de 2026.**
 
 **Importante:** los textos se redactaron con cuidado, pero no son asesoramiento legal. Antes de publicar los tiene que revisar un profesional de la jurisdicción (ya lo pedía D8), que además puede indicar si corresponde inscribir la base de datos en el registro de la Agencia de Acceso a la Información Pública.
 

@@ -175,7 +175,7 @@ Detalle en [`docs/fase-7/README.md`](../fase-7/README.md#12-decisión-d28-aproba
 
 ### D29. Textos legales
 
-**Pendiente de aprobación** (Fase 8). Se propone:
+**Aprobada el 13 de noviembre de 2026** (Fase 8). Se aprueba:
 
 - jurisdicción de la República Argentina (Ley 25.326 de datos personales y Ley 24.240 de defensa del consumidor);
 - uso desde los 13 años (D8) y, de 13 a 17, con conocimiento y autorización de padres o tutores;
@@ -183,4 +183,4 @@ Detalle en [`docs/fase-7/README.md`](../fase-7/README.md#12-decisión-d28-aproba
 - compromisos: gratuito hoy y sin cobros sin aceptación expresa, 30 días de aviso antes de cerrar el servicio, no borrar lo guardado si se reducen los límites y aviso por correo ante incidentes;
 - datos del responsable por variables de entorno.
 
-Los textos no reemplazan la revisión de un profesional antes de publicar. Detalle en [`docs/fase-8/README.md`](../fase-8/README.md#23-decisión-d29-propuesta-a-aprobar).
+Los textos no reemplazan la revisión de un profesional antes de publicar; esa revisión sigue pendiente. Detalle en [`docs/fase-8/README.md`](../fase-8/README.md#23-decisión-d29-aprobada-el-13-de-noviembre-de-2026).

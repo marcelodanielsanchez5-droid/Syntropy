@@ -131,7 +131,7 @@ No se observaron errores visibles en las pantallas recorridas. No se hizo una pa
 ## 4. Pendientes y límites de esta validación
 
 1. **Correo real:** verificar un dominio en Resend, cargar secretos, desplegar `send-reminders`, programar pg_cron y recibir confirmación, recuperación y un recordatorio en Gmail y Outlook.
-2. **D29 y responsable:** aprobar la jurisdicción y los compromisos; cargar `VITE_LEGAL_OWNER`, `VITE_LEGAL_CONTACT_EMAIL` y `VITE_LEGAL_LOCATION`; revisión por un profesional.
+2. **D29 y responsable:** D29 ya fue aprobada el 13/11/2026; falta cargar `VITE_LEGAL_OWNER`, `VITE_LEGAL_CONTACT_EMAIL` y `VITE_LEGAL_LOCATION`, y la revisión por un profesional.
 3. **Hosting:** elegir proveedor, configurar variables, redirecciones, HTTPS, cabeceras y dominio.
 4. **Auth:** Site URL final, CAPTCHA, límites de intentos y SMTP propio para confirmación y recuperación.
 5. **Operación:** respaldo probado, plan de incidentes y responsable de revisar registros.
@@ -140,4 +140,4 @@ No se observaron errores visibles en las pantallas recorridas. No se hizo una pa
 8. **Logo:** reemplazar el logo y los íconos provisionales (D10).
 9. **Avisos de desarrollo:** quedan 6 avisos de `npm audit` en dependencias de desarrollo (2 low, 4 moderate); no afectan el bundle de producción.
 
-Ninguna de las fases 3 a 8 se considera aprobada hasta que el usuario lo indique expresamente.
+Las fases 3 a 8 fueron aprobadas explícitamente por el usuario el 13 de noviembre de 2026, junto con la decisión D29. La aprobación no significa que el lanzamiento esté completo: siguen pendientes el correo real, los datos del responsable, la revisión legal profesional, el hosting, los respaldos y las pruebas con estudiantes.

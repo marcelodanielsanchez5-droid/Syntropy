@@ -2,7 +2,7 @@
 
 Esta guía deja el proyecto listo para ejecutar las migraciones y probar los flujos reales de la Fase 2. No contiene claves ni credenciales.
 
-> Estado: **migraciones `001` a `006` ejecutadas y validación completa** contra el proyecto real. La Fase 2 se validó el 11 de noviembre de 2026 (flujos principales, aislamiento 19/19 y recuperación por enlace) y las fases 3 a 8 se validaron el 13 de noviembre de 2026 (154/154 comprobaciones de API/RLS, Storage y pantallas; ver [`docs/fase-8/04-validacion-real.md`](../fase-8/04-validacion-real.md)). La Fase 2 fue aprobada por el usuario el 11 de noviembre de 2026; las fases 3 a 8 esperan su aprobación explícita. El detalle de la Fase 2 está en [`docs/fase-2/README.md`](../fase-2/README.md).
+> Estado: **migraciones `001` a `006` ejecutadas y validación completa** contra el proyecto real. La Fase 2 se validó el 11 de noviembre de 2026 (flujos principales, aislamiento 19/19 y recuperación por enlace) y las fases 3 a 8 se validaron el 13 de noviembre de 2026 (154/154 comprobaciones de API/RLS, Storage y pantallas; ver [`docs/fase-8/04-validacion-real.md`](../fase-8/04-validacion-real.md)). La Fase 2 fue aprobada por el usuario el 11 de noviembre de 2026; las fases 3 a 8 y la decisión D29 fueron aprobadas el 13 de noviembre de 2026. El detalle de la Fase 2 está en [`docs/fase-2/README.md`](../fase-2/README.md).
 
 ---
 
@@ -184,7 +184,7 @@ La recuperación por enlace se completó: el correo llegó, el enlace abrió `/r
 
 ## 7. Qué hacer después
 
-El 11/11/2026 se ejecutaron las migraciones `001` y `002` y se completó la validación real de la Fase 2, incluidas las dos pruebas que dependían del correo. El 13/11/2026 se aplicaron las migraciones `003` a `006` y se validaron las fases 3 a 8 contra el proyecto real (154/154 comprobaciones; ver [`docs/fase-8/04-validacion-real.md`](../fase-8/04-validacion-real.md)). La Fase 2 fue aprobada por el usuario el 11 de noviembre de 2026; las fases 3 a 8 esperan aprobación.
+El 11/11/2026 se ejecutaron las migraciones `001` y `002` y se completó la validación real de la Fase 2, incluidas las dos pruebas que dependían del correo. El 13/11/2026 se aplicaron las migraciones `003` a `006` y se validaron las fases 3 a 8 contra el proyecto real (154/154 comprobaciones; ver [`docs/fase-8/04-validacion-real.md`](../fase-8/04-validacion-real.md)). La Fase 2 fue aprobada por el usuario el 11 de noviembre de 2026; las fases 3 a 8 y D29 fueron aprobadas el 13 de noviembre de 2026. El lanzamiento sigue pendiente de las tareas externas.
 
 Antes de producción:
 

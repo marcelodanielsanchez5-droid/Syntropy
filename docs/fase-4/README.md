@@ -1,6 +1,6 @@
 # Fase 4 — Horario y calificaciones
 
-**Estado:** implementada el 13 de noviembre de 2026. Probada con pruebas automáticas, en el navegador contra una base PostgreSQL local y, el 13 de noviembre de 2026, contra el proyecto real de Supabase (horario, escala de calificaciones, notas y aislamiento A/B; ver [`docs/fase-8/04-validacion-real.md`](../fase-8/04-validacion-real.md)). **Falta la aprobación explícita del usuario.** Con esta fase queda completo el MVP (fases 2, 3 y 4).
+**Estado:** implementada el 13 de noviembre de 2026. Probada con pruebas automáticas, en el navegador contra una base PostgreSQL local y, el 13 de noviembre de 2026, contra el proyecto real de Supabase (horario, escala de calificaciones, notas y aislamiento A/B; ver [`docs/fase-8/04-validacion-real.md`](../fase-8/04-validacion-real.md)). **Aprobada por el usuario el 13 de noviembre de 2026.** Con esta fase queda completo el MVP (fases 2, 3 y 4).
 
 **Alcance (documento maestro):** horario semanal con materias, descansos y actividades secundarias; tabla de notas con promedio automático y nota necesaria para aprobar; reglas de calificación configurables.
 

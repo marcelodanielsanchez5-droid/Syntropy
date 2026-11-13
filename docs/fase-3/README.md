@@ -1,6 +1,6 @@
 # Fase 3 — Calendario y panel de tareas
 
-**Estado:** implementada el 13 de noviembre de 2026. Probada con pruebas automáticas, en el navegador contra una base PostgreSQL local y, el 13 de noviembre de 2026, contra el proyecto real de Supabase (tareas, exámenes, sesiones de estudio, aislamiento A/B y cascadas; ver [`docs/fase-8/04-validacion-real.md`](../fase-8/04-validacion-real.md)). **Falta la aprobación explícita del usuario.**
+**Estado:** implementada el 13 de noviembre de 2026. Probada con pruebas automáticas, en el navegador contra una base PostgreSQL local y, el 13 de noviembre de 2026, contra el proyecto real de Supabase (tareas, exámenes, sesiones de estudio, aislamiento A/B y cascadas; ver [`docs/fase-8/04-validacion-real.md`](../fase-8/04-validacion-real.md)). **Aprobada por el usuario el 13 de noviembre de 2026.**
 
 **Alcance (documento maestro):** calendario por asignatura y general; tareas, proyectos y exámenes con fecha límite; cuenta regresiva visual; plan de estudio para exámenes; panel de tareas con estados y filtros.
 

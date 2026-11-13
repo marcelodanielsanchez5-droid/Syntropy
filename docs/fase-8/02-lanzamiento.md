@@ -10,7 +10,7 @@ Marcar cada casilla al completarla.
 
 - [ ] Definir quién es el responsable (persona o razón social), su correo de contacto y su domicilio.
 - [ ] Cargar `VITE_LEGAL_OWNER`, `VITE_LEGAL_CONTACT_EMAIL` y `VITE_LEGAL_LOCATION` en el hosting. Comprobar que `/legal/terminos` y `/legal/privacidad` ya no muestran «[dato pendiente]».
-- [ ] **Revisión de los textos por un profesional** de la jurisdicción (decisión D29). Si cambia algo relevante, subir la versión en `src/features/legal/legal-versions.ts` y en `current_legal_versions()` con una migración nueva.
+- [ ] **Revisión de los textos por un profesional** de la jurisdicción (decisión D29, ya aprobada el 13 de noviembre de 2026). Si cambia algo relevante, subir la versión en `src/features/legal/legal-versions.ts` y en `current_legal_versions()` con una migración nueva.
 - [ ] Consultar con el profesional la inscripción de la base de datos en el Registro Nacional de Bases de Datos de la Agencia de Acceso a la Información Pública.
 - [ ] Crear el buzón del correo de contacto y decidir quién responde los pedidos sobre datos (plazos: 10 días corridos para acceso, 5 días hábiles para rectificación o supresión).
 
@@ -38,9 +38,9 @@ Marcar cada casilla al completarla.
 
 ## 5. Hosting
 
-- [ ] Elegir un hosting de sitios estáticos con HTTPS (Cloudflare Pages, Netlify, Vercel u otro).
+- [x] Hosting elegido: **Vercel** (aprobado por el usuario el 13 de noviembre de 2026).
 - [ ] Comando de build `npm run build`, carpeta `dist`.
-- [ ] Redirigir todas las rutas a `index.html` (la app usa rutas del navegador). En Netlify y Cloudflare Pages, un archivo `public/_redirects` con `/* /index.html 200`; en Vercel, una regla de `rewrites`.
+- [ ] Redirigir todas las rutas a `index.html` (la app usa rutas del navegador). En Vercel, una regla de `rewrites` en `vercel.json`; en Netlify y Cloudflare Pages, un archivo `public/_redirects` con `/* /index.html 200`.
 - [ ] Variables: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_APP_URL`, `VITE_APP_ENV=production` y las tres `VITE_LEGAL_*`. **Nunca** la `service_role`.
 - [ ] Dominio propio y cabeceras de seguridad (`Strict-Transport-Security`, `X-Content-Type-Options`, `Referrer-Policy`).
 
