@@ -39,6 +39,7 @@ Marcar cada casilla al completarla.
 ## 5. Hosting
 
 - [x] Hosting elegido: **Vercel** (aprobado por el usuario el 13 de noviembre de 2026).
+- [x] Archivo [`vercel.json`](../../vercel.json) con la regla de SPA, caché de assets y cabeceras de seguridad.
 - [ ] Comando de build `npm run build`, carpeta `dist`.
 - [ ] Redirigir todas las rutas a `index.html` (la app usa rutas del navegador). En Vercel, una regla de `rewrites` en `vercel.json`; en Netlify y Cloudflare Pages, un archivo `public/_redirects` con `/* /index.html 200`.
 - [ ] Variables: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_APP_URL`, `VITE_APP_ENV=production` y las tres `VITE_LEGAL_*`. **Nunca** la `service_role`.

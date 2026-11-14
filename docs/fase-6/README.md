@@ -1,6 +1,6 @@
 # Fase 6 — Biblioteca de fuentes
 
-**Estado:** implementada el 13 de noviembre de 2026. Probada con pruebas automáticas, en el navegador contra una base PostgreSQL local con un Storage local y, el 13 de noviembre de 2026, contra el proyecto real de Supabase (migración 004, cuota de 200 MB, 1000 fuentes, carga/descarga/borrado real en `academic-files`, aislamiento A/B; ver [`docs/fase-8/04-validacion-real.md`](../fase-8/04-validacion-real.md)). **Aprobada por el usuario el 13 de noviembre de 2026.** Los límites fueron aprobados por el usuario el 13 de noviembre de 2026.
+**Estado:** implementada el 13 de noviembre de 2026. Probada con pruebas automáticas, en el navegador contra una base PostgreSQL local con un Storage local y, el 13 de noviembre de 2026, contra el proyecto real de Supabase (migración 004, cuota de 200 MB, 1000 fuentes, carga/descarga/borrado real en `academic-files`, aislamiento A/B; ver [`docs/fase-8/04-validacion-real.md`](../fase-8/04-validacion-real.md)). **Aprobada por el usuario el 13 de noviembre de 2026**, junto con los límites de la biblioteca.
 
 **Alcance (documento maestro):** subida de libros, enlaces, documentos, videos e imágenes; etiquetado con asignatura, tema y tarea; vista con miniatura y contorno del color de la asignatura; búsqueda y filtros; límites de tamaño por archivo y por usuario.
 
