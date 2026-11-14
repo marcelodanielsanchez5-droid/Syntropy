@@ -9,7 +9,7 @@
 | Pruebas con 5 a 10 estudiantes | Plan listo: [`01-plan-de-pruebas.md`](./01-plan-de-pruebas.md). Las sesiones faltan. |
 | Corrección de errores y optimización | Hecho: carga inicial −25 %, etiquetas de fase fuera de la interfaz. |
 | Política de privacidad y términos | Hecho, con versiones y aceptación. Falta completar el responsable y la revisión profesional. |
-| Publicación | Lista de pasos: [`02-lanzamiento.md`](./02-lanzamiento.md). No se publicó. |
+| Publicación | Lista de pasos: [`02-lanzamiento.md`](./02-lanzamiento.md). Hosting Vercel elegido; guía de despliegue y correos: [`05-despliegue-vercel.md`](./05-despliegue-vercel.md). No se publicó. |
 | Plan de mejoras futuras | Hecho: [`03-mejoras-futuras.md`](./03-mejoras-futuras.md). |
 
 ---

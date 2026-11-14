@@ -25,6 +25,9 @@ dist-ssr/
 .DS_Store
 Thumbs.db
 
+# Vercel
+.vercel/
+
 # Pruebas
 coverage/
 playwright-report/
